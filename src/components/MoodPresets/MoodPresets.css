@@ -5,20 +5,42 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  padding: 4px 12px;
+  padding: 4px 0;           /* horizontal padding lives on the scroll child */
   touch-action: pan-x;
+  width: 100%;
+  min-width: 0;             /* prevents flex blowout — without this the item expands to fit all buttons */
+  box-sizing: border-box;
+  position: relative;       /* for the fade edge pseudo-element */
+}
+
+/* Right-side fade signals more content to scroll */
+.presets::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 36px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.92));
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .presets__scroll {
   display: flex;
   gap: 6px;
-  overflow-x: scroll; /* scroll, not auto — more reliable on iOS/Android */
+  overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
   overscroll-behavior-x: contain;
-  padding: 6px 0;
+  padding: 6px 12px;        /* horizontal padding moved here from wrapper */
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  pointer-events: auto;     /* explicit — don't rely on inheritance through pointer-events:none parent */
 }
 .presets__scroll::-webkit-scrollbar { display: none; }
 
@@ -61,5 +83,8 @@
     background: var(--color-surface, #fff);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+  .presets::after {
+    background: linear-gradient(to right, transparent, var(--color-surface, #fff));
   }
 }

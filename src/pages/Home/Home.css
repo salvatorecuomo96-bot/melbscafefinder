@@ -32,7 +32,7 @@
   gap: 10px;
   pointer-events: none; /* transparent to map touches */
 }
-.layout__panel > * { pointer-events: auto; }
+.layout__panel > * { pointer-events: auto; min-width: 0; }
 
 /* ===== Brand row ===== */
 .layout__brand {
