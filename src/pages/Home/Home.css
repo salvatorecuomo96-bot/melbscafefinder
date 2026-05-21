@@ -1,0 +1,173 @@
+/* ============================================
+   Map-first layout.
+   - Mobile: map fills the screen; the panel
+     floats on top with brand + search + chips.
+     The list is hidden on mobile (use the map).
+   - Desktop: a fixed-width sidebar holds the
+     brand, search, filter chips, sort, and the
+     scrollable list. The map takes the rest.
+   ============================================ */
+
+.layout {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  /* default = mobile: map fills screen, panel is overlaid */
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  background: var(--color-bg);
+}
+
+/* ===== The map area ===== */
+.layout__map {
+  position: relative;
+  grid-area: 1 / 1 / 2 / 2;
+  overflow: hidden;
+}
+
+/* ===== The panel (floating on mobile, sidebar on desktop) ===== */
+.layout__panel {
+  grid-area: 1 / 1 / 2 / 2;
+  position: relative;
+  z-index: 15;
+  padding: calc(12px + env(safe-area-inset-top)) 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none; /* let map handle taps below */
+}
+
+/* Make the actual controls receive pointer events again */
+.layout__panel > * { pointer-events: auto; }
+
+.layout__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  padding: 7px 14px 7px 9px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.layout__logo { display: inline-flex; }
+.layout__wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.layout__wordmark em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+/* Hide the list on mobile - the map IS the list. */
+.layout__list-wrap {
+  display: none;
+}
+
+/* ===== Floating filter button (mobile) ===== */
+.layout__fab {
+  position: fixed;
+  right: 14px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 100ms ease;
+}
+.layout__fab:hover { transform: translateY(-1px); }
+.layout__fab:active { transform: translateY(0); }
+
+.layout__fab-badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 12px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* ============================================
+   DESKTOP: side-by-side layout.
+   The panel becomes a fixed-width sidebar, the
+   map takes the rest, and we surface the list.
+   ============================================ */
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 460px 1fr;
+  }
+
+  .layout__panel {
+    grid-area: 1 / 1 / 2 / 2;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    padding: 22px 22px 0;
+    overflow-y: auto;
+    pointer-events: auto;
+    box-shadow: 0 0 40px rgba(20, 14, 6, 0.04);
+  }
+
+  .layout__panel > * { pointer-events: auto; }
+
+  .layout__map { grid-area: 1 / 2 / 2 / 3; }
+
+  .layout__brand {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 4px 4px;
+  }
+  .layout__wordmark { font-size: 18px; }
+
+  .layout__list-wrap { display: block; padding-bottom: 28px; }
+
+  .layout__list {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .layout__fab {
+    /* Less prominent on desktop - the "All filters" pill in the chip row
+       handles the primary action there. Keep this as a fallback near the map. */
+    bottom: auto;
+    top: 22px;
+    right: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  .layout__fab-badge {
+    background: var(--color-ink);
+  }
+}
+
+@media (min-width: 1200px) {
+  .layout { grid-template-columns: 500px 1fr; }
+}

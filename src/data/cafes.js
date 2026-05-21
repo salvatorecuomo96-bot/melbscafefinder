@@ -1,0 +1,447 @@
+/**
+ * Mock cafe database.
+ *
+ * Notes for future-you:
+ *  - This shape mirrors what a Supabase / Firestore table would look like.
+ *    When you wire up a real backend, swap this file's export for a fetch.
+ *  - All cafe names are real Melbourne spots, but amenities/ratings here
+ *    are illustrative placeholders for design purposes. Replace with real
+ *    data before going live.
+ *  - latitude/longitude use real-ish Melbourne suburb coordinates so the
+ *    distance sorting feels correct in dev.
+ */
+
+export const CAFES = [
+  {
+    id: 'patricia-coffee-brewers',
+    name: 'Patricia Coffee Brewers',
+    suburb: 'CBD',
+    address: 'Cnr Little Bourke & Little William St, Melbourne',
+    latitude: -37.8133,
+    longitude: 144.9579,
+    rating: 4.7,
+    coffeeQuality: 5,
+    foodQuality: 2,
+    vibe: 'standing-room espresso bar',
+    tags: ['standing only', 'espresso bar', 'iconic'],
+    amenities: ['takeaway', 'card payments'],
+    hasWifi: false,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: false,
+    quiet: false,
+    goodForDates: false,
+    goodForWork: false,
+    goodForGroups: false,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 2,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: 'Closed', sun: 'Closed'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1453614512568-c4024d13c247?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Tiny laneway espresso bar regarded as one of the best in the country. Stand, sip, leave better.'
+  },
+  {
+    id: 'industry-beans-fitzroy',
+    name: 'Industry Beans',
+    suburb: 'Fitzroy',
+    address: '3/62 Rose St, Fitzroy',
+    latitude: -37.7965,
+    longitude: 144.9787,
+    rating: 4.5,
+    coffeeQuality: 5,
+    foodQuality: 4,
+    vibe: 'industrial, brunch crowd',
+    tags: ['brunch', 'roaster', 'specialty'],
+    amenities: ['takeaway', 'dine-in', 'group bookings'],
+    hasWifi: true,
+    laptopFriendly: true,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond', 'macadamia'],
+    dogFriendly: true,
+    outdoorSeating: true,
+    quiet: false,
+    goodForDates: true,
+    goodForWork: true,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: true,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: '8:00 - 16:00', sun: '8:00 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Warehouse-style flagship. Filter flights, signature brunch, and roastery you can watch run.'
+  },
+  {
+    id: 'seven-seeds-carlton',
+    name: 'Seven Seeds',
+    suburb: 'Carlton',
+    address: '114 Berkeley St, Carlton',
+    latitude: -37.8019,
+    longitude: 144.9620,
+    rating: 4.6,
+    coffeeQuality: 5,
+    foodQuality: 4,
+    vibe: 'industrial warehouse, focused',
+    tags: ['roaster', 'specialty', 'brunch'],
+    amenities: ['takeaway', 'dine-in', 'cupping room'],
+    hasWifi: true,
+    laptopFriendly: true,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: false,
+    quiet: false,
+    goodForDates: false,
+    goodForWork: true,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 2,
+    openingHours: {
+      mon: '7:00 - 17:00', tue: '7:00 - 17:00', wed: '7:00 - 17:00',
+      thu: '7:00 - 17:00', fri: '7:00 - 17:00', sat: '8:00 - 17:00', sun: '8:00 - 17:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Carlton mainstay. Filter menu rotates weekly, kitchen punches above its weight.'
+  },
+  {
+    id: 'proud-mary-collingwood',
+    name: 'Proud Mary',
+    suburb: 'Collingwood',
+    address: '172 Oxford St, Collingwood',
+    latitude: -37.8006,
+    longitude: 144.9866,
+    rating: 4.5,
+    coffeeQuality: 5,
+    foodQuality: 5,
+    vibe: 'buzzing, brunch destination',
+    tags: ['brunch', 'roaster', 'all-day'],
+    amenities: ['dine-in', 'takeaway'],
+    hasWifi: false,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: false,
+    quiet: false,
+    goodForDates: true,
+    goodForWork: false,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: true,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: '7:00 - 16:00', sun: '7:00 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Collingwood landmark. Expect a queue and a flat white worth waiting for.'
+  },
+  {
+    id: 'auction-rooms-north-melbourne',
+    name: 'Auction Rooms',
+    suburb: 'North Melbourne',
+    address: '103-107 Errol St, North Melbourne',
+    latitude: -37.7991,
+    longitude: 144.9489,
+    rating: 4.4,
+    coffeeQuality: 4,
+    foodQuality: 4,
+    vibe: 'old warehouse, neighbourhood',
+    tags: ['brunch', 'long blacks', 'local'],
+    amenities: ['dine-in', 'takeaway', 'outdoor courtyard'],
+    hasWifi: true,
+    laptopFriendly: true,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: true,
+    outdoorSeating: true,
+    quiet: true,
+    goodForDates: true,
+    goodForWork: true,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 17:00', tue: '7:00 - 17:00', wed: '7:00 - 17:00',
+      thu: '7:00 - 17:00', fri: '7:00 - 17:00', sat: '7:30 - 17:00', sun: '7:30 - 17:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Converted auction house with a leafy courtyard. Reliable brunch, kind staff.'
+  },
+  {
+    id: 'st-ali-south-melbourne',
+    name: 'St. ALi',
+    suburb: 'South Melbourne',
+    address: '12-18 Yarra Pl, South Melbourne',
+    latitude: -37.8307,
+    longitude: 144.9554,
+    rating: 4.5,
+    coffeeQuality: 5,
+    foodQuality: 4,
+    vibe: 'laneway warehouse, polished',
+    tags: ['roaster', 'brunch', 'specialty'],
+    amenities: ['dine-in', 'takeaway', 'roastery'],
+    hasWifi: true,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond', 'macadamia'],
+    dogFriendly: false,
+    outdoorSeating: true,
+    quiet: false,
+    goodForDates: true,
+    goodForWork: false,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: true,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 17:00', tue: '7:00 - 17:00', wed: '7:00 - 17:00',
+      thu: '7:00 - 17:00', fri: '7:00 - 17:00', sat: '7:30 - 17:00', sun: '7:30 - 17:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'A Melbourne institution. Single-origin filters, smashed-everything brunch, busy busy.'
+  },
+  {
+    id: 'market-lane-carlton',
+    name: 'Market Lane Coffee',
+    suburb: 'Carlton',
+    address: '109-111 Faraday St, Carlton',
+    latitude: -37.7989,
+    longitude: 144.9684,
+    rating: 4.6,
+    coffeeQuality: 5,
+    foodQuality: 2,
+    vibe: 'minimal, coffee-first',
+    tags: ['filter', 'roaster', 'specialty'],
+    amenities: ['takeaway', 'beans for sale'],
+    hasWifi: false,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy'],
+    dogFriendly: true,
+    outdoorSeating: true,
+    quiet: true,
+    goodForDates: false,
+    goodForWork: false,
+    goodForGroups: false,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 2,
+    openingHours: {
+      mon: '7:00 - 17:00', tue: '7:00 - 17:00', wed: '7:00 - 17:00',
+      thu: '7:00 - 17:00', fri: '7:00 - 17:00', sat: '8:00 - 17:00', sun: '8:00 - 17:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Pristine filter program from one of the cleanest roasters in the city.'
+  },
+  {
+    id: 'higher-ground-cbd',
+    name: 'Higher Ground',
+    suburb: 'CBD',
+    address: '650 Little Bourke St, Melbourne',
+    latitude: -37.8161,
+    longitude: 144.9554,
+    rating: 4.4,
+    coffeeQuality: 4,
+    foodQuality: 5,
+    vibe: 'cathedral ceilings, date-spot',
+    tags: ['brunch', 'date', 'all-day'],
+    amenities: ['dine-in', 'bar', 'reservations'],
+    hasWifi: true,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: false,
+    quiet: false,
+    goodForDates: true,
+    goodForWork: false,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: true,
+    pastries: true,
+    priceLevel: 4,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 22:00', fri: '7:00 - 22:00', sat: '8:00 - 22:00', sun: '8:00 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Soaring former power station. The brunch you take a date to when you mean business.'
+  },
+  {
+    id: 'brother-baba-budan',
+    name: 'Brother Baba Budan',
+    suburb: 'CBD',
+    address: '359 Little Bourke St, Melbourne',
+    latitude: -37.8128,
+    longitude: 144.9606,
+    rating: 4.5,
+    coffeeQuality: 5,
+    foodQuality: 3,
+    vibe: 'quirky, chairs on the ceiling',
+    tags: ['iconic', 'small', 'espresso'],
+    amenities: ['takeaway', 'small dine-in'],
+    hasWifi: false,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: false,
+    quiet: false,
+    goodForDates: false,
+    goodForWork: false,
+    goodForGroups: false,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 2,
+    openingHours: {
+      mon: '7:00 - 17:00', tue: '7:00 - 17:00', wed: '7:00 - 17:00',
+      thu: '7:00 - 17:00', fri: '7:00 - 17:00', sat: '8:00 - 17:00', sun: '8:00 - 17:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Closet-sized CBD legend. Order, get out the way, sip in the laneway.'
+  },
+  {
+    id: 'padre-brunswick-east',
+    name: 'Padre Coffee',
+    suburb: 'Brunswick East',
+    address: '438 Lygon St, Brunswick East',
+    latitude: -37.7715,
+    longitude: 144.9712,
+    rating: 4.4,
+    coffeeQuality: 5,
+    foodQuality: 3,
+    vibe: 'local roaster, friendly',
+    tags: ['roaster', 'filter', 'neighbourhood'],
+    amenities: ['takeaway', 'dine-in', 'beans for sale'],
+    hasWifi: true,
+    laptopFriendly: true,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: true,
+    outdoorSeating: true,
+    quiet: true,
+    goodForDates: false,
+    goodForWork: true,
+    goodForGroups: false,
+    specialtyCoffee: true,
+    matcha: false,
+    pastries: true,
+    priceLevel: 2,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: '7:30 - 16:00', sun: '7:30 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Neighbourhood roaster with the calmest banh mi-and-filter morning in the city.'
+  },
+  {
+    id: 'top-paddock-richmond',
+    name: 'Top Paddock',
+    suburb: 'Richmond',
+    address: '658 Church St, Richmond',
+    latitude: -37.8276,
+    longitude: 145.0089,
+    rating: 4.3,
+    coffeeQuality: 4,
+    foodQuality: 5,
+    vibe: 'big, plant-filled brunch',
+    tags: ['brunch', 'group', 'instagram'],
+    amenities: ['dine-in', 'takeaway', 'big tables'],
+    hasWifi: true,
+    laptopFriendly: false,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: false,
+    outdoorSeating: true,
+    quiet: false,
+    goodForDates: true,
+    goodForWork: false,
+    goodForGroups: true,
+    specialtyCoffee: false,
+    matcha: true,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: '7:30 - 16:00', sun: '7:30 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Cavernous Richmond all-rounder. The hotcake everyone has on their feed.'
+  },
+  {
+    id: 'axil-hawthorn',
+    name: 'Axil Coffee Roasters',
+    suburb: 'Hawthorn',
+    address: '322 Burwood Rd, Hawthorn',
+    latitude: -37.8222,
+    longitude: 145.0331,
+    rating: 4.4,
+    coffeeQuality: 5,
+    foodQuality: 4,
+    vibe: 'sunny, suburban specialty',
+    tags: ['roaster', 'brunch', 'specialty'],
+    amenities: ['dine-in', 'takeaway', 'beans for sale'],
+    hasWifi: true,
+    laptopFriendly: true,
+    hasDecaf: true,
+    plantMilk: ['oat', 'soy', 'almond'],
+    dogFriendly: true,
+    outdoorSeating: true,
+    quiet: true,
+    goodForDates: true,
+    goodForWork: true,
+    goodForGroups: true,
+    specialtyCoffee: true,
+    matcha: true,
+    pastries: true,
+    priceLevel: 3,
+    openingHours: {
+      mon: '7:00 - 16:00', tue: '7:00 - 16:00', wed: '7:00 - 16:00',
+      thu: '7:00 - 16:00', fri: '7:00 - 16:00', sat: '7:30 - 16:00', sun: '7:30 - 16:00'
+    },
+    images: [
+      'https://images.unsplash.com/photo-1453614512568-c4024d13c247?auto=format&fit=crop&w=900&q=70'
+    ],
+    shortDescription: 'Light-filled Hawthorn roastery. Reliable filters and a kid- and dog-friendly room.'
+  }
+];

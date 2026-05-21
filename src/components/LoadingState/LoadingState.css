@@ -1,0 +1,44 @@
+.loading {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .loading { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+}
+@media (min-width: 1100px) {
+  .loading { grid-template-columns: repeat(3, 1fr); }
+}
+
+.loading__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 0 0 16px;
+  overflow: hidden;
+}
+
+.loading__img {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+}
+
+.loading__line {
+  height: 12px;
+  margin: 12px 16px 0;
+  border-radius: 6px;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--color-surface-2) 0%, #ece4d4 50%, var(--color-surface-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

@@ -1,0 +1,84 @@
+.mapph {
+  position: relative;
+  margin-top: 16px;
+  height: 520px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, #efe8da, #ddd0b5 60%, #c8b691);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.mapph__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.6;
+}
+
+.mapph__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  max-width: 320px;
+  padding: 0 20px;
+  color: var(--color-ink);
+}
+
+.mapph__center h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  margin: 8px 0 4px;
+}
+.mapph__center p {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  margin: 0;
+}
+
+.mapph__badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(26, 26, 26, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.mapph__pins {
+  list-style: none;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+}
+.mapph__pins li {
+  position: absolute;
+}
+.mapph__pins button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--color-ink);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  border: 2px solid #fff;
+  transition: transform 120ms ease;
+}
+.mapph__pins button span { transform: rotate(45deg); }
+.mapph__pins button:hover { transform: rotate(-45deg) scale(1.08); }
