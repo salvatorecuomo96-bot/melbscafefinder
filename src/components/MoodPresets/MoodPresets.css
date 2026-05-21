@@ -6,14 +6,17 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 4px 12px;
+  overflow: hidden; /* clip scroll within rounded corners */
+  touch-action: pan-x; /* tell browser this area pans horizontally */
 }
 
 .presets__scroll {
   display: flex;
   gap: 6px;
-  overflow-x: auto;
+  overflow-x: scroll; /* scroll, not auto — more reliable on iOS/Android */
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
+  overscroll-behavior-x: contain;
   padding: 6px 0;
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -9,6 +9,7 @@ import FilterDrawer from '../../components/FilterDrawer/FilterDrawer.jsx';
 import MapView from '../../components/MapView/MapView.jsx';
 import EmptyState from '../../components/EmptyState/EmptyState.jsx';
 import MoodPresets from '../../components/MoodPresets/MoodPresets.jsx';
+import BottomSheet from '../../components/BottomSheet/BottomSheet.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
@@ -19,15 +20,13 @@ export default function Home() {
   const [detailCafe, setDetailCafe]     = useState(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
-  const [listView, setListView]         = useState(false);
+  const [sheetSnap, setSheetSnap]       = useState(0);
   const [activePreset, setActivePreset] = useState(null);
 
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ userCoords: coords, activePreset });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
 
-  // Toggle a mood preset. Selecting the active one clears it.
-  // Uses preset.required as hard filters; ranking is handled inside useCafeFilters.
   const handlePresetSelect = (preset) => {
     if (activePreset?.id === preset.id) {
       setActivePreset(null);
@@ -38,26 +37,56 @@ export default function Home() {
     }
   };
 
-  // Near Me = just switch sort to distance (geolocation runs on mount).
   const nearMeActive = api.sort === 'distance';
   const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
 
-  // In saved view show only saved cafes (other filters still apply).
   const displayCafes = savedView
     ? api.visibleCafes.filter((c) => isSaved(c.id))
     : api.visibleCafes;
 
-  return (
-    <div className={`layout${savedView ? ' layout--saved' : listView ? ' layout--list' : ''}`}>
+  // Entering saved view also expands the sheet to medium; leaving collapses it.
+  const handleSavedView = (val) => {
+    setSavedView(val);
+    setSheetSnap(val ? 1 : 0);
+  };
 
-      {/* ===== Left / floating panel ===== */}
+  // Shared list — rendered in desktop sidebar and mobile bottom sheet
+  const cafeList = (
+    <>
+      <SortBar sort={api.sort} onChange={api.setSort} count={displayCafes.length} />
+      {displayCafes.length === 0 ? (
+        <EmptyState onReset={savedView ? () => handleSavedView(false) : api.reset} />
+      ) : (
+        <ul className="layout__list">
+          {displayCafes.map((cafe) => (
+            <li key={cafe.id}>
+              <CafeCard
+                cafe={cafe}
+                isSaved={isSaved(cafe.id)}
+                onToggleSave={toggleSave}
+                onOpen={() => {
+                  setPreviewCafe(cafe);
+                  setDetailCafe(cafe);
+                }}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+
+  return (
+    <div className="layout">
+
+      {/* ===== Panel — floating top bar on mobile / sidebar on desktop ===== */}
       <aside className="layout__panel">
 
-        {/* Brand row + Saved toggle */}
+        {/* Brand row */}
         <div className="layout__brand">
           <button
             className="layout__home-btn"
-            onClick={() => setSavedView(false)}
+            onClick={() => handleSavedView(false)}
             aria-label="Go to discover"
           >
             <span className="layout__logo" aria-hidden="true">
@@ -70,7 +99,7 @@ export default function Home() {
           </button>
           <button
             className={`layout__saved-tab${savedView ? ' is-active' : ''}`}
-            onClick={() => setSavedView((v) => !v)}
+            onClick={() => handleSavedView(!savedView)}
             aria-label={savedView ? 'Back to discover' : 'View saved cafes'}
           >
             <HeartIcon filled={savedView} size={13} />
@@ -78,7 +107,7 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Discover controls — hidden in saved view */}
+        {/* Discover controls */}
         {!savedView && (
           <>
             <SearchBar
@@ -97,10 +126,7 @@ export default function Home() {
 
             {/* Compact action row — mobile only */}
             <div className="layout__actions">
-              <button
-                className="layout__action-btn"
-                onClick={() => setDrawerOpen(true)}
-              >
+              <button className="layout__action-btn" onClick={() => setDrawerOpen(true)}>
                 <FilterIcon />
                 Filters
                 {api.activeCount > 0 && (
@@ -115,10 +141,7 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
-              <button
-                className="layout__action-btn"
-                onClick={() => setSavedView(true)}
-              >
+              <button className="layout__action-btn" onClick={() => handleSavedView(true)}>
                 <HeartIcon size={13} />
                 Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
               </button>
@@ -142,54 +165,22 @@ export default function Home() {
                 disabled={geoStatus === 'asking'}
               >
                 <LocIcon />
-                {geoStatus === 'asking'
-                  ? 'Getting location…'
-                  : nearMeActive
-                  ? 'Near me · Clear'
-                  : 'Near me'}
+                {geoStatus === 'asking' ? 'Getting location…' : nearMeActive ? 'Near me · Clear' : 'Near me'}
               </button>
               {geoStatus === 'denied' && !nearMeActive && (
-                <span className="near-me-note">
-                  Location blocked — enable in browser settings
-                </span>
+                <span className="near-me-note">Location blocked — enable in browser settings</span>
               )}
             </div>
           </>
         )}
 
-        {/* Cafe list (desktop always; mobile only in saved view) */}
+        {/* Desktop: scrollable cafe list (hidden on mobile — sheet handles it) */}
         <div className="layout__list-wrap">
-          <SortBar
-            sort={api.sort}
-            onChange={api.setSort}
-            count={displayCafes.length}
-          />
-
-          {displayCafes.length === 0 ? (
-            <EmptyState
-              onReset={savedView ? () => setSavedView(false) : api.reset}
-            />
-          ) : (
-            <ul className="layout__list">
-              {displayCafes.map((cafe) => (
-                <li key={cafe.id}>
-                  <CafeCard
-                    cafe={cafe}
-                    isSaved={isSaved(cafe.id)}
-                    onToggleSave={toggleSave}
-                    onOpen={() => {
-                      setPreviewCafe(cafe);
-                      setDetailCafe(cafe);
-                    }}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+          {cafeList}
         </div>
       </aside>
 
-      {/* ===== Right / map ===== */}
+      {/* ===== Map ===== */}
       <main className="layout__map">
         <MapView
           cafes={api.visibleCafes}
@@ -197,7 +188,6 @@ export default function Home() {
           onSelect={setPreviewCafe}
           userCoords={coords}
         />
-
         {previewCafe && (
           <CafePreviewCard
             cafe={previewCafe}
@@ -209,19 +199,12 @@ export default function Home() {
         )}
       </main>
 
-      {/* Mobile: list/map toggle FAB */}
-      {!savedView && (
-        <button
-          className={`layout__fab layout__fab--list${listView ? ' is-active' : ''}`}
-          onClick={() => setListView((v) => !v)}
-          aria-label={listView ? 'Show map' : 'Show cafe list'}
-        >
-          <ListMapIcon listView={listView} />
-          {listView ? 'Map' : `Cafes · ${displayCafes.length}`}
-        </button>
-      )}
+      {/* Mobile: draggable bottom sheet with cafe list */}
+      <BottomSheet snap={sheetSnap} onSnap={setSheetSnap} count={displayCafes.length}>
+        {cafeList}
+      </BottomSheet>
 
-      {/* Desktop: filter drawer FAB */}
+      {/* Desktop: filter FAB near the map */}
       {!savedView && (
         <button
           className="layout__fab layout__fab--filters"
@@ -236,30 +219,9 @@ export default function Home() {
         </button>
       )}
 
-      <FilterDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        api={api}
-      />
-
-      <CafeDetail
-        cafe={detailCafe}
-        onClose={() => setDetailCafe(null)}
-      />
+      <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
+      <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
     </div>
-  );
-}
-
-function ListMapIcon({ listView }) {
-  return listView ? (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" />
-    </svg>
-  ) : (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
-      <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-    </svg>
   );
 }
 
