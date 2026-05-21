@@ -1,0 +1,307 @@
+/* ============================================
+   Map-first layout.
+   Mobile: map fills screen, panel floats at top,
+           bottom sheet slides up from bottom.
+   Desktop: fixed sidebar + map side-by-side.
+   ============================================ */
+
+.layout {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  background: var(--color-bg);
+}
+
+/* ===== Map ===== */
+.layout__map {
+  position: relative;
+  grid-area: 1 / 1 / 2 / 2;
+  overflow: hidden;
+}
+
+/* ===== Panel — floating on mobile, sidebar on desktop ===== */
+.layout__panel {
+  grid-area: 1 / 1 / 2 / 2;
+  position: relative;
+  z-index: 20; /* above bottom sheet (z-18) */
+  padding: calc(12px + env(safe-area-inset-top)) 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none; /* transparent to map touches */
+}
+.layout__panel > * { pointer-events: auto; }
+
+/* ===== Brand row ===== */
+.layout__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  padding: 7px 14px 7px 9px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+.layout__home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.layout__home-btn:hover .layout__wordmark { opacity: 0.7; }
+
+.layout__logo { display: inline-flex; }
+.layout__wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+.layout__wordmark em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+/* ===== Desktop list — hidden on mobile (bottom sheet handles it) ===== */
+.layout__list-wrap { display: none; }
+
+/* ===== Cafe list grid (used by both sidebar and bottom sheet) ===== */
+.layout__list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+/* ===== Filter FAB — desktop only ===== */
+.layout__fab--filters { display: none; }
+
+.layout__fab {
+  position: fixed;
+  right: 14px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 100ms ease;
+}
+.layout__fab:hover { transform: translateY(-1px); }
+.layout__fab:active { transform: translateY(0); }
+
+.layout__fab-badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 12px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* ===== Compact action row (mobile only) ===== */
+.layout__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.layout__action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-ink-soft);
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+.layout__action-btn:hover:not(:disabled) { color: var(--color-ink); border-color: #b8b0a0; }
+.layout__action-btn:disabled { opacity: 0.6; cursor: default; }
+.layout__action-btn.is-active {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+  backdrop-filter: none;
+}
+
+.layout__action-badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* FilterChips wrapper — hidden on mobile */
+.layout__chips-wrap { display: none; }
+
+/* ===== Active preset description ===== */
+.layout__preset-desc {
+  font-size: 12.5px;
+  color: var(--color-ink-mute);
+  padding: 0 2px;
+  margin: -4px 0 0;
+  font-style: italic;
+}
+
+/* ===== Saved tab (brand row — desktop only) ===== */
+.layout__saved-tab {
+  display: none;
+  margin-left: auto;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  background: var(--color-surface-2, #f3f0ea);
+  border: 1.5px solid transparent;
+  transition: all 120ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.layout__saved-tab:hover { color: var(--color-ink); background: var(--color-border); }
+.layout__saved-tab.is-active { background: var(--color-ink); color: #fff; border-color: var(--color-ink); }
+
+/* ===== Near Me button (desktop only) ===== */
+.layout__near-me {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.near-me-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-soft);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 120ms ease;
+  cursor: pointer;
+}
+.near-me-btn:hover:not(:disabled) { color: var(--color-ink); border-color: #b8b0a0; }
+.near-me-btn:disabled { opacity: 0.6; cursor: default; }
+.near-me-btn.is-active { background: var(--color-ink); color: #fff; border-color: var(--color-ink); backdrop-filter: none; }
+.near-me-note { font-size: 11.5px; color: var(--color-ink-mute); }
+
+/* ============================================
+   DESKTOP: side-by-side layout.
+   ============================================ */
+@media (min-width: 900px) {
+  .layout { grid-template-columns: 460px 1fr; }
+
+  .layout__panel {
+    grid-area: 1 / 1 / 2 / 2;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    padding: 22px 22px 0;
+    overflow: hidden;
+    pointer-events: auto;
+    box-shadow: 0 0 40px rgba(20, 14, 6, 0.04);
+  }
+  .layout__panel > * { pointer-events: auto; }
+
+  .layout__map { grid-area: 1 / 2 / 2 / 3; }
+
+  .layout__brand {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 4px 4px;
+    flex-shrink: 0;
+  }
+  .layout__wordmark { font-size: 18px; }
+
+  .layout__list-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 28px;
+  }
+
+  /* Restore elements hidden on mobile */
+  .layout__saved-tab { display: inline-flex; }
+  .layout__chips-wrap { display: block; }
+  .layout__near-me { display: flex; }
+  .layout__actions { display: none; }
+  .layout__fab--filters { display: inline-flex; }
+
+  .layout__fab {
+    bottom: auto;
+    top: 22px;
+    right: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+  .layout__fab-badge { background: var(--color-ink); }
+
+  .near-me-btn {
+    background: var(--color-surface-2, #f3f0ea);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .near-me-btn.is-active { background: var(--color-ink); border-color: var(--color-ink); }
+}
+
+@media (min-width: 1200px) {
+  .layout { grid-template-columns: 500px 1fr; }
+}
