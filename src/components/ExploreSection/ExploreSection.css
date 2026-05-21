@@ -1,0 +1,27 @@
+.explore-section {
+  min-width: 0;
+}
+
+.explore-section__title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  padding: 0 16px;
+  margin: 0 0 12px;
+}
+
+.explore-section__track {
+  display: flex;
+  gap: 12px;
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  padding: 4px 16px 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  min-width: 0;
+}
+.explore-section__track::-webkit-scrollbar { display: none; }

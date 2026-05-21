@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import FilterChips from '../../components/FilterChips/FilterChips.jsx';
 import SortBar from '../../components/SortBar/SortBar.jsx';
@@ -10,9 +10,14 @@ import MapView from '../../components/MapView/MapView.jsx';
 import EmptyState from '../../components/EmptyState/EmptyState.jsx';
 import MoodPresets from '../../components/MoodPresets/MoodPresets.jsx';
 import BottomSheet from '../../components/BottomSheet/BottomSheet.jsx';
+import BottomNav from '../../components/BottomNav/BottomNav.jsx';
+import MobileExplore from '../../components/MobileExplore/MobileExplore.jsx';
+import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
+import { CAFES } from '../../data/cafes.js';
+import { haversineKm } from '../../utils/distance.js';
 import './Home.css';
 
 export default function Home() {
@@ -22,10 +27,22 @@ export default function Home() {
   const [savedView, setSavedView]       = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
   const [activePreset, setActivePreset] = useState(null);
+  const [activeTab, setActiveTab]       = useState('explore');
 
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ userCoords: coords, activePreset });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
+
+  // All cafes decorated with distance — used by the explore feed
+  const allCafes = useMemo(() =>
+    CAFES.map((cafe) => ({
+      ...cafe,
+      distanceKm: coords ? haversineKm(coords, cafe) : null,
+    })),
+    [coords]
+  );
+
+  const savedCafes = allCafes.filter((c) => isSaved(c.id));
 
   const handlePresetSelect = (preset) => {
     if (activePreset?.id === preset.id) {
@@ -44,7 +61,6 @@ export default function Home() {
     ? api.visibleCafes.filter((c) => isSaved(c.id))
     : api.visibleCafes;
 
-  // Entering saved view also expands the sheet to medium; leaving collapses it.
   const handleSavedView = (val) => {
     setSavedView(val);
     setSheetSnap(val ? 1 : 0);
@@ -77,9 +93,31 @@ export default function Home() {
   );
 
   return (
-    <div className="layout">
+    <div className={`layout layout--tab-${activeTab}`}>
 
-      {/* ===== Panel — floating top bar on mobile / sidebar on desktop ===== */}
+      {/* ===== Mobile explore feed ===== */}
+      <MobileExplore
+        cafes={allCafes}
+        isSaved={isSaved}
+        onToggleSave={toggleSave}
+        onOpen={(cafe) => setDetailCafe(cafe)}
+        activePreset={activePreset}
+        onPresetSelect={handlePresetSelect}
+        hidden={activeTab !== 'explore'}
+      />
+
+      {/* ===== Mobile saved screen ===== */}
+      {activeTab === 'saved' && (
+        <MobileSaved
+          cafes={allCafes}
+          savedCafes={savedCafes}
+          isSaved={isSaved}
+          onToggleSave={toggleSave}
+          onOpen={(cafe) => setDetailCafe(cafe)}
+        />
+      )}
+
+      {/* ===== Panel — floating top bar on mobile (map tab only) / sidebar on desktop ===== */}
       <aside className="layout__panel">
 
         {/* Brand row */}
@@ -141,10 +179,6 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
-              <button className="layout__action-btn" onClick={() => handleSavedView(true)}>
-                <HeartIcon size={13} />
-                Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
-              </button>
             </div>
 
             {/* FilterChips — desktop only */}
@@ -199,10 +233,12 @@ export default function Home() {
         )}
       </main>
 
-      {/* Mobile: draggable bottom sheet with cafe list */}
-      <BottomSheet snap={sheetSnap} onSnap={setSheetSnap} count={displayCafes.length}>
-        {cafeList}
-      </BottomSheet>
+      {/* Mobile: draggable bottom sheet — only on map tab */}
+      {activeTab === 'map' && (
+        <BottomSheet snap={sheetSnap} onSnap={setSheetSnap} count={displayCafes.length}>
+          {cafeList}
+        </BottomSheet>
+      )}
 
       {/* Desktop: filter FAB near the map */}
       {!savedView && (
@@ -221,6 +257,9 @@ export default function Home() {
 
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
       <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
+
+      {/* Bottom nav — CSS hides on desktop */}
+      <BottomNav activeTab={activeTab} onChange={setActiveTab} savedCount={savedCount} />
     </div>
   );
 }

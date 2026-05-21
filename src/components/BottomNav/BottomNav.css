@@ -1,0 +1,39 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 24px rgba(20, 14, 6, 0.07);
+}
+
+.bottom-nav__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-ink-mute);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav__tab.is-active {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+/* Desktop: hidden — sidebar layout handles navigation */
+@media (min-width: 900px) {
+  .bottom-nav { display: none; }
+}

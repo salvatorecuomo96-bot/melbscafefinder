@@ -74,6 +74,14 @@
   color: var(--color-accent);
 }
 
+/* ===== Mobile tab: hide panel when not on map tab ===== */
+@media (max-width: 899px) {
+  .layout--tab-explore .layout__panel,
+  .layout--tab-saved .layout__panel {
+    display: none;
+  }
+}
+
 /* ===== Desktop list — hidden on mobile (bottom sheet handles it) ===== */
 .layout__list-wrap { display: none; }
 
