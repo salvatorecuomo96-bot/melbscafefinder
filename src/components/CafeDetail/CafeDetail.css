@@ -32,24 +32,6 @@
   to   { transform: translateY(0); opacity: 1; }
 }
 
-.detail__close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 5;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--color-ink);
-  font-size: 22px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-sm);
-}
-
 .detail__hero {
   aspect-ratio: 5 / 3;
   background: linear-gradient(135deg, #e8c39e, #b8854a);

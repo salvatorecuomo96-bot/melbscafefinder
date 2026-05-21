@@ -6,7 +6,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 4px 12px;
-  overflow: clip; /* clip within rounded corners without creating a scroll container */
   touch-action: pan-x;
 }
 
