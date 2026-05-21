@@ -11,7 +11,7 @@ import { haversineKm } from '../utils/distance.js';
  * Why a hook: keeps Home.jsx readable, and we can reuse this from
  * a future map view, or test it in isolation.
  */
-export function useCafeFilters({ userCoords } = {}) {
+export function useCafeFilters({ userCoords, activePreset } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
 
@@ -21,14 +21,8 @@ export function useCafeFilters({ userCoords } = {}) {
     let list = CAFES.filter((cafe) => {
       // Text search across name + suburb + tags
       if (q) {
-        const haystack = [
-          cafe.name,
-          cafe.suburb,
-          cafe.address,
-          ...(cafe.tags || [])
-        ]
-          .join(' ')
-          .toLowerCase();
+        const haystack = [cafe.name, cafe.suburb, cafe.address, ...(cafe.tags || [])]
+          .join(' ').toLowerCase();
         if (!haystack.includes(q)) return false;
       }
 
@@ -43,7 +37,7 @@ export function useCafeFilters({ userCoords } = {}) {
         if (!filters.plantMilk.every((m) => offered.has(m))) return false;
       }
 
-      // Price level: cafe must be one of the selected
+      // Price level
       if (filters.priceLevels.length && !filters.priceLevels.includes(cafe.priceLevel)) {
         return false;
       }
@@ -54,24 +48,45 @@ export function useCafeFilters({ userCoords } = {}) {
       return true;
     });
 
-    // Decorate with distance so we can sort and display
+    // Decorate with distance
     list = list.map((cafe) => ({
       ...cafe,
       distanceKm: userCoords ? haversineKm(userCoords, cafe) : null
     }));
 
-    // Sort
+    // Sort: preset rankBy takes priority over the sort dropdown,
+    // unless the user explicitly switched to distance/near-me.
     list.sort((a, b) => {
       if (sort === 'distance') {
         if (a.distanceKm == null) return 1;
         if (b.distanceKm == null) return -1;
         return a.distanceKm - b.distanceKm;
       }
+
+      // Preset-aware ranking: score each cafe by how many preferred fields it matches,
+      // then fall back to the preset's rankBy fields in order.
+      if (activePreset) {
+        const prefScore = (cafe) =>
+          Object.entries(activePreset.preferred || {}).reduce((n, [k, v]) => {
+            if (v === false) return cafe[k] === false ? n + 1 : n; // penalise mismatch
+            return cafe[k] === v ? n + 1 : n;
+          }, 0);
+
+        const scoreDiff = prefScore(b) - prefScore(a);
+        if (scoreDiff !== 0) return scoreDiff;
+
+        for (const field of (activePreset.rankBy || [])) {
+          const diff = (b[field] ?? 0) - (a[field] ?? 0);
+          if (diff !== 0) return diff;
+        }
+        return 0;
+      }
+
       return (b[sort] ?? 0) - (a[sort] ?? 0);
     });
 
     return list;
-  }, [filters, sort, userCoords]);
+  }, [filters, sort, userCoords, activePreset]);
 
   // ---- Update helpers ----
   const toggleBoolean = (key) =>
@@ -100,6 +115,9 @@ export function useCafeFilters({ userCoords } = {}) {
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
   const setMinCoffeeQuality = (n) => setFilters((f) => ({ ...f, minCoffeeQuality: n }));
   const reset = () => setFilters(DEFAULT_FILTERS);
+  // Used by mood presets: replace all booleans at once.
+  // Pass {} to clear all boolean filters.
+  const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
 
   // Active filter count (for the "Filters (3)" badge)
   const activeCount =
@@ -117,6 +135,7 @@ export function useCafeFilters({ userCoords } = {}) {
     activeCount,
     setQuery,
     toggleBoolean,
+    setBooleans,
     togglePlantMilk,
     togglePriceLevel,
     setMinRating,

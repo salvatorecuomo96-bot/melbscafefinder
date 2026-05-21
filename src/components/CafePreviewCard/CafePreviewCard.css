@@ -16,6 +16,27 @@
   to   { transform: translateY(0); opacity: 1; }
 }
 
+.preview__save {
+  position: absolute;
+  top: 8px;
+  right: 44px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-mute, #aaa);
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  border: none;
+  transition: color 150ms ease, transform 150ms ease;
+}
+.preview__save:hover { color: #e85d4a; transform: scale(1.1); }
+.preview__save.is-saved { color: #e85d4a; }
+
 .preview__close {
   position: absolute;
   top: 8px;

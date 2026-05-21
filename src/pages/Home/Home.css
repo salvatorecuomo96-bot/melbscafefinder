@@ -54,6 +54,18 @@
   box-shadow: var(--shadow-sm);
 }
 
+.layout__home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.layout__home-btn:hover .layout__wordmark { opacity: 0.7; }
+
 .layout__logo { display: inline-flex; }
 .layout__wordmark {
   font-family: var(--font-display);
@@ -122,7 +134,11 @@
     background: var(--color-bg);
     border-right: 1px solid var(--color-border);
     padding: 22px 22px 0;
-    overflow-y: auto;
+    /* overflow: hidden clips at panel edge but does NOT kill horizontal scroll
+       on children — presets scroll inside their own .presets__scroll container.
+       overflow-y: auto would clip x-scroll on children, so we use hidden here
+       and let only .layout__list-wrap scroll vertically. */
+    overflow: hidden;
     pointer-events: auto;
     box-shadow: 0 0 40px rgba(20, 14, 6, 0.04);
   }
@@ -136,10 +152,19 @@
     border: none;
     box-shadow: none;
     padding: 0 4px 4px;
+    flex-shrink: 0;
   }
   .layout__wordmark { font-size: 18px; }
 
-  .layout__list-wrap { display: block; padding-bottom: 28px; }
+  /* Only the list scrolls — top controls stay fixed */
+  .layout__list-wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 28px;
+  }
 
   .layout__list {
     list-style: none;
@@ -170,4 +195,108 @@
 
 @media (min-width: 1200px) {
   .layout { grid-template-columns: 500px 1fr; }
+}
+
+/* ===== Active preset description ===== */
+.layout__preset-desc {
+  font-size: 12.5px;
+  color: var(--color-ink-mute);
+  padding: 0 2px;
+  margin: -4px 0 0;
+  font-style: italic;
+}
+
+/* ===== Saved tab (in brand row) ===== */
+.layout__saved-tab {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+  background: var(--color-surface-2, #f3f0ea);
+  border: 1.5px solid transparent;
+  transition: all 120ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.layout__saved-tab:hover { color: var(--color-ink); background: var(--color-border); }
+.layout__saved-tab.is-active {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+}
+
+/* ===== Near Me button ===== */
+.layout__near-me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.near-me-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-soft);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 120ms ease;
+  cursor: pointer;
+}
+.near-me-btn:hover:not(:disabled) {
+  color: var(--color-ink);
+  border-color: #b8b0a0;
+}
+.near-me-btn:disabled { opacity: 0.6; cursor: default; }
+.near-me-btn.is-active {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+  backdrop-filter: none;
+}
+.near-me-note {
+  font-size: 11.5px;
+  color: var(--color-ink-mute);
+}
+
+/* ===== Saved view: show list on mobile too ===== */
+.layout--saved .layout__panel {
+  background: var(--color-bg);
+  pointer-events: auto;
+  overflow-y: auto;
+}
+.layout--saved .layout__list-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+@media (min-width: 900px) {
+  .near-me-btn {
+    background: var(--color-surface-2, #f3f0ea);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .near-me-btn.is-active {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+  }
 }
