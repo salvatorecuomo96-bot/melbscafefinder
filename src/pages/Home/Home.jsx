@@ -19,6 +19,7 @@ export default function Home() {
   const [detailCafe, setDetailCafe]     = useState(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
+  const [listView, setListView]         = useState(false);
   const [activePreset, setActivePreset] = useState(null);
 
   const { coords, status: geoStatus } = useGeolocation();
@@ -47,7 +48,7 @@ export default function Home() {
     : api.visibleCafes;
 
   return (
-    <div className={`layout${savedView ? ' layout--saved' : ''}`}>
+    <div className={`layout${savedView ? ' layout--saved' : listView ? ' layout--list' : ''}`}>
 
       {/* ===== Left / floating panel ===== */}
       <aside className="layout__panel">
@@ -208,10 +209,22 @@ export default function Home() {
         )}
       </main>
 
-      {/* ===== Filter FAB (hidden in saved view) ===== */}
+      {/* Mobile: list/map toggle FAB */}
       {!savedView && (
         <button
-          className="layout__fab"
+          className={`layout__fab layout__fab--list${listView ? ' is-active' : ''}`}
+          onClick={() => setListView((v) => !v)}
+          aria-label={listView ? 'Show map' : 'Show cafe list'}
+        >
+          <ListMapIcon listView={listView} />
+          {listView ? 'Map' : `Cafes · ${displayCafes.length}`}
+        </button>
+      )}
+
+      {/* Desktop: filter drawer FAB */}
+      {!savedView && (
+        <button
+          className="layout__fab layout__fab--filters"
           onClick={() => setDrawerOpen(true)}
           aria-label="Open filters"
         >
@@ -234,6 +247,19 @@ export default function Home() {
         onClose={() => setDetailCafe(null)}
       />
     </div>
+  );
+}
+
+function ListMapIcon({ listView }) {
+  return listView ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
   );
 }
 
