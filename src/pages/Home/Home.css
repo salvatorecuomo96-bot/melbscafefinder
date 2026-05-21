@@ -84,13 +84,13 @@
   display: none;
 }
 
-/* ===== Floating filter button (mobile) ===== */
+/* ===== Floating filter button (desktop only) ===== */
 .layout__fab {
+  display: none; /* hidden on mobile — action row has filters */
   position: fixed;
   right: 14px;
   bottom: calc(20px + env(safe-area-inset-bottom));
   z-index: 30;
-  display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 13px 18px;
@@ -175,7 +175,14 @@
     gap: 14px;
   }
 
+  /* Restore elements hidden on mobile */
+  .layout__saved-tab { display: inline-flex; }
+  .layout__chips-wrap { display: block; }
+  .layout__near-me { display: flex; }
+  .layout__actions { display: none; }
+
   .layout__fab {
+    display: inline-flex;
     /* Less prominent on desktop - the "All filters" pill in the chip row
        handles the primary action there. Keep this as a fallback near the map. */
     bottom: auto;
@@ -197,6 +204,60 @@
   .layout { grid-template-columns: 500px 1fr; }
 }
 
+/* ===== Compact action row (mobile only) ===== */
+.layout__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.layout__action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-ink-soft);
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+.layout__action-btn:hover:not(:disabled) {
+  color: var(--color-ink);
+  border-color: #b8b0a0;
+}
+.layout__action-btn:disabled { opacity: 0.6; cursor: default; }
+.layout__action-btn.is-active {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+  backdrop-filter: none;
+}
+
+.layout__action-badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* FilterChips wrapper — hidden on mobile */
+.layout__chips-wrap { display: none; }
+
 /* ===== Active preset description ===== */
 .layout__preset-desc {
   font-size: 12.5px;
@@ -206,10 +267,10 @@
   font-style: italic;
 }
 
-/* ===== Saved tab (in brand row) ===== */
+/* ===== Saved tab (in brand row — desktop only) ===== */
 .layout__saved-tab {
+  display: none; /* hidden on mobile — action row has saved */
   margin-left: auto;
-  display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 5px 12px;
@@ -231,9 +292,9 @@
   border-color: var(--color-ink);
 }
 
-/* ===== Near Me button ===== */
+/* ===== Near Me button (desktop only) ===== */
 .layout__near-me {
-  display: flex;
+  display: none; /* hidden on mobile — action row has near me */
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;

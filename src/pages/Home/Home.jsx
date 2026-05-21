@@ -94,14 +94,46 @@ export default function Home() {
               <p className="layout__preset-desc">{activePreset.description}</p>
             )}
 
-            <FilterChips
-              activeBooleans={api.filters.booleans}
-              onToggle={api.toggleBoolean}
-              onOpenAll={() => setDrawerOpen(true)}
-              activeCount={api.activeCount}
-            />
+            {/* Compact action row — mobile only */}
+            <div className="layout__actions">
+              <button
+                className="layout__action-btn"
+                onClick={() => setDrawerOpen(true)}
+              >
+                <FilterIcon />
+                Filters
+                {api.activeCount > 0 && (
+                  <span className="layout__action-badge">{api.activeCount}</span>
+                )}
+              </button>
+              <button
+                className={`layout__action-btn${nearMeActive ? ' is-active' : ''}`}
+                onClick={handleNearMe}
+                disabled={geoStatus === 'asking'}
+              >
+                <LocIcon />
+                {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
+              </button>
+              <button
+                className="layout__action-btn"
+                onClick={() => setSavedView(true)}
+              >
+                <HeartIcon size={13} />
+                Saved{savedCount > 0 ? ` · ${savedCount}` : ''}
+              </button>
+            </div>
 
-            {/* Near Me */}
+            {/* FilterChips — desktop only */}
+            <div className="layout__chips-wrap">
+              <FilterChips
+                activeBooleans={api.filters.booleans}
+                onToggle={api.toggleBoolean}
+                onOpenAll={() => setDrawerOpen(true)}
+                activeCount={api.activeCount}
+              />
+            </div>
+
+            {/* Near Me — desktop only */}
             <div className="layout__near-me">
               <button
                 className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
