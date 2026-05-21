@@ -32,6 +32,26 @@
   to   { transform: translateY(0); opacity: 1; }
 }
 
+.detail__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.detail__close:active { transform: scale(0.9); background: rgba(0, 0, 0, 0.65); }
+
 .detail__hero {
   aspect-ratio: 5 / 3;
   background: linear-gradient(135deg, #e8c39e, #b8854a);

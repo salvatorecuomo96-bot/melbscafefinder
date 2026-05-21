@@ -46,6 +46,11 @@ export default function CafeDetail({ cafe, onClose }) {
   return (
     <div className="detail" onClick={onClose} role="dialog" aria-modal="true" aria-label={cafe.name}>
       <div className="detail__sheet" onClick={(e) => e.stopPropagation()}>
+        <button className="detail__close" onClick={onClose} aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
         <div className="detail__hero">
           <img src={cafe.images?.[0]} alt={cafe.name} />
         </div>

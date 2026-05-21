@@ -31,6 +31,7 @@
   flex-direction: column;
   gap: 10px;
   pointer-events: none; /* transparent to map touches */
+  touch-action: pan-x pan-y; /* allow children to define their own touch-action */
 }
 .layout__panel > * { pointer-events: auto; min-width: 0; }
 
@@ -74,11 +75,16 @@
   color: var(--color-accent);
 }
 
-/* ===== Mobile tab: hide panel when not on map tab ===== */
+/* ===== Mobile tabs: hide panel and disable map interaction on non-map tabs ===== */
 @media (max-width: 899px) {
   .layout--tab-explore .layout__panel,
   .layout--tab-saved .layout__panel {
     display: none;
+  }
+  /* Prevent Mapbox canvas from stealing touch events when map isn't the active tab */
+  .layout--tab-explore .layout__map,
+  .layout--tab-saved .layout__map {
+    pointer-events: none;
   }
 }
 

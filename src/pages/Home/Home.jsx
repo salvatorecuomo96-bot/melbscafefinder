@@ -26,6 +26,10 @@ export default function Home() {
   const [drawerOpen, setDrawerOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
+  const handleSheetSnap = (snap) => {
+    setSheetSnap(snap);
+    if (snap >= 1) setPreviewCafe(null); // hide preview when list is expanded
+  };
   const [activePreset, setActivePreset] = useState(null);
   const [activeTab, setActiveTab]       = useState('explore');
 
@@ -235,7 +239,7 @@ export default function Home() {
 
       {/* Mobile: draggable bottom sheet — only on map tab */}
       {activeTab === 'map' && (
-        <BottomSheet snap={sheetSnap} onSnap={setSheetSnap} count={displayCafes.length}>
+        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
           {cafeList}
         </BottomSheet>
       )}

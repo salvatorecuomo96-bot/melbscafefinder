@@ -5,7 +5,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(50px + env(safe-area-inset-bottom)); /* sit above the BottomNav */
   height: 92vh;
   background: var(--color-bg);
   border-radius: 18px 18px 0 0;
