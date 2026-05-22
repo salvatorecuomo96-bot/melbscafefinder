@@ -15,8 +15,11 @@ export function openStatus(openingHours, now = new Date()) {
   const key = dayKeyForToday();
   const raw = openingHours?.[key];
   if (!raw || raw === 'Closed') return { isOpen: false, label: 'Closed today' };
+  if (raw === 'Open 24h') return { isOpen: true, label: 'Open 24h' };
 
-  const [openStr, closeStr] = raw.split('-').map((s) => s.trim());
+  const parts = raw.split(' - ');
+  if (parts.length < 2) return { isOpen: false, label: raw };
+  const [openStr, closeStr] = parts;
   const [openH, openM] = openStr.split(':').map(Number);
   const [closeH, closeM] = closeStr.split(':').map(Number);
   const minutes = now.getHours() * 60 + now.getMinutes();
