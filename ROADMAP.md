@@ -1,148 +1,137 @@
-# Melbourne Cafe Finder - Project Roadmap
+# Melbourne Cafe Finder - Grok Execution Roadmap
 
-**Goal**: Build the best mobile-first web app (that can become a PWA/app) helping people in Melbourne find the *perfect* cafe using real, useful filters derived from data and reviews.
+**Mission**: Build a high-quality, mobile-first cafe discovery web app (PWA-ready) for Melbourne with real data and powerful, review-backed filters.
 
-**Core Philosophy**: Maximize automation. Minimum manual work. Real data over mock data. Safe, cost-conscious, scalable.
+**My Operating Style**: Super efficient. No fluff. Execute phases in order. Push working improvements frequently. Automation first.
 
----
-
-## Current Status (22 May 2026)
-
-- Vite + React + Mapbox mobile-first web app (good foundation from Claude)
-- Features: Map view, bottom sheets, tabs (Explore/Map/Saved), basic filters, search, sort, geolocation
-- Data: Currently mock data (~12 cafes)
-- Scraper: Geoapify scraper started in `/scraper/`
-- Repo: `salvatorecuomo96-bot/melbscafefinder`
-
-**Next Priority**: Replace mock data with real, rich cafe data + powerful filters.
+**Current Date**: 22 May 2026
 
 ---
 
-## Phase 1: Data Foundation (Highest Priority - Do This Week)
+## Phase 0: Audit & Baseline (Do Immediately)
 
-### 1.1 Robust Data Pipeline
-- [ ] Improve Geoapify scraper (make it reliable, resumable, suburb-by-suburb or grid-based for full Greater Melbourne coverage)
-- [ ] Save clean, deduplicated data to `data/raw/cafes_geoapify.json`
-- [ ] Add City of Melbourne open data + OSM/Overpass as additional sources
-- [ ] Create `scripts/` folder with reusable data tools
+**Goal**: Understand exactly what exists and create a clean baseline.
 
-### 1.2 Google Places Enrichment (Quality Layer)
-- [ ] Use Google Places (New) API on top cafes for:
-  - High-quality photos
-  - Phone, website, opening hours
-  - Ratings + recent reviews
-- [ ] Cost control: Only enrich top 500-1000 cafes + use field masks
+- [ ] Clone repo and audit current structure
+- [ ] Review current components (Map, BottomSheet, Filters, etc.)
+- [ ] Check scraper quality in `/scraper/`
+- [ ] Document current data flow (mock vs real)
+- [ ] Create `data/` folder structure if missing
+- [ ] Update this roadmap with findings
 
-### 1.3 Review Intelligence Engine (The Magic)
-- [ ] Build review sentiment / attribute extractor that creates these filters from real reviews:
-  - `wifi_quality` (good / reliable / poor / none)
-  - `power_outlets` (plenty / some / none)
-  - `cozy_comfortable` (true/false + score)
-  - `noise_level` (quiet / moderate / loud)
-  - `natural_light` (bright / good / dim)
-  - `laptop_work_friendly`
-  - `dog_friendly`
-  - `good_for` (solo / dates / groups / work)
-  - `vibe_aesthetic` + `coffee_quality` + `food_quality`
-- [ ] Store as structured JSON/JSONB for fast filtering
-
-**Deliverable**: `data/processed/cafes_final.json` with 500+ real cafes + rich attributes.
+**Status**: In Progress
 
 ---
 
-## Phase 2: Backend & Data Layer
+## Phase 1: Production Data Pipeline (Highest Priority)
 
-- [ ] Set up Supabase (Postgres + Storage)
-- [ ] Design clean schema (cafes table + tags/attributes as JSONB)
-- [ ] API routes for search + filtering
-- [ ] Background jobs for data refresh (weekly)
-- [ ] Caching layer
+**Goal**: Replace mock data with real, rich cafe data from multiple sources.
 
----
+### 1.1 Geoapify Scraper (Foundation)
+- [ ] Make scraper robust, resumable, and efficient
+- [ ] Implement smart grid/bounding box coverage for full Greater Melbourne
+- [ ] Add rate limiting, progress saving, error handling, logging
+- [ ] Output clean `data/raw/cafes_geoapify.json`
+- [ ] Run it and get 500+ real cafes
 
-## Phase 3: Frontend Polish & Mobile Experience
+### 1.2 Supplementary Data
+- [ ] Pull City of Melbourne open data (cafes/restaurants)
+- [ ] Pull OSM data via Overpass for additional coverage
+- [ ] Merge + deduplicate sources
 
-- [ ] Replace mock data with real `cafes_final.json`
-- [ ] Build powerful, intuitive filter UI (chips + advanced drawer)
-- [ ] Improve Mapbox integration (clusters, info windows, "Near Me")
-- [ ] Enhance bottom sheet experience (photos carousel, review summaries, attributes badges)
-- [ ] Add "Save Cafe", "I was here" (future community data)
-- [ ] Dark mode + beautiful mobile UX
+### 1.3 Google Places Enrichment
+- [ ] Enrich top cafes with Google Places (New) for photos, phone, website, hours, ratings
+- [ ] Pull recent reviews for attribute extraction
+- [ ] Strict cost control (field masks + limited calls)
 
-**Target**: Feels like a native app in the browser.
+**Deliverable**: `data/processed/cafes_final.json` with real data + rich attributes
 
----
-
-## Phase 4: Advanced Features
-
-- [ ] Smart recommendations ("Cafes like the one you saved")
-- [ ] User accounts + saved lists (Supabase Auth)
-- [ ] Review submission / correction system (community-powered data)
-- [ ] Admin dashboard for data quality
-- [ ] Analytics (most popular filters, areas, etc.)
+**Status**: Pending
 
 ---
 
-## Phase 5: Launch & Growth
+## Phase 2: Review Intelligence Engine
 
-- [ ] Deploy to Vercel / Netlify (easy + free)
-- [ ] Make it a PWA (installable on phone)
-- [ ] SEO + shareable cafe pages
-- [ ] Beta testing with Melbourne locals
-- [ ] Marketing landing page + social proof
-- [ ] Optional: React Native wrapper later for App Store / Play Store
+**Goal**: Turn reviews into usable filter attributes.
 
----
+- [ ] Build review parser + sentiment/attribute extractor
+- [ ] Generate these structured fields from real reviews:
+  - wifi_quality
+  - power_outlets
+  - cozy_comfortable
+  - noise_level
+  - natural_light
+  - laptop_work_friendly
+  - dog_friendly
+  - good_for (solo/dates/groups/work)
+  - vibe_aesthetic
+  - coffee_quality + food_quality
+- [ ] Store attributes in JSONB-friendly format
+- [ ] Score confidence on each attribute
 
-## Phase 6: Monetization & Scale (Future)
+**Deliverable**: Updated `cafes_final.json` with intelligent filter data
 
-- [ ] Featured / sponsored cafes
-- [ ] API access for other apps
-- [ ] Expand to bars, bakeries, restaurants
-- [ ] White-label version for other cities
-
----
-
-## Tech Stack (Current + Planned)
-
-**Frontend**
-- Vite + React + TypeScript (recommended)
-- Mapbox GL JS
-- Tailwind / CSS modules
-- React Query / SWR for data
-
-**Data & Backend**
-- Python (pandas, requests, python-dotenv, tqdm)
-- Supabase (Postgres + Auth + Storage)
-- Geoapify + Google Places (New) APIs
-
-**DevOps & Safety**
-- Proper `.env` management
-- GitHub Actions for CI (optional)
-- Rate limiting + resumable scripts
-- Cost monitoring
+**Status**: Pending
 
 ---
 
-## Guiding Principles
+## Phase 3: Frontend Data Integration
 
-1. **Real data beats mock data** — Every filter must be backed by actual reviews or reliable sources.
-2. **Automation first** — Scripts should be runnable with one command. Minimal manual steps.
-3. **Mobile-first, delightful UX** — The web app should feel native on phones.
-4. **Safe & Cheap** — Respect API limits, use free tiers first, monitor costs.
-5. **Iterate fast** — Ship improvements weekly. Get real user feedback early.
+**Goal**: Make the app use real data + powerful filters.
 
----
+- [ ] Load `cafes_final.json` into the React app
+- [ ] Replace mock data everywhere
+- [ ] Implement advanced filter system based on new attributes
+- [ ] Improve Mapbox integration (real markers, clustering, info windows)
+- [ ] Enhance bottom sheet with real photos + attribute badges
+- [ ] Add "Near Me" + distance sorting
 
-## Immediate Next Actions (This Weekend)
-
-1. Improve + run Geoapify scraper → get real cafe list
-2. Build basic review attribute extractor
-3. Load real data into the frontend
-4. Update this roadmap with progress
-
-**Let's make this the best cafe discovery tool in Melbourne.**
+**Status**: Pending
 
 ---
 
-*Last updated: 22 May 2026 by Grok 4.3 (taking over from Claude)*
+## Phase 4: Mobile UX Polish & PWA
+
+**Goal**: Make it feel like a native mobile app.
+
+- [ ] Fix any remaining mobile bugs (touch, scroll, overlays)
+- [ ] Polish bottom sheet experience
+- [ ] Add smooth animations and loading states
+- [ ] Make it installable as PWA
+- [ ] Test thoroughly on mobile
+
+**Status**: Pending
+
+---
+
+## Phase 5: Backend & Persistence (Future)
+
+- [ ] Move to Supabase (Postgres + Auth)
+- [ ] Add user accounts + saved cafes
+- [ ] Add "I was here" + community corrections
+- [ ] Set up data refresh jobs
+
+**Status**: Future
+
+---
+
+## Execution Rules (For Me)
+
+1. Work phase by phase in order
+2. Push meaningful progress at least every 1-2 days
+3. Always keep the app in a runnable state
+4. Prioritize real data + useful filters over polish
+5. Be ruthless about automation and simplicity
+
+---
+
+## Success Metrics
+
+- 500+ real cafes with rich attributes
+- Filters actually work based on real reviews/data
+- Smooth mobile experience
+- Easy to run data pipeline end-to-end
+
+**Let's build something actually useful.**
+
+*Last updated: 22 May 2026 by Grok 4.3*
