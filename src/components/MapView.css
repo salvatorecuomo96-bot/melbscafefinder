@@ -14,23 +14,19 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
-/* Simple stable cafe pin */
+/* Simple stable cafe pin - minimal jump on zoom */
 .simple-pin {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   background: white;
   border: 2px solid #111;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.18);
   cursor: pointer;
-  transition: transform 100ms ease;
-}
-
-.simple-pin:hover {
-  transform: scale(1.1);
+  /* No transition - reduces jump during zoom */
 }
 
 .simple-pin__inner {
@@ -40,19 +36,19 @@
 }
 
 .simple-pin__rating {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #111;
 }
 
 /* Simple stable user location dot */
 .simple-user-dot {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   background: #2563eb;
   border: 3px solid white;
   border-radius: 50%;
-  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.12);
 }
 
 /* Fallback */
