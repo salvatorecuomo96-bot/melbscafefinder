@@ -14,90 +14,45 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
-.mapview .mapboxgl-ctrl-group button {
-  width: 38px;
-  height: 38px;
-}
-
-/* Cafe Pin */
-.pin {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
+/* Simple stable cafe pin */
+.simple-pin {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border: 2px solid #111;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
-  background: transparent;
-  border: none;
-  padding: 0;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   cursor: pointer;
-  transition: transform 120ms ease;
+  transition: transform 100ms ease;
 }
 
-.pin:hover {
-  transform: translateY(-1px) scale(1.03);
+.simple-pin:hover {
+  transform: scale(1.1);
 }
 
-.pin__inner {
-  display: inline-flex;
+.simple-pin__inner {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  background: #fff;
-  color: var(--color-ink);
-  border: 1.5px solid var(--color-ink);
-  border-radius: var(--radius-pill);
+  justify-content: center;
+}
+
+.simple-pin__rating {
+  font-size: 11px;
   font-weight: 700;
-  font-size: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  color: #111;
 }
 
-.pin__inner svg {
-  color: var(--color-gold);
-}
-
-.pin__tail {
-  width: 10px;
-  height: 10px;
-  margin-top: -5px;
-  background: #fff;
-  border-right: 1.5px solid var(--color-ink);
-  border-bottom: 1.5px solid var(--color-ink);
-  transform: rotate(45deg);
-}
-
-.pin.is-active {
-  z-index: 10;
-  transform: translateY(-3px) scale(1.08);
-}
-
-.pin.is-active .pin__inner {
-  background: var(--color-ink);
-  color: white;
-  border-color: var(--color-ink);
-}
-
-.pin.is-active .pin__inner svg {
-  color: #f4c167;
-}
-
-.pin.is-active .pin__tail {
-  background: var(--color-ink);
-  border-color: var(--color-ink);
-}
-
-/* User Location - Clean version */
-.pin--user {
-  pointer-events: none;
-}
-
-.pin--user .pin__dot {
-  width: 14px;
-  height: 14px;
+/* Simple stable user location dot */
+.simple-user-dot {
+  width: 16px;
+  height: 16px;
   background: #2563eb;
   border: 3px solid white;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
-  position: relative;
-  z-index: 2;
+  box-shadow: 0 0 0 1.5px rgba(0,0,0,0.15);
 }
 
 /* Fallback */
