@@ -38,48 +38,40 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     return () => map.remove();
   }, []);
 
-  // Sync cafe markers
+  // Manage cafe markers - more robust version
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
-    const visibleIds = new Set(cafes.map(c => c.id));
 
-    // Remove markers that are no longer visible
-    for (const [id, marker] of markersRef.current.entries()) {
-      if (!visibleIds.has(id)) {
-        marker.remove();
-        markersRef.current.delete(id);
-      }
-    }
+    // Remove all existing markers first
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.clear();
 
-    // Add or update markers
-    for (const cafe of cafes) {
-      let marker = markersRef.current.get(cafe.id);
+    // Create new markers
+    cafes.forEach(cafe => {
+      const el = createCafePin(cafe);
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onSelect(cafe);
+      });
 
-      if (!marker) {
-        const el = createCafePin(cafe);
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          onSelect(cafe);
-        });
+      const marker = new mapboxgl.Marker({
+        element: el,
+        anchor: 'bottom',
+        offset: [0, 6]
+      })
+        .setLngLat([cafe.longitude, cafe.latitude])
+        .addTo(map);
 
-        marker = new mapboxgl.Marker({
-          element: el,
-          anchor: 'bottom',
-          offset: [0, 5]
-        })
-          .setLngLat([cafe.longitude, cafe.latitude])
-          .addTo(map);
-
-        markersRef.current.set(cafe.id, marker);
+      if (cafe.id === selectedId) {
+        el.classList.add('is-active');
       }
 
-      // Update active state
-      marker.getElement().classList.toggle('is-active', cafe.id === selectedId);
-    }
+      markersRef.current.set(cafe.id, marker);
+    });
   }, [cafes, selectedId, ready, onSelect]);
 
-  // Fly to selected cafe
+  // Fly to selected
   useEffect(() => {
     if (!ready || !selectedId) return;
     const cafe = cafes.find(c => c.id === selectedId);
@@ -87,25 +79,23 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
 
     mapRef.current.flyTo({
       center: [cafe.longitude, cafe.latitude],
-      zoom: Math.max(mapRef.current.getZoom(), 14.8),
-      speed: 0.85,
+      zoom: Math.max(mapRef.current.getZoom(), 15),
+      speed: 0.8,
       essential: true
     });
   }, [selectedId, ready, cafes]);
 
-  // User location marker (FIXED)
+  // User location marker - simplified and stable
   useEffect(() => {
     if (!ready || !userCoords) return;
+
     if (userMarkerRef.current) {
       userMarkerRef.current.remove();
     }
 
     const el = document.createElement('div');
     el.className = 'pin pin--user';
-    el.innerHTML = `
-      <div class="pin__dot"></div>
-      <div class="pin__pulse"></div>
-    `;
+    el.innerHTML = `<div class="pin__dot"></div>`;
 
     userMarkerRef.current = new mapboxgl.Marker({
       element: el,
@@ -130,7 +120,7 @@ function createCafePin(cafe) {
 
   el.innerHTML = `
     <span class="pin__inner">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z"/>
       </svg>
       <span>${cafe.rating.toFixed(1)}</span>
@@ -145,8 +135,8 @@ function NoTokenFallback() {
     <div className="mapview mapview--fallback">
       <div className="mapview__notoken">
         <span className="mapview__notoken-badge">Setup needed</span>
-        <h3>Add your Mapbox token</h3>
-        <p>The list view works without it. The map needs a valid token.</p>
+        <h3>Add Mapbox token</h3>
+        <p>List works without token. Map needs valid token.</p>
       </div>
     </div>
   );
