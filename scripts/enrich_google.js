@@ -43,13 +43,10 @@ const ENRICHED_FILE   = path.join(ROOT, 'data', 'cafes_enriched.json');
 
 const RATE_MS = 250;   // 4 req/sec — well within Google's limits
 
-// Discovery grid: two zones.
-// Zone 1 — 20km radius from Melbourne CBD (priority, 0.02° ≈ 2km cells)
-// Zone 2 — outer Greater Melbourne (0.04° cells, catches regional suburbs)
-const CBD = { lat: -37.8136, lng: 144.9631 };
+// Discovery grid: CBD + 20km radius, 0.02° cells (~2km).
+// Outer suburbs excluded to stay comfortably within free trial budget (~$190 USD total).
 const DISCOVERY_ZONES = [
   { minLat: -38.00, maxLat: -37.63, minLng: 144.74, maxLng: 145.19, cell: 0.02 },
-  { minLat: -38.20, maxLat: -37.50, minLng: 144.55, maxLng: 145.60, cell: 0.04 },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
