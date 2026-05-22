@@ -33,24 +33,37 @@
 }
 
 .detail__close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-  width: 32px;
-  height: 32px;
+  /* Mobile: fixed to viewport — never scrolls away even if user reads to the bottom */
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 14px;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   border: none;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: background 120ms ease, transform 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
-.detail__close:active { transform: scale(0.9); background: rgba(0, 0, 0, 0.65); }
+.detail__close:active { transform: scale(0.9); background: rgba(0, 0, 0, 0.7); }
+
+/* Desktop: absolute inside the sheet at the hero photo corner */
+@media (min-width: 720px) {
+  .detail__close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 10;
+    box-shadow: none;
+  }
+}
 
 .detail__hero {
   aspect-ratio: 5 / 3;

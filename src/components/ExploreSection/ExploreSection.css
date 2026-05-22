@@ -17,7 +17,8 @@
   gap: 12px;
   overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  /* pan-x pan-y: carousel scrolls sideways; vertical swipes on cards scroll the page */
+  touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
   padding: 4px 16px 4px;
   scrollbar-width: none;

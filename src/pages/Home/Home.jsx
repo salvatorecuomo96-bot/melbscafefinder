@@ -33,6 +33,15 @@ export default function Home() {
   const [activePreset, setActivePreset] = useState(null);
   const [activeTab, setActiveTab]       = useState('explore');
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Clear map-specific state when leaving the map tab
+    if (tab !== 'map') {
+      setPreviewCafe(null);
+      setSheetSnap(0);
+    }
+  };
+
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ userCoords: coords, activePreset });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
@@ -226,12 +235,13 @@ export default function Home() {
           onSelect={setPreviewCafe}
           userCoords={coords}
         />
-        {previewCafe && (
+        {/* Only render preview on map tab and only when sheet is peeked (snap=0) */}
+        {previewCafe && activeTab === 'map' && sheetSnap === 0 && (
           <CafePreviewCard
             cafe={previewCafe}
             isSaved={isSaved(previewCafe.id)}
             onToggleSave={toggleSave}
-            onOpen={() => setDetailCafe(previewCafe)}
+            onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
             onClose={() => setPreviewCafe(null)}
           />
         )}
@@ -263,7 +273,7 @@ export default function Home() {
       <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
 
       {/* Bottom nav — CSS hides on desktop */}
-      <BottomNav activeTab={activeTab} onChange={setActiveTab} savedCount={savedCount} />
+      <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />
     </div>
   );
 }

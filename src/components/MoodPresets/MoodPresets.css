@@ -6,9 +6,12 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 4px 0;           /* horizontal padding lives on the scroll child */
-  touch-action: pan-x;
+  /* pan-x pan-y: allow horizontal scroll AND let vertical swipes bubble up to the page scroller */
+  touch-action: pan-x pan-y;
+  pointer-events: auto;     /* explicit — never let parent pointer-events:none break this on iOS */
   width: 100%;
-  min-width: 0;             /* prevents flex blowout — without this the item expands to fit all buttons */
+  min-width: 0;             /* prevents flex blowout */
+  max-width: 100%;
   box-sizing: border-box;
   position: relative;       /* for the fade edge pseudo-element */
 }
@@ -32,15 +35,17 @@
   gap: 6px;
   overflow-x: scroll;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  /* pan-x pan-y: horizontal scroll stays on this element; vertical swipes bubble to page */
+  touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
-  padding: 6px 12px;        /* horizontal padding moved here from wrapper */
+  padding: 6px 12px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   width: 100%;
   min-width: 0;
+  max-width: 100%;
   box-sizing: border-box;
-  pointer-events: auto;     /* explicit — don't rely on inheritance through pointer-events:none parent */
+  pointer-events: auto;
 }
 .presets__scroll::-webkit-scrollbar { display: none; }
 

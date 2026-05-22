@@ -10,6 +10,8 @@
   border: 1px solid var(--color-border);
   transition: transform 160ms ease;
   -webkit-tap-highlight-color: transparent;
+  /* allow vertical swipes on cards to scroll the page, horizontal to scroll the carousel */
+  touch-action: pan-x pan-y;
 }
 
 .explore-card:active {
@@ -29,6 +31,10 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* prevent native image drag/selection from intercepting scroll gestures */
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
 }
 
 .explore-card__body {
