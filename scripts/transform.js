@@ -121,7 +121,7 @@ const cafes = [];
 for (const feature of features) {
   const p = feature.properties || {};
 
-  const name = (p.name || '').trim();
+  const name = (typeof p.name === 'string' ? p.name : String(p.name ?? '')).trim();
   if (!name) continue;
 
   const lat = p.lat ?? feature.geometry?.coordinates?.[1];
