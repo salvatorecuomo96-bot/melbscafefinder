@@ -17,9 +17,9 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         if (!haystack.includes(q)) return false;
       }
 
-      // Boolean filters (only enforce ones the user turned ON)
+      // Boolean filters — only exclude if explicitly false; null means unknown, keep it
       for (const [key, isOn] of Object.entries(filters.booleans)) {
-        if (isOn && !cafe[key]) return false;
+        if (isOn && cafe[key] === false) return false;
       }
 
       // Plant milk: cafe must offer ALL selected milks

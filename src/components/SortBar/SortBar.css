@@ -21,6 +21,11 @@
   color: var(--color-ink-soft);
 }
 
+.sortbar__cap {
+  color: var(--color-ink-soft);
+  font-size: 12px;
+}
+
 .sortbar__sort select {
   appearance: none;
   -webkit-appearance: none;

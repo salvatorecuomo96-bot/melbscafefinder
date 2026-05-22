@@ -7,13 +7,27 @@ const MELBOURNE = { lng: 144.9631, lat: -37.8136, zoom: 12.4 };
 const TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 const MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
 
+function buildGeoJSON(cafes) {
+  return {
+    type: 'FeatureCollection',
+    features: cafes.map((c) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [c.longitude, c.latitude] },
+      properties: { id: c.id, rating: c.rating },
+    })),
+  };
+}
+
 export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
-  const markersRef = useRef(new Map());
+  const cafesRef = useRef(cafes);
   const userMarkerRef = useRef(null);
   const [ready, setReady] = useState(false);
 
+  useEffect(() => { cafesRef.current = cafes; }, [cafes]);
+
+  // Init map once
   useEffect(() => {
     if (!TOKEN || !containerRef.current) return;
     mapboxgl.accessToken = TOKEN;
@@ -31,73 +45,116 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
-    map.on('load', () => setReady(true));
+    map.on('load', () => {
+      map.addSource('cafes', {
+        type: 'geojson',
+        data: buildGeoJSON([]),
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 40,
+      });
+
+      // Cluster bubble
+      map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'cafes',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#1a1a1a',
+          'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff',
+        },
+      });
+
+      // Cluster count
+      map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'cafes',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 12,
+        },
+        paint: { 'text-color': '#fff' },
+      });
+
+      // Individual point
+      map.addLayer({
+        id: 'pins',
+        type: 'circle',
+        source: 'cafes',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': ['case', ['==', ['get', 'id'], ''], '#e8c39e', '#fff'],
+          'circle-radius': 10,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#1a1a1a',
+        },
+      });
+
+      // Click cluster → zoom in
+      map.on('click', 'clusters', (e) => {
+        const [feature] = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+        map.getSource('cafes').getClusterExpansionZoom(feature.properties.cluster_id, (err, zoom) => {
+          if (err) return;
+          map.easeTo({ center: feature.geometry.coordinates, zoom });
+        });
+      });
+
+      // Click individual pin → select cafe
+      map.on('click', 'pins', (e) => {
+        const id = e.features[0].properties.id;
+        const cafe = cafesRef.current.find((c) => c.id === id);
+        if (cafe && typeof onSelect === 'function') onSelect(cafe);
+      });
+
+      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'pins', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'pins', () => { map.getCanvas().style.cursor = ''; });
+
+      setReady(true);
+    });
+
     mapRef.current = map;
-
     return () => map.remove();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Update GeoJSON data when cafes change
   useEffect(() => {
     if (!ready) return;
-    const map = mapRef.current;
+    mapRef.current.getSource('cafes')?.setData(buildGeoJSON(cafes));
+  }, [cafes, ready]);
 
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current.clear();
-
-    cafes.forEach(cafe => {
-      const el = document.createElement('div');
-      el.className = 'simple-pin';
-      el.style.pointerEvents = 'auto';
-      el.innerHTML = `<div class="simple-pin__inner"><span class="simple-pin__rating">${cafe.rating != null ? cafe.rating.toFixed(1) : '☕'}</span></div>`;
-
-      // More reliable click
-      const handleClick = (e) => {
-        e.stopImmediatePropagation();
-        console.log('%c[Map] Pin clicked:', 'color: lime', cafe.name);
-        if (typeof onSelect === 'function') {
-          onSelect(cafe);
-        }
-      };
-
-      el.addEventListener('click', handleClick, true);
-
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([cafe.longitude, cafe.latitude])
-        .addTo(map);
-
-      markersRef.current.set(cafe.id, marker);
-    });
-  }, [cafes, ready, onSelect]);
-
+  // Fly to selected cafe
   useEffect(() => {
     if (!ready || !selectedId) return;
-    const cafe = cafes.find(c => c.id === selectedId);
+    const cafe = cafes.find((c) => c.id === selectedId);
     if (!cafe) return;
-
     mapRef.current.flyTo({
       center: [cafe.longitude, cafe.latitude],
       zoom: Math.max(mapRef.current.getZoom(), 15),
       speed: 0.8,
-      essential: true
+      essential: true,
     });
   }, [selectedId, ready, cafes]);
 
+  // User location dot
   useEffect(() => {
     if (!ready || !userCoords) return;
     if (userMarkerRef.current) userMarkerRef.current.remove();
-
     const el = document.createElement('div');
     el.className = 'simple-user-dot';
-
     userMarkerRef.current = new mapboxgl.Marker({ element: el, anchor: 'center' })
       .setLngLat([userCoords.longitude, userCoords.latitude])
       .addTo(mapRef.current);
   }, [userCoords, ready]);
 
-  if (!TOKEN) {
-    return <NoTokenFallback />;
-  }
-
+  if (!TOKEN) return <NoTokenFallback />;
   return <div ref={containerRef} className="mapview" />;
 }
 

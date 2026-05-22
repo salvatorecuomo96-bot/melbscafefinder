@@ -69,9 +69,11 @@ export default function Home() {
   const nearMeActive = api.sort === 'distance';
   const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
 
-  const displayCafes = savedView
+  const LIST_CAP = 100;
+  const allDisplay = savedView
     ? api.visibleCafes.filter((c) => isSaved(c.id))
     : api.visibleCafes;
+  const displayCafes = allDisplay.slice(0, LIST_CAP);
 
   const handleSavedView = (val) => {
     setSavedView(val);
@@ -89,7 +91,7 @@ export default function Home() {
 
   const cafeList = (
     <>
-      <SortBar sort={api.sort} onChange={api.setSort} count={displayCafes.length} />
+      <SortBar sort={api.sort} onChange={api.setSort} count={allDisplay.length} shown={displayCafes.length} cap={LIST_CAP} />
       {displayCafes.length === 0 ? (
         <EmptyState onReset={savedView ? () => handleSavedView(false) : api.reset} />
       ) : (
