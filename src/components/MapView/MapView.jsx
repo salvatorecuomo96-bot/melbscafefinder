@@ -47,17 +47,19 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     cafes.forEach(cafe => {
       const el = document.createElement('div');
       el.className = 'simple-pin';
+      el.style.pointerEvents = 'auto';
       el.innerHTML = `<div class="simple-pin__inner"><span class="simple-pin__rating">${cafe.rating.toFixed(1)}</span></div>`;
 
-      el.addEventListener('click', (e) => {
-        console.log('Pin clicked:', cafe.name); // DEBUG
+      // More reliable click
+      const handleClick = (e) => {
         e.stopImmediatePropagation();
+        console.log('%c[Map] Pin clicked:', 'color: lime', cafe.name);
         if (typeof onSelect === 'function') {
           onSelect(cafe);
-        } else {
-          console.warn('onSelect is not a function');
         }
-      });
+      };
+
+      el.addEventListener('click', handleClick, true);
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat([cafe.longitude, cafe.latitude])
