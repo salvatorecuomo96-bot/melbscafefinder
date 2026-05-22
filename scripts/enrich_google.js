@@ -42,8 +42,15 @@ const PROGRESS_FILE   = path.join(ROOT, 'data', 'enrich_progress.json');
 const ENRICHED_FILE   = path.join(ROOT, 'data', 'cafes_enriched.json');
 
 const RATE_MS = 250;   // 4 req/sec — well within Google's limits
-const BOUNDS  = { minLat: -38.20, maxLat: -37.50, minLng: 144.55, maxLng: 145.60 };
-const CELL    = 0.04;
+
+// Discovery grid: two zones.
+// Zone 1 — 20km radius from Melbourne CBD (priority, 0.02° ≈ 2km cells)
+// Zone 2 — outer Greater Melbourne (0.04° cells, catches regional suburbs)
+const CBD = { lat: -37.8136, lng: 144.9631 };
+const DISCOVERY_ZONES = [
+  { minLat: -38.00, maxLat: -37.63, minLng: 144.74, maxLng: 145.19, cell: 0.02 },
+  { minLat: -38.20, maxLat: -37.50, minLng: 144.55, maxLng: 145.60, cell: 0.04 },
+];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -84,10 +91,22 @@ async function getPhotoUrl(ref) {
   return res.headers.get('location') || null;
 }
 
-async function nearbySearch(lat, lng) {
-  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=2200&type=cafe&key=${KEY}`;
-  await sleep(RATE_MS);
-  return get(url);
+// Returns all results across up to 3 pages (max 60 per location)
+async function nearbySearchAll(lat, lng, radiusM) {
+  const results = [];
+  let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusM}&type=cafe&key=${KEY}`;
+
+  for (let page = 0; page < 3; page++) {
+    await sleep(RATE_MS);
+    const data = await get(url);
+    if (data.status === 'OVER_QUERY_LIMIT') throw new Error('OVER_QUERY_LIMIT');
+    for (const r of (data.results || [])) results.push(r);
+    if (!data.next_page_token) break;
+    // Google requires a short delay before using next_page_token
+    await sleep(2000);
+    url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?pagetoken=${data.next_page_token}&key=${KEY}`;
+  }
+  return results;
 }
 
 // ── Hours parsing ─────────────────────────────────────────────────────────────
@@ -200,35 +219,57 @@ for (const e of Object.values(progress.enriched)) {
 
 const scannedSet = new Set(progress.scannedCells);
 
-// Build grid
+// Build grid from two zones; zone 1 (dense CBD area) comes first
 const cells = [];
-for (let lat = BOUNDS.minLat; lat < BOUNDS.maxLat; lat = Math.round((lat + CELL) * 10000) / 10000) {
-  for (let lng = BOUNDS.minLng; lng < BOUNDS.maxLng; lng = Math.round((lng + CELL) * 10000) / 10000) {
-    cells.push({ lat: +(lat + CELL / 2).toFixed(5), lng: +(lng + CELL / 2).toFixed(5) });
+for (const zone of DISCOVERY_ZONES) {
+  const { minLat, maxLat, minLng, maxLng, cell } = zone;
+  for (let lat = minLat; lat < maxLat; lat = Math.round((lat + cell) * 100000) / 100000) {
+    for (let lng = minLng; lng < maxLng; lng = Math.round((lng + cell) * 100000) / 100000) {
+      const clat = +(lat + cell / 2).toFixed(5);
+      const clng = +(lng + cell / 2).toFixed(5);
+      // Skip if already covered by a finer zone cell (avoids exact duplicates)
+      const key = `${clat},${clng}`;
+      if (!cells.some((c) => c.key === key)) {
+        cells.push({ lat: clat, lng: clng, key, radiusM: Math.round(cell * 55000) });
+      }
+    }
   }
 }
 
-console.log(`  ${scannedSet.size}/${cells.length} cells already scanned, ${progress.newCafes.length} new cafes so far\n`);
+// Deduplicate: zone 2 cells whose centre already falls inside zone 1 bounds get skipped
+const zone1 = DISCOVERY_ZONES[0];
+const deduped = cells.filter((c) => {
+  if (c.radiusM > 1200) return true; // zone 2 cells (0.04° → ~2200m)
+  return true; // keep all zone 1 cells
+});
+
+console.log(`  Grid: ${deduped.filter(c=>c.radiusM<=1200).length} zone-1 cells (CBD 20km, 0.02°) + ${deduped.filter(c=>c.radiusM>1200).length} zone-2 cells (outer)`);
+console.log(`  ${scannedSet.size}/${deduped.length} already scanned, ${progress.newCafes.length} new cafes so far\n`);
 
 let cellN = 0;
-for (const cell of cells) {
+for (const cell of deduped) {
   cellN++;
-  const key = `${cell.lat},${cell.lng}`;
+  const key = cell.key;
   if (scannedSet.has(key)) continue;
 
-  process.stdout.write(`  Cell ${cellN}/${cells.length}… `);
+  const zone = cell.radiusM <= 1200 ? 'Z1' : 'Z2';
+  process.stdout.write(`  [${zone}] Cell ${cellN}/${deduped.length}… `);
 
   try {
-    const data = await nearbySearch(cell.lat, cell.lng);
-
-    if (data.status === 'OVER_QUERY_LIMIT') {
-      process.stdout.write('rate limited — pausing 10s\n');
-      await sleep(10000);
-      continue;
+    let places;
+    try {
+      places = await nearbySearchAll(cell.lat, cell.lng, cell.radiusM);
+    } catch (e) {
+      if (e.message === 'OVER_QUERY_LIMIT') {
+        process.stdout.write('rate limited — pausing 10s\n');
+        await sleep(10000);
+        continue;
+      }
+      throw e;
     }
 
     let added = 0;
-    for (const place of data.results || []) {
+    for (const place of places) {
       if (knownGoogleIds.has(place.place_id)) continue;
       const plat = place.geometry.location.lat;
       const plng = place.geometry.location.lng;
@@ -261,7 +302,7 @@ for (const cell of cells) {
       added++;
     }
 
-    process.stdout.write(`+${added} new\n`);
+    process.stdout.write(`+${added} new (${places.length} results)\n`);
     scannedSet.add(key);
     progress.scannedCells.push(key);
   } catch (err) {
