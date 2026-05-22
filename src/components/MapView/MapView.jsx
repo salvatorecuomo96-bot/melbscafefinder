@@ -49,10 +49,13 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
       el.className = 'simple-pin';
       el.innerHTML = `<div class="simple-pin__inner"><span class="simple-pin__rating">${cafe.rating.toFixed(1)}</span></div>`;
 
+      // Make click more reliable
       el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        onSelect(cafe);
-      });
+        e.stopImmediatePropagation();
+        if (typeof onSelect === 'function') {
+          onSelect(cafe);
+        }
+      }, { passive: true });
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat([cafe.longitude, cafe.latitude])
