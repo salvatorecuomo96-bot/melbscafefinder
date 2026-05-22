@@ -80,7 +80,7 @@ async function findPlaceId(name, suburb, lat, lng) {
 }
 
 async function getDetails(placeId) {
-  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website';
+  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website,business_status';
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${KEY}`;
   await sleep(RATE_MS);
   const data = await get(url);
@@ -192,6 +192,7 @@ for (const cafe of cafes) {
       progress.enriched[cafe.id] = {
         found: true,
         googlePlaceId: placeId,
+        businessStatus: d?.business_status ?? 'OPERATIONAL',
         rating: d?.rating ?? null,
         userRatingsTotal: d?.user_ratings_total ?? null,
         priceLevel: d?.price_level ?? null,
@@ -334,21 +335,27 @@ console.log(`\n✅  Discovery done — ${progress.newCafes.length} new cafes fou
 
 console.log('\n─── Step 3: Building output ──────────────────────────────────────────\n');
 
-// Merge enrichment into existing cafes
-const merged = cafes.map((cafe) => {
-  const e = progress.enriched[cafe.id];
-  if (!e?.found) return cafe;
-  return {
-    ...cafe,
-    rating: e.rating,
-    priceLevel: e.priceLevel,
-    images: e.photoUrl ? [e.photoUrl] : cafe.images,
-    openingHours: e.openingHours || cafe.openingHours,
-    phone: e.phone || cafe.phone,
-    website: e.website || cafe.website,
-    _googlePlaceId: e.googlePlaceId,
-  };
-});
+// Merge enrichment into existing cafes, dropping permanently closed ones
+const merged = cafes
+  .filter((cafe) => {
+    const e = progress.enriched[cafe.id];
+    if (e?.found && e.businessStatus === 'CLOSED_PERMANENTLY') return false;
+    return true;
+  })
+  .map((cafe) => {
+    const e = progress.enriched[cafe.id];
+    if (!e?.found) return cafe;
+    return {
+      ...cafe,
+      rating: e.rating,
+      priceLevel: e.priceLevel,
+      images: e.photoUrl ? [e.photoUrl] : cafe.images,
+      openingHours: e.openingHours || cafe.openingHours,
+      phone: e.phone || cafe.phone,
+      website: e.website || cafe.website,
+      _googlePlaceId: e.googlePlaceId,
+    };
+  });
 
 // Convert new cafes to the same shape
 const seen = new Set(merged.map((c) => c.id));
