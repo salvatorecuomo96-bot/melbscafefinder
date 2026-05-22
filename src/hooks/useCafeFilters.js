@@ -1,24 +1,15 @@
 import { useMemo, useState } from 'react';
-import { CAFES } from '../data/cafes.js';
 import { DEFAULT_FILTERS } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
 
-/**
- * Centralised filter + sort logic.
- * - Owns the filters state.
- * - Returns the visible cafe list, plus helpers to update filters.
- *
- * Why a hook: keeps Home.jsx readable, and we can reuse this from
- * a future map view, or test it in isolation.
- */
-export function useCafeFilters({ userCoords, activePreset } = {}) {
+export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
 
   const visibleCafes = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
 
-    let list = CAFES.filter((cafe) => {
+    let list = cafes.filter((cafe) => {
       // Text search across name + suburb + tags
       if (q) {
         const haystack = [cafe.name, cafe.suburb, cafe.address, ...(cafe.tags || [])]
@@ -86,7 +77,7 @@ export function useCafeFilters({ userCoords, activePreset } = {}) {
     });
 
     return list;
-  }, [filters, sort, userCoords, activePreset]);
+  }, [cafes, filters, sort, userCoords, activePreset]);
 
   // ---- Update helpers ----
   const toggleBoolean = (key) =>

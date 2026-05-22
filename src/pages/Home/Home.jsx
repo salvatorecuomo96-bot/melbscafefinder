@@ -16,7 +16,7 @@ import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
-import { CAFES } from '../../data/cafes.js';
+import { useCafes } from '../../hooks/useCafes.js';
 import { haversineKm } from '../../utils/distance.js';
 import './Home.css';
 
@@ -41,16 +41,17 @@ export default function Home() {
     }
   };
 
+  const { cafes: rawCafes, loading } = useCafes();
   const { coords, status: geoStatus } = useGeolocation();
-  const api = useCafeFilters({ userCoords: coords, activePreset });
+  const api = useCafeFilters({ cafes: rawCafes, userCoords: coords, activePreset });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
 
   const allCafes = useMemo(() =>
-    CAFES.map((cafe) => ({
+    rawCafes.map((cafe) => ({
       ...cafe,
       distanceKm: coords ? haversineKm(coords, cafe) : null,
     })),
-    [coords]
+    [rawCafes, coords]
   );
 
   const savedCafes = allCafes.filter((c) => isSaved(c.id));
@@ -76,6 +77,15 @@ export default function Home() {
     setSavedView(val);
     setSheetSnap(val ? 1 : 0);
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100dvh', background: '#f5f0eb', flexDirection: 'column', gap: '12px' }}>
+        <svg width="40" height="40" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a1a1a" /><path d="M20 22h22a6 6 0 0 1 0 12h-2v4a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V22zm22 4v6a2 2 0 0 0 0-6z" fill="#e8c39e" /></svg>
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#666', margin: 0 }}>Loading cafes…</p>
+      </div>
+    );
+  }
 
   const cafeList = (
     <>
