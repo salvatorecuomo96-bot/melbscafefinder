@@ -120,7 +120,34 @@
 
 ---
 
-## Phase 5: Backend & Users (Future — When There's an Audience)
+## Phase 5: AI Natural Language Filter (After Real Data Exists)
+
+**Goal**: Let users describe what they want in plain English instead of tapping filters.
+
+### How it works
+- User types (or speaks): *"quiet spot near the CBD to work on my laptop, good wifi"*
+- Claude Haiku parses it → structured filter object: `{ wifi: true, laptopFriendly: true, quiet: true, suburb: 'CBD', sort: 'distance' }`
+- Existing filter system applies the result — no UI rebuild needed, just a new input mode
+
+### Implementation
+- API: Claude Haiku (`claude-haiku-4-5`) — cheapest Claude model, ~$0.25/M input tokens
+- One API call per query, ~200 tokens each = costs fractions of a cent per search
+- System prompt defines the output schema (matches existing filter shape)
+- Frontend: add an "AI search" input above the mood presets, with a sparkle icon
+- Falls back to normal filters if AI call fails
+- Needs `VITE_CLAUDE_API_KEY` in `.env` — requires a proxy/serverless function (can't expose key in browser)
+
+### Requires
+- Phase 1 complete (real cafes, real attributes to filter against)
+- A serverless function (Vercel/Netlify edge function) as a thin proxy — free tier is enough
+
+**Cost**: Near-zero. Haiku is so cheap that 10,000 AI searches = ~$0.50.
+
+**Status**: Pending (blocked on Phase 1)
+
+---
+
+## Phase 6: Backend & Users (Future — When There's an Audience)
 
 - [ ] Supabase (Postgres + Auth) — free tier is enough to start
 - [ ] User accounts
@@ -152,3 +179,4 @@
 - Zero ongoing cost to run
 
 *Last updated: 22 May 2026*
+
