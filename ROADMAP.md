@@ -1,8 +1,8 @@
 # Melbourne Cafe Finder — Roadmap
 
-**Mission**: Build a high-quality, mobile-first cafe discovery web app for Melbourne. Real data. Useful filters. Feels premium. $0 spent on data.
+**Mission**: Build a high-quality, mobile-first cafe discovery web app for Melbourne. Real data. Useful filters. Feels premium.
 
-**Rule**: No paid APIs. No paid scraping services. Every data source must be free.
+**Rule**: Use free tiers and keys we already have. No surprise bills.
 
 **Current Date**: 22 May 2026
 
@@ -22,67 +22,67 @@
 
 ---
 
-## Phase 1: Real Data — Free Sources Only (Highest Priority)
+## Phase 1: Real Data Pipeline (Highest Priority)
 
-**Goal**: Replace 10 mock cafes with 500+ real Melbourne cafes. Zero cost.
+**Goal**: Replace 10 mock cafes with 500+ real Melbourne cafes.
 
-### 1.1 OpenStreetMap via Overpass API
-- Completely free, no key required, no rate limit with polite usage
-- Query all `amenity=cafe` nodes/ways within Greater Melbourne bounding box
-- Fields available: name, lat/lng, suburb, phone, website, opening_hours, outdoor_seating, wheelchair
-- Write a script: `scripts/scrape_osm.js` or `.py`
-- Target: 300–600 cafes from OSM alone
+### 1.1 Geoapify (Primary — we have a key)
+- Free tier: 3,000 requests/day — enough to cover all of Melbourne in one run
+- Query `categories=catering.cafe` with bounding box grid across Greater Melbourne
+- Fields: name, lat/lng, address, suburb, phone, website, opening_hours, categories
+- Script: `scripts/scrape_geoapify.js` — resumable, saves progress, rate-limited
+- Target: 400–600 cafes
 
-### 1.2 City of Melbourne Open Data
-- Free government dataset at `data.melbourne.vic.gov.au`
-- Has cafe/restaurant listings with addresses, coordinates, suburb
-- Download as CSV/GeoJSON, parse and merge with OSM
-- Adds legitimacy and fills gaps in inner-city coverage
+### 1.2 OSM via Overpass API (Supplementary — free, no key)
+- Catches cafes Geoapify misses, especially in outer suburbs
+- Query `amenity=cafe` across same bounding box
+- Merge with Geoapify output, deduplicate by name + proximity (~50m)
 
-### 1.3 Merge & Deduplicate
-- Match by name + proximity (within ~50m = same cafe)
-- Prefer OSM coordinates (more accurate), CoM for metadata
-- Output: `data/cafes_raw.json` — ~500 entries, basic fields only
+### 1.3 City of Melbourne Open Data (Inner city top-up — free)
+- `data.melbourne.vic.gov.au` — official listings with suburb + coordinates
+- Good for inner-city density and cross-checking names
 
-**Cost**: $0. Both sources are public and free forever.
+### 1.4 Merge & Output
+- Deduplicate: same name within 50m = same cafe
+- Output: `data/cafes_raw.json` — 500+ entries
 
-**Deliverable**: `src/data/cafes.js` swapped from mock to real, app works with real pins on the map.
+**Cost**: $0 (Geoapify free tier + OSM free + CoM free)
+
+**Deliverable**: `src/data/cafes.js` replaced with real data, real pins on the map.
 
 **Status**: Pending
 
 ---
 
-## Phase 2: Enrich With Google Maps (Free Tier — Scraping HTML, Not API)
+## Phase 2: Enrich With Google Places (Free Trial First, Then Decide)
 
-**Goal**: Add photos, ratings, review snippets, and rich attributes without paying Google.
+**Goal**: Add photos, ratings, reviews, and structured attributes.
 
-### 2.1 What's free from Google
-- Public Google Maps pages are publicly accessible HTML
-- A headless browser (Playwright/Puppeteer) can extract:
-  - Star rating + review count
-  - 3–5 recent review snippets
-  - Category tags (e.g. "Cozy", "Good coffee")
-  - Cover photo URL (public CDN)
-- This is scraping, not the paid API — no cost
+### 2.1 Google Places API (New) — use the free trial credit
+- $200 free credit covers ~10,000 Place Details calls
+- Fields to fetch per cafe: rating, user_ratings_total, photos, opening_hours, website, phone, reviews (5 per cafe)
+- Use field masks to only pay for what we need (minimise cost when trial ends)
+- Script: `scripts/enrich_google.js` — processes `cafes_raw.json`, outputs `cafes_enriched.json`
+- Run once during trial, save results permanently — don't re-call unnecessarily
 
-### 2.2 Attribute extraction from reviews (no AI cost)
-- Rule-based keyword matching on review text, completely free:
+### 2.2 Attribute extraction from reviews (no API cost)
+- Rule-based keyword matching on the review text we already fetched:
   - "wifi", "laptop", "work" → `laptopFriendly: true`
-  - "dog", "puppy", "pets allowed" → `dogFriendly: true`
+  - "dog", "puppy", "pets" → `dogFriendly: true`
   - "quiet", "calm", "peaceful" → `quiet: true`
-  - "noisy", "loud", "busy" → `quiet: false`
+  - "loud", "busy", "noisy" → `quiet: false`
   - "outdoor", "garden", "terrace" → `outdoorSeating: true`
-  - "great coffee", "best espresso" → boost `coffeeQuality`
-- No LLM needed. Regex + word lists. Fast, free, good enough for V1.
+  - "amazing coffee", "best espresso" → boost `coffeeQuality`
+- Regex + word lists. No LLM. Runs on already-fetched data, costs nothing extra.
 
 ### 2.3 Photos
-- Pull the first public cover photo from each cafe's Google Maps page
-- Store as URL (hotlink from Google CDN) — no hosting cost
-- Fall back to a suburb-based placeholder if scraping fails
+- Google Places returns photo references — fetch the image URL once, save it
+- Store as a CDN URL in the JSON — no hosting cost
+- Fallback: OSM-linked Wikimedia image if Google photo missing
 
-**Cost**: $0. Compute only (your machine or a free GitHub Actions run).
+**Cost**: $0 during free trial. After trial, re-evaluate — may stay free if under $200/month threshold.
 
-**Deliverable**: `data/cafes_enriched.json` — ratings, photo URLs, extracted attributes
+**Deliverable**: `data/cafes_enriched.json` — ratings, photo URLs, review snippets, extracted attributes
 
 **Status**: Pending
 
