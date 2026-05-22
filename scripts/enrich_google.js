@@ -43,10 +43,11 @@ const ENRICHED_FILE   = path.join(ROOT, 'data', 'cafes_enriched.json');
 
 const RATE_MS = 250;   // 4 req/sec — well within Google's limits
 
-// Discovery grid: CBD + 20km radius, 0.02° cells (~2km).
-// Outer suburbs excluded to stay comfortably within free trial budget (~$190 USD total).
+// Discovery grid: CBD + ~11km radius, 0.02° cells (~2km).
+// Covers all iconic Melbourne cafe suburbs: Fitzroy, Carlton, Brunswick,
+// Richmond, South Yarra, St Kilda, Northcote, Hawthorn, Collingwood, Prahran.
 const DISCOVERY_ZONES = [
-  { minLat: -38.00, maxLat: -37.63, minLng: 144.74, maxLng: 145.19, cell: 0.02 },
+  { minLat: -37.92, maxLat: -37.71, minLng: 144.84, maxLng: 145.09, cell: 0.02 },
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
