@@ -28,14 +28,13 @@ export default function Home() {
   const [sheetSnap, setSheetSnap]       = useState(0);
   const handleSheetSnap = (snap) => {
     setSheetSnap(snap);
-    if (snap >= 1) setPreviewCafe(null); // hide preview when list is expanded
+    if (snap >= 1) setPreviewCafe(null);
   };
   const [activePreset, setActivePreset] = useState(null);
   const [activeTab, setActiveTab]       = useState('explore');
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    // Clear map-specific state when leaving the map tab
     if (tab !== 'map') {
       setPreviewCafe(null);
       setSheetSnap(0);
@@ -46,7 +45,6 @@ export default function Home() {
   const api = useCafeFilters({ userCoords: coords, activePreset });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
 
-  // All cafes decorated with distance — used by the explore feed
   const allCafes = useMemo(() =>
     CAFES.map((cafe) => ({
       ...cafe,
@@ -79,7 +77,6 @@ export default function Home() {
     setSheetSnap(val ? 1 : 0);
   };
 
-  // Shared list — rendered in desktop sidebar and mobile bottom sheet
   const cafeList = (
     <>
       <SortBar sort={api.sort} onChange={api.setSort} count={displayCafes.length} />
@@ -108,7 +105,6 @@ export default function Home() {
   return (
     <div className={`layout layout--tab-${activeTab}`}>
 
-      {/* ===== Mobile explore feed ===== */}
       <MobileExplore
         cafes={allCafes}
         isSaved={isSaved}
@@ -119,7 +115,6 @@ export default function Home() {
         hidden={activeTab !== 'explore'}
       />
 
-      {/* ===== Mobile saved screen ===== */}
       {activeTab === 'saved' && (
         <MobileSaved
           cafes={allCafes}
@@ -130,10 +125,7 @@ export default function Home() {
         />
       )}
 
-      {/* ===== Panel — floating top bar on mobile (map tab only) / sidebar on desktop ===== */}
       <aside className="layout__panel">
-
-        {/* Brand row */}
         <div className="layout__brand">
           <button
             className="layout__home-btn"
@@ -158,7 +150,6 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Discover controls */}
         {!savedView && (
           <>
             <SearchBar
@@ -167,7 +158,6 @@ export default function Home() {
               placeholder="Search cafe, suburb, or vibe"
             />
 
-            {/* Mood presets — desktop sidebar only; mobile shows them in the sheet */}
             <div className="layout__presets-wrap">
               <MoodPresets
                 activePresetId={activePreset?.id}
@@ -178,7 +168,6 @@ export default function Home() {
               )}
             </div>
 
-            {/* Compact action row — mobile only */}
             <div className="layout__actions">
               <button className="layout__action-btn" onClick={() => setDrawerOpen(true)}>
                 <FilterIcon />
@@ -197,7 +186,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* FilterChips — desktop only */}
             <div className="layout__chips-wrap">
               <FilterChips
                 activeBooleans={api.filters.booleans}
@@ -207,7 +195,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Near Me — desktop only */}
             <div className="layout__near-me">
               <button
                 className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
@@ -215,30 +202,29 @@ export default function Home() {
                 disabled={geoStatus === 'asking'}
               >
                 <LocIcon />
-                {geoStatus === 'asking' ? 'Getting location…' : nearMeActive ? 'Near me · Clear' : 'Near me'}
+                {geoStatus === 'denied' && !nearMeActive && (
+                  <span className="near-me-note">Location blocked — enable in browser settings</span>
+                )}
               </button>
-              {geoStatus === 'denied' && !nearMeActive && (
-                <span className="near-me-note">Location blocked — enable in browser settings</span>
-              )}
             </div>
           </>
         )}
 
-        {/* Desktop: scrollable cafe list (hidden on mobile — sheet handles it) */}
         <div className="layout__list-wrap">
           {cafeList}
         </div>
       </aside>
 
-      {/* ===== Map ===== */}
       <main className="layout__map">
         <MapView
           cafes={api.visibleCafes}
           selectedId={previewCafe?.id}
-          onSelect={setPreviewCafe}
+          onSelect={(cafe) => {
+            setPreviewCafe(cafe);
+            setDetailCafe(cafe); // Open detail when clicking map pin
+          }}
           userCoords={coords}
         />
-        {/* Only render preview on map tab and only when sheet is peeked (snap=0) */}
         {previewCafe && activeTab === 'map' && sheetSnap === 0 && (
           <CafePreviewCard
             cafe={previewCafe}
@@ -250,7 +236,6 @@ export default function Home() {
         )}
       </main>
 
-      {/* Mobile: draggable bottom sheet — only on map tab */}
       {activeTab === 'map' && (
         <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
           {!savedView && (
@@ -268,7 +253,6 @@ export default function Home() {
         </BottomSheet>
       )}
 
-      {/* Desktop: filter FAB near the map */}
       {!savedView && (
         <button
           className="layout__fab layout__fab--filters"
@@ -286,7 +270,6 @@ export default function Home() {
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
       <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
 
-      {/* Bottom nav — CSS hides on desktop */}
       <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />
     </div>
   );
