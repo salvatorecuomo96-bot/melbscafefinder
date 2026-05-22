@@ -1,137 +1,154 @@
-# Melbourne Cafe Finder - Grok Execution Roadmap
+# Melbourne Cafe Finder — Roadmap
 
-**Mission**: Build a high-quality, mobile-first cafe discovery web app (PWA-ready) for Melbourne with real data and powerful, review-backed filters.
+**Mission**: Build a high-quality, mobile-first cafe discovery web app for Melbourne. Real data. Useful filters. Feels premium. $0 spent on data.
 
-**My Operating Style**: Super efficient. No fluff. Execute phases in order. Push working improvements frequently. Automation first.
+**Rule**: No paid APIs. No paid scraping services. Every data source must be free.
 
 **Current Date**: 22 May 2026
 
 ---
 
-## Phase 0: Audit & Baseline (Do Immediately)
+## What's Already Built
 
-**Goal**: Understand exactly what exists and create a clean baseline.
+- Map-first mobile layout with draggable bottom sheet
+- Mood presets (8 vibes with ranked filtering)
+- Save cafes to localStorage
+- Near Me (geolocation + distance sort)
+- Filter drawer (wifi, dog-friendly, outdoor seating, etc.)
+- Desktop sidebar + map layout
+- 10 mock cafes (placeholder only)
 
-- [ ] Clone repo and audit current structure
-- [ ] Review current components (Map, BottomSheet, Filters, etc.)
-- [ ] Check scraper quality in `/scraper/`
-- [ ] Document current data flow (mock vs real)
-- [ ] Create `data/` folder structure if missing
-- [ ] Update this roadmap with findings
+**The gap**: mock data. Everything else is ready for real cafes.
+
+---
+
+## Phase 1: Real Data — Free Sources Only (Highest Priority)
+
+**Goal**: Replace 10 mock cafes with 500+ real Melbourne cafes. Zero cost.
+
+### 1.1 OpenStreetMap via Overpass API
+- Completely free, no key required, no rate limit with polite usage
+- Query all `amenity=cafe` nodes/ways within Greater Melbourne bounding box
+- Fields available: name, lat/lng, suburb, phone, website, opening_hours, outdoor_seating, wheelchair
+- Write a script: `scripts/scrape_osm.js` or `.py`
+- Target: 300–600 cafes from OSM alone
+
+### 1.2 City of Melbourne Open Data
+- Free government dataset at `data.melbourne.vic.gov.au`
+- Has cafe/restaurant listings with addresses, coordinates, suburb
+- Download as CSV/GeoJSON, parse and merge with OSM
+- Adds legitimacy and fills gaps in inner-city coverage
+
+### 1.3 Merge & Deduplicate
+- Match by name + proximity (within ~50m = same cafe)
+- Prefer OSM coordinates (more accurate), CoM for metadata
+- Output: `data/cafes_raw.json` — ~500 entries, basic fields only
+
+**Cost**: $0. Both sources are public and free forever.
+
+**Deliverable**: `src/data/cafes.js` swapped from mock to real, app works with real pins on the map.
+
+**Status**: Pending
+
+---
+
+## Phase 2: Enrich With Google Maps (Free Tier — Scraping HTML, Not API)
+
+**Goal**: Add photos, ratings, review snippets, and rich attributes without paying Google.
+
+### 2.1 What's free from Google
+- Public Google Maps pages are publicly accessible HTML
+- A headless browser (Playwright/Puppeteer) can extract:
+  - Star rating + review count
+  - 3–5 recent review snippets
+  - Category tags (e.g. "Cozy", "Good coffee")
+  - Cover photo URL (public CDN)
+- This is scraping, not the paid API — no cost
+
+### 2.2 Attribute extraction from reviews (no AI cost)
+- Rule-based keyword matching on review text, completely free:
+  - "wifi", "laptop", "work" → `laptopFriendly: true`
+  - "dog", "puppy", "pets allowed" → `dogFriendly: true`
+  - "quiet", "calm", "peaceful" → `quiet: true`
+  - "noisy", "loud", "busy" → `quiet: false`
+  - "outdoor", "garden", "terrace" → `outdoorSeating: true`
+  - "great coffee", "best espresso" → boost `coffeeQuality`
+- No LLM needed. Regex + word lists. Fast, free, good enough for V1.
+
+### 2.3 Photos
+- Pull the first public cover photo from each cafe's Google Maps page
+- Store as URL (hotlink from Google CDN) — no hosting cost
+- Fall back to a suburb-based placeholder if scraping fails
+
+**Cost**: $0. Compute only (your machine or a free GitHub Actions run).
+
+**Deliverable**: `data/cafes_enriched.json` — ratings, photo URLs, extracted attributes
+
+**Status**: Pending
+
+---
+
+## Phase 3: Frontend Integration
+
+**Goal**: Wire real data into the app.
+
+- [ ] Replace `src/data/cafes.js` with real enriched data
+- [ ] Display real photos in CafeCard and CafeDetail
+- [ ] Show real rating + review count
+- [ ] Wire attributes to existing filters (they already exist in UI)
+- [ ] Add photo loading skeleton state
+- [ ] Add marker clustering for the map (Mapbox has this free)
+
+**Status**: Pending
+
+---
+
+## Phase 4: Mobile Polish (Ongoing — Not Blocked by Data)
+
+**Goal**: Native app feel on iOS and Android.
+
+- [ ] Mood preset scroll confirmed working on all devices
+- [ ] Bottom sheet drag feels smooth and snappy
+- [ ] Map pins don't drift on zoom
+- [ ] Preview card + detail sheet transitions
+- [ ] PWA manifest + install prompt
+- [ ] Test on real iOS Safari + Android Chrome
+
+**Note**: This runs in parallel with Phase 1–3, not after.
 
 **Status**: In Progress
 
 ---
 
-## Phase 1: Production Data Pipeline (Highest Priority)
+## Phase 5: Backend & Users (Future — When There's an Audience)
 
-**Goal**: Replace mock data with real, rich cafe data from multiple sources.
+- [ ] Supabase (Postgres + Auth) — free tier is enough to start
+- [ ] User accounts
+- [ ] Saved cafes synced across devices (replace localStorage)
+- [ ] "I've been here" + user corrections
+- [ ] Automated stale-data detection (re-scrape if hours/name changed)
+- [ ] Admin queue for reviewing corrections
 
-### 1.1 Geoapify Scraper (Foundation)
-- [ ] Make scraper robust, resumable, and efficient
-- [ ] Implement smart grid/bounding box coverage for full Greater Melbourne
-- [ ] Add rate limiting, progress saving, error handling, logging
-- [ ] Output clean `data/raw/cafes_geoapify.json`
-- [ ] Run it and get 500+ real cafes
-
-### 1.2 Supplementary Data
-- [ ] Pull City of Melbourne open data (cafes/restaurants)
-- [ ] Pull OSM data via Overpass for additional coverage
-- [ ] Merge + deduplicate sources
-
-### 1.3 Google Places Enrichment
-- [ ] Enrich top cafes with Google Places (New) for photos, phone, website, hours, ratings
-- [ ] Pull recent reviews for attribute extraction
-- [ ] Strict cost control (field masks + limited calls)
-
-**Deliverable**: `data/processed/cafes_final.json` with real data + rich attributes
-
-**Status**: Pending
+**Status**: Future. Don't build this until people are actually using the app.
 
 ---
 
-## Phase 2: Review Intelligence Engine
+## Execution Rules
 
-**Goal**: Turn reviews into usable filter attributes.
-
-- [ ] Build review parser + sentiment/attribute extractor
-- [ ] Generate these structured fields from real reviews:
-  - wifi_quality
-  - power_outlets
-  - cozy_comfortable
-  - noise_level
-  - natural_light
-  - laptop_work_friendly
-  - dog_friendly
-  - good_for (solo/dates/groups/work)
-  - vibe_aesthetic
-  - coffee_quality + food_quality
-- [ ] Store attributes in JSONB-friendly format
-- [ ] Score confidence on each attribute
-
-**Deliverable**: Updated `cafes_final.json` with intelligent filter data
-
-**Status**: Pending
-
----
-
-## Phase 3: Frontend Data Integration
-
-**Goal**: Make the app use real data + powerful filters.
-
-- [ ] Load `cafes_final.json` into the React app
-- [ ] Replace mock data everywhere
-- [ ] Implement advanced filter system based on new attributes
-- [ ] Improve Mapbox integration (real markers, clustering, info windows)
-- [ ] Enhance bottom sheet with real photos + attribute badges
-- [ ] Add "Near Me" + distance sorting
-
-**Status**: Pending
-
----
-
-## Phase 4: Mobile UX Polish & PWA
-
-**Goal**: Make it feel like a native mobile app.
-
-- [ ] Fix any remaining mobile bugs (touch, scroll, overlays)
-- [ ] Polish bottom sheet experience
-- [ ] Add smooth animations and loading states
-- [ ] Make it installable as PWA
-- [ ] Test thoroughly on mobile
-
-**Status**: Pending
-
----
-
-## Phase 5: Backend & Persistence (Future)
-
-- [ ] Move to Supabase (Postgres + Auth)
-- [ ] Add user accounts + saved cafes
-- [ ] Add "I was here" + community corrections
-- [ ] Set up data refresh jobs
-
-**Status**: Future
-
----
-
-## Execution Rules (For Me)
-
-1. Work phase by phase in order
-2. Push meaningful progress at least every 1-2 days
-3. Always keep the app in a runnable state
-4. Prioritize real data + useful filters over polish
-5. Be ruthless about automation and simplicity
+1. $0 on data — OSM + CoM + HTML scraping only
+2. Mobile polish runs in parallel with data work, not after
+3. Keep the app runnable at all times
+4. Real data on the map before any new features
+5. 50 hand-curated cafes is better than 500 low-quality ones — quality over quantity
 
 ---
 
 ## Success Metrics
 
-- 500+ real cafes with rich attributes
-- Filters actually work based on real reviews/data
-- Smooth mobile experience
-- Easy to run data pipeline end-to-end
+- 200+ real Melbourne cafes with correct coordinates
+- Photos visible in the app
+- Filters based on real attributes (not mocked booleans)
+- Works smoothly on iPhone Safari
+- Zero ongoing cost to run
 
-**Let's build something actually useful.**
-
-*Last updated: 22 May 2026 by Grok 4.3*
+*Last updated: 22 May 2026*
