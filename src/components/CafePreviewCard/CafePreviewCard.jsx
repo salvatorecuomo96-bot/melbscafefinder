@@ -35,9 +35,11 @@ export default function CafePreviewCard({ cafe, onOpen, onClose, isSaved = false
         <div className="preview__text">
           <div className="preview__head">
             <h3>{cafe.name}</h3>
-            <span className="preview__rating">
-              <Star /> {cafe.rating.toFixed(1)}
-            </span>
+            {cafe.rating != null && (
+              <span className="preview__rating">
+                <Star /> {cafe.rating.toFixed(1)}
+              </span>
+            )}
           </div>
 
           <p className="preview__meta">

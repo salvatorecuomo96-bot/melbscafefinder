@@ -42,14 +42,16 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
       <div className="card__body">
         <div className="card__head">
           <h3 className="card__name">{cafe.name}</h3>
-          <div className="card__rating" aria-label={`Rating ${cafe.rating}`}>
-            <Star />
-            {cafe.rating.toFixed(1)}
-          </div>
+          {cafe.rating != null && (
+            <div className="card__rating" aria-label={`Rating ${cafe.rating}`}>
+              <Star />
+              {cafe.rating.toFixed(1)}
+            </div>
+          )}
         </div>
 
         <p className="card__meta">
-          {cafe.suburb} · {priceLabel(cafe.priceLevel)} · <em>{cafe.vibe}</em>
+          {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}{cafe.vibe ? ` · ${cafe.vibe}` : ''}
         </p>
 
         <p className="card__desc">{cafe.shortDescription}</p>

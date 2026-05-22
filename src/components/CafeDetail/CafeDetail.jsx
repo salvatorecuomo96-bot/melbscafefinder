@@ -67,14 +67,16 @@ export default function CafeDetail({ cafe, onClose }) {
             <div>
               <h2 className="detail__name">{cafe.name}</h2>
               <p className="detail__meta">
-                {cafe.suburb} · {priceLabel(cafe.priceLevel)} · {cafe.vibe}
+                {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}{cafe.vibe ? ` · ${cafe.vibe}` : ''}
               </p>
               <p className="detail__address">{cafe.address}</p>
             </div>
-            <div className="detail__rating">
-              <Star />
-              <span>{cafe.rating.toFixed(1)}</span>
-            </div>
+            {cafe.rating != null && (
+              <div className="detail__rating">
+                <Star />
+                <span>{cafe.rating.toFixed(1)}</span>
+              </div>
+            )}
           </header>
 
           <div className={`detail__status ${isOpen ? 'is-open' : ''}`}>

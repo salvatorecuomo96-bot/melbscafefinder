@@ -30,7 +30,7 @@ export function openStatus(openingHours, now = new Date()) {
   };
 }
 
-export function plantMilkLabel(milks = []) {
-  if (!milks.length) return 'Dairy only';
+export function plantMilkLabel(milks) {
+  if (!milks?.length) return 'Dairy only';
   return milks.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ');
 }

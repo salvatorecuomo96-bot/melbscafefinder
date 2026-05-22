@@ -48,7 +48,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
       const el = document.createElement('div');
       el.className = 'simple-pin';
       el.style.pointerEvents = 'auto';
-      el.innerHTML = `<div class="simple-pin__inner"><span class="simple-pin__rating">${cafe.rating.toFixed(1)}</span></div>`;
+      el.innerHTML = `<div class="simple-pin__inner"><span class="simple-pin__rating">${cafe.rating != null ? cafe.rating.toFixed(1) : '☕'}</span></div>`;
 
       // More reliable click
       const handleClick = (e) => {

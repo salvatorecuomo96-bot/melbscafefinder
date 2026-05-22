@@ -11,10 +11,11 @@ export default function MobileExplore({
   onPresetSelect,
   hidden,
 }) {
-  const forYou = [...cafes].sort((a, b) => b.rating - a.rating).slice(0, 10);
-  const quietWork = cafes.filter((c) => c.laptopFriendly && c.hasWifi).sort((a, b) => b.rating - a.rating);
-  const firstDate = cafes.filter((c) => c.goodForDates).sort((a, b) => b.rating - a.rating);
-  const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort((a, b) => b.rating - a.rating);
+  const byRating = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
+  const forYou = [...cafes].sort(byRating).slice(0, 10);
+  const quietWork = cafes.filter((c) => c.laptopFriendly && c.hasWifi).sort(byRating);
+  const firstDate = cafes.filter((c) => c.goodForDates).sort(byRating);
+  const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating);
   const savedCafes = cafes.filter((c) => isSaved(c.id));
 
   return (

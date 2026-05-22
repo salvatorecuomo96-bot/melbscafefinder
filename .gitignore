@@ -34,3 +34,7 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Data pipeline — raw/intermediate files (large, not needed in repo)
+data/cafes_raw.json
+data/progress.json
