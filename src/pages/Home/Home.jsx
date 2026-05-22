@@ -167,13 +167,16 @@ export default function Home() {
               placeholder="Search cafe, suburb, or vibe"
             />
 
-            <MoodPresets
-              activePresetId={activePreset?.id}
-              onSelect={handlePresetSelect}
-            />
-            {activePreset && (
-              <p className="layout__preset-desc">{activePreset.description}</p>
-            )}
+            {/* Mood presets — desktop sidebar only; mobile shows them in the sheet */}
+            <div className="layout__presets-wrap">
+              <MoodPresets
+                activePresetId={activePreset?.id}
+                onSelect={handlePresetSelect}
+              />
+              {activePreset && (
+                <p className="layout__preset-desc">{activePreset.description}</p>
+              )}
+            </div>
 
             {/* Compact action row — mobile only */}
             <div className="layout__actions">
@@ -250,6 +253,17 @@ export default function Home() {
       {/* Mobile: draggable bottom sheet — only on map tab */}
       {activeTab === 'map' && (
         <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
+          {!savedView && (
+            <div className="sheet__controls">
+              <MoodPresets
+                activePresetId={activePreset?.id}
+                onSelect={handlePresetSelect}
+              />
+              {activePreset && (
+                <p className="layout__preset-desc">{activePreset.description}</p>
+              )}
+            </div>
+          )}
           {cafeList}
         </BottomSheet>
       )}

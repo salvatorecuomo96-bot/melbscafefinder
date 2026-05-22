@@ -4,7 +4,12 @@ import './MoodPresets.css';
 export default function MoodPresets({ activePresetId, onSelect }) {
   return (
     <div className="presets">
-      <div className="presets__scroll" role="list" aria-label="Mood presets">
+      <div
+        className="presets__scroll"
+        role="list"
+        aria-label="Mood presets"
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         {MOOD_PRESETS.map((preset) => {
           const active = activePresetId === preset.id;
           return (

@@ -42,6 +42,12 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
       style: MAP_STYLE,
       center: [MELBOURNE.lng, MELBOURNE.lat],
       zoom: MELBOURNE.zoom,
+      minZoom: 9,
+      maxZoom: 18,
+      maxBounds: [
+        [136.0, -39.5], // SW corner of Victoria/SA border
+        [151.0, -33.5], // NE corner (Sydney area — enough room to pan)
+      ],
       attributionControl: false,
       cooperativeGestures: false
     });

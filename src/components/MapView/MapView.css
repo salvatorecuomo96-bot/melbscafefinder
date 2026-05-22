@@ -35,7 +35,7 @@
   cursor: pointer;
   padding: 0;
   transition: transform 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  filter: drop-shadow(0 6px 10px rgba(20, 14, 6, 0.25));
+  /* No filter here — CSS filter breaks Mapbox's transform-based geo-anchoring */
 }
 
 .pin:hover { transform: translateY(-2px) scale(1.04); }
@@ -53,6 +53,7 @@
   font-size: 12px;
   line-height: 1;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(20, 14, 6, 0.20);
 }
 .pin__inner svg { color: var(--color-gold); }
 
