@@ -62,7 +62,7 @@ async function get(url) {
 
 async function findPlaceId(name, suburb, lat, lng) {
   const q = encodeURIComponent(`${name} ${suburb} Melbourne`);
-  const bias = `circle:400@${lat},${lng}`;
+  const bias = `circle:1000@${lat},${lng}`;
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${q}&inputtype=textquery&fields=place_id,geometry&locationbias=${bias}&key=${KEY}`;
   await sleep(RATE_MS);
   const data = await get(url);
@@ -72,10 +72,10 @@ async function findPlaceId(name, suburb, lat, lng) {
   }
   if (!data.candidates?.length) return null;
   const c = data.candidates[0];
-  // Must be within 350m of our known location
+  // Must be within 600m of our known location
   const dlat = c.geometry.location.lat - lat;
   const dlng = c.geometry.location.lng - lng;
-  if (Math.sqrt(dlat * dlat + dlng * dlng) * 111000 > 350) return null;
+  if (Math.sqrt(dlat * dlat + dlng * dlng) * 111000 > 600) return null;
   return c.place_id;
 }
 
