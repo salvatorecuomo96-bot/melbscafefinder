@@ -66,7 +66,11 @@ async function findPlaceId(name, suburb, lat, lng) {
   const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${q}&inputtype=textquery&fields=place_id,geometry&locationbias=${bias}&key=${KEY}`;
   await sleep(RATE_MS);
   const data = await get(url);
-  if (data.status !== 'OK' || !data.candidates?.length) return null;
+  if (data.status !== 'OK') {
+    if (data.status !== 'ZERO_RESULTS') process.stdout.write(`[API:${data.status}] `);
+    return null;
+  }
+  if (!data.candidates?.length) return null;
   const c = data.candidates[0];
   // Must be within 350m of our known location
   const dlat = c.geometry.location.lat - lat;
@@ -149,6 +153,19 @@ if (fs.existsSync(PROGRESS_FILE)) {
 }
 
 const save = () => fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress));
+
+// ── API sanity check ──────────────────────────────────────────────────────────
+{
+  const testUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Proud%20Mary%20Collingwood&inputtype=textquery&fields=place_id,name&key=${KEY}`;
+  const r = await fetch(testUrl).then(r => r.json());
+  if (r.status === 'REQUEST_DENIED') {
+    console.error(`\n❌  API key rejected: ${r.error_message}`);
+    console.error('   → Go to Google Cloud Console → Credentials → edit your API key → remove API restrictions\n');
+    process.exit(1);
+  }
+  if (r.status === 'OK') console.log(`✅  API key working — found "${r.candidates[0]?.name}" in test search\n`);
+  else console.log(`⚠️  API test status: ${r.status} (may still work)\n`);
+}
 
 // ── Step 1: Enrich existing cafes ────────────────────────────────────────────
 
