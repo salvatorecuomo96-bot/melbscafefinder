@@ -38,3 +38,5 @@ Thumbs.db
 # Data pipeline — raw/intermediate files (large, not needed in repo)
 data/cafes_raw.json
 data/progress.json
+data/enrich_progress.json
+data/cafes_enriched.json
