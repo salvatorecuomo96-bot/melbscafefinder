@@ -61,9 +61,10 @@ async function extractAttributes(cafeName, reviews) {
 
 ${reviewText}
 
-Return ONLY a JSON object with these fields (true, false, or null):
+Return ONLY a JSON object with these fields:
 {
   "hasWifi": null,
+  "hasPowerOutlets": null,
   "outdoorSeating": null,
   "dogFriendly": null,
   "laptopFriendly": null,
@@ -71,16 +72,23 @@ Return ONLY a JSON object with these fields (true, false, or null):
   "goodForDates": null,
   "goodForGroups": null,
   "goodForWork": null,
+  "goodForSolo": null,
   "specialtyCoffee": null,
   "matcha": null,
   "pastries": null,
   "hasDecaf": null,
   "vibe": null,
-  "coffeeBrand": null
+  "coffeeBrand": null,
+  "chaiType": null
 }
 
-For "vibe" use one word max: cozy, modern, industrial, rustic, minimal, bright, artsy, traditional, or null.
-For "coffeeBrand" only fill if a specific roaster is named in the reviews (e.g. "Seven Seeds", "Market Lane"), otherwise null.
+Rules:
+- Boolean fields: true, false, or null (null = not mentioned)
+- "quiet": false if reviews mention noise/loud/busy, true if quiet/calm/peaceful
+- "vibe": one word only — cozy, modern, industrial, rustic, minimal, bright, artsy, traditional, or null
+- "coffeeBrand": only if a specific roaster is named (e.g. "Seven Seeds", "Market Lane", "St Ali", "Ona", "Axil", "Proud Mary", "Dukes", "Industry Beans"), otherwise null
+- "chaiType": "newspaper" if chai is made from a tea bag/masala blend, "leaf" if loose leaf chai, "powder" if powder-based chai (e.g. Arkadia), null if not mentioned
+- "hasPowerOutlets": true if reviews mention power points, outlets, charging, plugs
 Return raw JSON only, no markdown.`
     }]
   };

@@ -74,15 +74,19 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       }
 
       if (sort === 'rating') {
-        // Bayesian average: weight rating by review count so cafes with 5 reviews
-        // don't beat well-known cafes with hundreds of reviews.
-        // Score = (v/(v+m)) * R + (m/(v+m)) * C
-        const C = 4.2; // global mean rating
-        const m = 150; // confidence threshold
-        const score = (c) => {
+        // Bayesian score weighted by proximity to Melbourne CBD.
+        // Outer-suburb cafes get penalised so CBD/inner cafes rank first.
+        const C = 4.2, m = 150;
+        const CBD_LAT = -37.8136, CBD_LNG = 144.9631;
+        const bayesian = (c) => {
           const v = c.userRatingsTotal ?? 0;
           return (v / (v + m)) * (c.rating ?? 0) + (m / (v + m)) * C;
         };
+        const proximityBonus = (c) => {
+          const d = Math.sqrt((c.latitude - CBD_LAT) ** 2 + (c.longitude - CBD_LNG) ** 2) * 111;
+          return Math.max(0, 1 - d / 40); // 40km = 0 bonus; 0km = full bonus
+        };
+        const score = (c) => bayesian(c) * (0.6 + 0.4 * proximityBonus(c));
         return score(b) - score(a);
       }
 
