@@ -4,7 +4,7 @@
  *
  * Sources (priority order — later sources only fill in nulls):
  *   1. data/cafes_enriched.json  — Google Places (ratings, photos, hours)
- *   2. data/yelp_attrs.json      — Yelp (wifi, dogs, outdoor, noise, groups)
+ *   2. data/review_intel.json    — Claude Haiku review analysis
  *   3. data/website_attrs.json   — Website scrape (coffee brand, chai, milks)
  */
 
@@ -50,42 +50,77 @@ const merged = cafes.map((cafe) => {
 
   return {
     ...cafe,
-    hasWifi:          fill('hasWifi', r, w),
-    hasPowerOutlets:  fill('hasPowerOutlets', r, w),
-    outdoorSeating:   fill('outdoorSeating', r, w),
-    dogFriendly:      fill('dogFriendly', r, w),
-    laptopFriendly:   fill('laptopFriendly', r, w),
-    quiet:            fill('quiet', r, w),
-    goodForDates:     fill('goodForDates', r, w),
-    goodForGroups:    fill('goodForGroups', r, w),
-    goodForWork:      fill('goodForWork', r, w),
-    goodForSolo:      fill('goodForSolo', r, w),
-    specialtyCoffee:  fill('specialtyCoffee', r, w),
-    matcha:           fill('matcha', r, w),
-    pastries:         fill('pastries', r, w),
-    hasDecaf:         fill('hasDecaf', r, w),
-    // Website-only fields (reviews rarely mention these)
-    plantMilk:   cafe.plantMilk  ?? w.plantMilk  ?? null,
-    coffeeBrand: cafe.coffeeBrand ?? r.coffeeBrand ?? w.coffeeBrand ?? null,
-    chaiType:    cafe.chaiType   ?? w.chaiType    ?? null,
-    vibe:        cafe.vibe       ?? r.vibe        ?? null,
+    // Work & environment
+    hasWifi:              fill('hasWifi', r, w),
+    wifiQuality:          fill('wifiQuality', r, w),
+    hasPowerOutlets:      fill('hasPowerOutlets', r, w),
+    powerOutlets:         fill('powerOutlets', r, w),
+    laptopFriendly:       fill('laptopFriendly', r, w),
+    goodForWork:          fill('goodForWork', r, w),
+    goodForDigitalNomads: fill('goodForDigitalNomads', r, w),
+    goodForLongStays:     fill('goodForLongStays', r, w),
+    workPressure:         fill('workPressure', r, w),
+    noiseLevel:           fill('noiseLevel', r, w),
+    naturalLight:         fill('naturalLight', r, w),
+    seatingComfort:       fill('seatingComfort', r, w),
+    // Vibe
+    vibe:                 cafe.vibe ?? r.vibe ?? null,
+    energyLevel:          fill('energyLevel', r, w),
+    instagrammable:       fill('instagrammable', r, w),
+    music:                fill('music', r, w),
+    lightingMood:         fill('lightingMood', r, w),
+    communityFeel:        fill('communityFeel', r, w),
+    // Coffee
+    specialtyCoffee:      fill('specialtyCoffee', r, w),
+    coffeeStyle:          fill('coffeeStyle', r, w),
+    filterCoffee:         fill('filterCoffee', r, w),
+    baristaSkill:         fill('baristaSkill', r, w),
+    consistency:          fill('consistency', r, w),
+    coffeeBrand:          cafe.coffeeBrand ?? r.coffeeBrand ?? w.coffeeBrand ?? null,
+    hasDecaf:             fill('hasDecaf', r, w),
+    matcha:               fill('matcha', r, w),
+    chaiType:             cafe.chaiType ?? w.chaiType ?? r.chaiType ?? null,
+    // Food
+    pastries:             fill('pastries', r, w),
+    brunchQuality:        fill('brunchQuality', r, w),
+    veganOptions:         fill('veganOptions', r, w),
+    breakfastAllDay:      fill('breakfastAllDay', r, w),
+    // Practical
+    outdoorSeating:       fill('outdoorSeating', r, w),
+    dogFriendly:          fill('dogFriendly', r, w),
+    pramFriendly:         fill('pramFriendly', r, w),
+    // Social
+    goodForSolo:          fill('goodForSolo', r, w),
+    goodForDates:         fill('goodForDates', r, w),
+    goodForGroups:        fill('goodForGroups', r, w),
+    goodForMeetings:      fill('goodForMeetings', r, w),
+    kidFriendly:          fill('kidFriendly', r, w),
+    serviceStyle:         fill('serviceStyle', r, w),
+    // Advanced
+    hiddenGem:            fill('hiddenGem', r, w),
+    locallyOwned:         fill('locallyOwned', r, w),
+    sustainability:       fill('sustainability', r, w),
+    // Website-only
+    plantMilk:            cafe.plantMilk ?? w.plantMilk ?? null,
   };
 });
 
 // Filter: require at least 40 Google reviews OR manually curated (has boolean attributes)
-const hasCuration = (c) => [c.hasWifi, c.dogFriendly, c.outdoorSeating, c.laptopFriendly, c.quiet]
+const hasCuration = (c) => [c.hasWifi, c.dogFriendly, c.outdoorSeating, c.laptopFriendly, c.noiseLevel]
   .some((v) => v != null);
 const clean = merged.filter((c) => (c.userRatingsTotal ?? 0) >= 40 || hasCuration(c));
 
 fs.writeFileSync(dest, JSON.stringify(clean));
 console.log(`\n✅  Published ${clean.length} cafes → public/cafes.json`);
-console.log(`   (removed ${merged.length - clean.length} with no rating or photos)`);
+console.log(`   (removed ${merged.length - clean.length} below threshold)`);
 
 // Stats
-const withWifi     = clean.filter((c) => c.hasWifi).length;
-const withDogs     = clean.filter((c) => c.dogFriendly).length;
-const withBrand    = clean.filter((c) => c.coffeeBrand).length;
-const withChai     = clean.filter((c) => c.chaiType).length;
-console.log(`\n   WiFi: ${withWifi}  Dogs: ${withDogs}  Brand: ${withBrand}  Chai: ${withChai}`)
-;
+const withWifi    = clean.filter((c) => c.hasWifi).length;
+const withDogs    = clean.filter((c) => c.dogFriendly).length;
+const withBrand   = clean.filter((c) => c.coffeeBrand).length;
+const withChai    = clean.filter((c) => c.chaiType).length;
+const withVibe    = clean.filter((c) => c.vibe).length;
+const withNomad   = clean.filter((c) => c.goodForDigitalNomads).length;
+const withHidden  = clean.filter((c) => c.hiddenGem).length;
+console.log(`\n   WiFi: ${withWifi}  Dogs: ${withDogs}  Brand: ${withBrand}  Chai: ${withChai}  Vibe: ${withVibe}  Nomad: ${withNomad}  Hidden gems: ${withHidden}`);
 console.log(`\n👉  git add public/cafes.json && git commit -m "data: enrichment update" && git push`);
