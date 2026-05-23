@@ -73,6 +73,14 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         return 0;
       }
 
+      if (sort === 'rating') {
+        // Require at least 40 reviews to rank by rating; push low-review cafes to the bottom
+        const aValid = (a.userRatingsTotal ?? 0) >= 40;
+        const bValid = (b.userRatingsTotal ?? 0) >= 40;
+        if (aValid !== bValid) return aValid ? -1 : 1;
+        return (b.rating ?? 0) - (a.rating ?? 0);
+      }
+
       return (b[sort] ?? 0) - (a[sort] ?? 0);
     });
 

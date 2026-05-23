@@ -271,6 +271,7 @@
 
   .layout__panel {
     grid-area: 1 / 1 / 2 / 2;
+    align-self: stretch; /* fill full grid cell height so list-wrap can scroll */
     background: var(--color-bg);
     border-right: 1px solid var(--color-border);
     padding: 22px 22px 0;
@@ -302,7 +303,7 @@
 
   /* Restore elements hidden on mobile */
   .layout__saved-tab { display: inline-flex; }
-  .layout__chips-wrap { display: block; }
+  .layout__chips-wrap { display: none; } /* redundant with filter drawer on desktop */
   .layout__near-me { display: flex; }
   .layout__actions { display: none; }
   .layout__fab--filters { display: inline-flex; }
