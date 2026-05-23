@@ -221,7 +221,7 @@ const save = () => fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress));
 console.log('\n─── Step 0: Upgrading photos + reviews for matched cafes ────────────\n');
 
 const needsUpgrade = Object.entries(progress.enriched)
-  .filter(([, e]) => e.found && e.googlePlaceId && !e.photoUrls && !e.reviews);
+  .filter(([, e]) => e.found && e.googlePlaceId && (!e.photoUrls?.length || !e.reviews?.length));
 console.log(`  ${needsUpgrade.length} cafes need photo/review upgrade\n`);
 
 let u = 0;
