@@ -34,10 +34,8 @@ export const PRICE_LEVELS = [
 ];
 
 export const SORT_OPTIONS = [
-  { value: 'rating',         label: 'Top rated' },
-  { value: 'coffeeQuality',  label: 'Best coffee' },
-  { value: 'foodQuality',    label: 'Best food' },
-  { value: 'distance',       label: 'Nearest' }
+  { value: 'rating',   label: 'Top rated' },
+  { value: 'distance', label: 'Nearest' },
 ];
 
 export const DEFAULT_FILTERS = {

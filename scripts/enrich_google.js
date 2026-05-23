@@ -50,6 +50,12 @@ const DISCOVERY_ZONES = [
   { minLat: -37.92, maxLat: -37.71, minLng: 144.84, maxLng: 145.09, cell: 0.02 },
 ];
 
+// Cafes known to exist but missed by the grid — searched by text with no location bias.
+const MUST_FIND = [
+  { query: 'Little Nooky Cafe Degraves Street Melbourne CBD' },
+  { query: 'Little Nooky Cafe Richmond Church Street Victoria' },
+];
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── API helpers ───────────────────────────────────────────────────────────────
@@ -520,6 +526,60 @@ for (const kw of KW_PASSES) {
 
 save();
 console.log(`\n✅  Keyword sweep done — ${progress.newCafes.length} total new cafes`);
+
+// ── Step 2c: Force-find specific known cafes by text search ──────────────────
+
+console.log('\n─── Step 2c: Force-find known missing cafes ─────────────────────────\n');
+if (!progress.forceFindDone) progress.forceFindDone = [];
+const forceDoneSet = new Set(progress.forceFindDone);
+
+for (const { query } of MUST_FIND) {
+  if (forceDoneSet.has(query)) continue;
+  process.stdout.write(`  Searching: "${query}"… `);
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(query)}&inputtype=textquery&fields=place_id,geometry,name&key=${KEY}`;
+    await sleep(RATE_MS);
+    const data = await get(url);
+    if (data.status !== 'OK' || !data.candidates?.length) {
+      process.stdout.write('✗ not found\n');
+    } else {
+      const c = data.candidates[0];
+      if (knownGoogleIds.has(c.place_id)) {
+        process.stdout.write(`already have it (${c.name})\n`);
+      } else {
+        const d = await getDetails(c.place_id);
+        if (!d || d.business_status === 'CLOSED_PERMANENTLY') {
+          process.stdout.write('✗ closed or no details\n');
+        } else {
+          const photoUrls = await getPhotoUrls(d.photos);
+          const reviews = (d.reviews || []).map((r) => ({ text: r.text, rating: r.rating }));
+          progress.newCafes.push({
+            _googlePlaceId: c.place_id,
+            name: d.name || c.name,
+            latitude: c.geometry.location.lat,
+            longitude: c.geometry.location.lng,
+            rating: d.rating ?? null,
+            userRatingsTotal: d.user_ratings_total ?? null,
+            priceLevel: d.price_level ?? null,
+            photoUrls,
+            reviews,
+            openingHours: d.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
+            phone: d.formatted_phone_number ?? null,
+            website: d.website ?? null,
+            vicinity: d.vicinity ?? '',
+          });
+          knownGoogleIds.add(c.place_id);
+          process.stdout.write(`✓ added ${d.name} (${d.rating}★ ${d.user_ratings_total} reviews)\n`);
+        }
+      }
+    }
+  } catch (err) {
+    process.stdout.write(`error: ${err.message}\n`);
+  }
+  progress.forceFindDone.push(query);
+}
+
+save();
 
 // ── Step 3: Merge & write output ──────────────────────────────────────────────
 

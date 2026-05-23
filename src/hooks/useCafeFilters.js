@@ -74,11 +74,16 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       }
 
       if (sort === 'rating') {
-        // Require at least 40 reviews to rank by rating; push low-review cafes to the bottom
-        const aValid = (a.userRatingsTotal ?? 0) >= 40;
-        const bValid = (b.userRatingsTotal ?? 0) >= 40;
-        if (aValid !== bValid) return aValid ? -1 : 1;
-        return (b.rating ?? 0) - (a.rating ?? 0);
+        // Bayesian average: weight rating by review count so cafes with 5 reviews
+        // don't beat well-known cafes with hundreds of reviews.
+        // Score = (v/(v+m)) * R + (m/(v+m)) * C
+        const C = 4.2; // global mean rating
+        const m = 150; // confidence threshold
+        const score = (c) => {
+          const v = c.userRatingsTotal ?? 0;
+          return (v / (v + m)) * (c.rating ?? 0) + (m / (v + m)) * C;
+        };
+        return score(b) - score(a);
       }
 
       return (b[sort] ?? 0) - (a[sort] ?? 0);
