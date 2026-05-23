@@ -95,11 +95,29 @@ async function findPlaceIdLoose(name, lat, lng) {
 }
 
 async function getDetails(placeId) {
-  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website,business_status';
+  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website,business_status,reviews';
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${KEY}`;
   await sleep(RATE_MS);
   const data = await get(url);
   return data.status === 'OK' ? data.result : null;
+}
+
+function extractAttributes(reviews = []) {
+  const text = reviews.map((r) => r.text || '').join(' ').toLowerCase();
+  const has = (re) => re.test(text) ? true : null;
+  const quiet = /\bquiet\b|\bpeaceful\b|\bcalm\b|\brelax/.test(text)
+    ? true : /\bnoisy\b|\bloud\b|\bcrowded\b/.test(text) ? false : null;
+  return {
+    hasWifi:         has(/\bwi.?fi\b|\bwireless\b|\binternet\b/),
+    laptopFriendly:  has(/\blaptop\b|\bremote work\b|\bwork(ing)? (from|here)\b|\bstud(y|ying)\b/),
+    dogFriendly:     has(/\bdog\b|\bpup(py|pet)?\b|\bcanine\b|\bpooch\b|\bfour.legged\b/),
+    outdoorSeating:  has(/\boutdoor\b|\boutside\b|\bgarden\b|\bterrace\b|\bcourtyard\b|\balfresco\b|\bsidewal(k|kside)\b/),
+    quiet,
+    matcha:          has(/\bmatcha\b/),
+    pastries:        has(/\bpastry\b|\bpastries\b|\bcroissant\b|\bdanish\b|\bscone\b|\bbrioche\b/),
+    hasDecaf:        has(/\bdecaf\b/),
+    specialtyCoffee: has(/\bspecialt(y|ies) coffee\b|\bsingle.?origin\b|\bfilter coffee\b|\baeropress\b|\bpour.?over\b|\bcold brew\b/),
+  };
 }
 
 async function getPhotoUrl(ref) {
@@ -192,6 +210,33 @@ const save = () => fs.writeFileSync(PROGRESS_FILE, JSON.stringify(progress));
   else console.log(`⚠️  API test status: ${r.status} (may still work)\n`);
 }
 
+// ── Step 0: Upgrade already-enriched cafes (multi-photo + reviews) ───────────
+
+console.log('\n─── Step 0: Upgrading photos + reviews for matched cafes ────────────\n');
+
+const needsUpgrade = Object.entries(progress.enriched)
+  .filter(([, e]) => e.found && e.googlePlaceId && !e.photoUrls && !e.reviews);
+console.log(`  ${needsUpgrade.length} cafes need photo/review upgrade\n`);
+
+let u = 0;
+for (const [id, e] of needsUpgrade) {
+  u++;
+  if (u % 50 === 0) process.stdout.write(`  [${u}/${needsUpgrade.length}]\n`);
+  try {
+    const d = await getDetails(e.googlePlaceId);
+    if (!d) continue;
+    e.photoUrls = await getPhotoUrls(d.photos);
+    e.reviews = (d.reviews || []).map((r) => ({ text: r.text, rating: r.rating }));
+    e.businessStatus = d.business_status ?? e.businessStatus;
+  } catch (err) {
+    // non-fatal — keep old data
+  }
+  if (u % 20 === 0) save();
+}
+
+save();
+console.log(`✅  Upgrade done (${needsUpgrade.length} cafes)\n`);
+
 // ── Step 1: Enrich existing cafes ────────────────────────────────────────────
 
 console.log('\n─── Step 1: Enrich existing cafes ───────────────────────────────────\n');
@@ -213,6 +258,7 @@ for (const cafe of cafes) {
       const d = await getDetails(placeId);
       const photoUrls = await getPhotoUrls(d?.photos);
 
+      const reviews = (d?.reviews || []).map((r) => ({ text: r.text, rating: r.rating }));
       progress.enriched[cafe.id] = {
         found: true,
         googlePlaceId: placeId,
@@ -221,14 +267,15 @@ for (const cafe of cafes) {
         userRatingsTotal: d?.user_ratings_total ?? null,
         priceLevel: d?.price_level ?? null,
         photoUrls,
+        reviews,
         openingHours: d?.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
         phone: d?.formatted_phone_number ?? null,
         website: d?.website ?? null,
       };
 
       const stars = d?.rating ? `${d.rating}★` : '–';
-      const reviews = d?.user_ratings_total ? `${d.user_ratings_total} reviews` : 'no reviews';
-      process.stdout.write(`✓ ${stars} ${reviews} ${photoUrls.length}📷\n`);
+      const reviewCount = d?.user_ratings_total ? `${d.user_ratings_total} reviews` : 'no reviews';
+      process.stdout.write(`✓ ${stars} ${reviewCount} ${photoUrls.length}📷\n`);
     }
   } catch (err) {
     process.stdout.write(`error: ${err.message}\n`);
@@ -259,6 +306,7 @@ for (const cafe of unmatched) {
     } else {
       const d = await getDetails(placeId);
       const photoUrls = await getPhotoUrls(d?.photos);
+      const reviews = (d?.reviews || []).map((r) => ({ text: r.text, rating: r.rating }));
       progress.enriched[cafe.id] = {
         found: true,
         googlePlaceId: placeId,
@@ -267,6 +315,7 @@ for (const cafe of unmatched) {
         userRatingsTotal: d?.user_ratings_total ?? null,
         priceLevel: d?.price_level ?? null,
         photoUrls,
+        reviews,
         openingHours: d?.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
         phone: d?.formatted_phone_number ?? null,
         website: d?.website ?? null,
@@ -488,15 +537,27 @@ const merged = cafes
   .map((cafe) => {
     const e = progress.enriched[cafe.id];
     if (!e?.found) return cafe;
+    const attrs = extractAttributes(e.reviews || []);
     return {
       ...cafe,
       rating: e.rating,
+      userRatingsTotal: e.userRatingsTotal,
       priceLevel: e.priceLevel,
       images: e.photoUrls?.length ? e.photoUrls : (e.photoUrl ? [e.photoUrl] : cafe.images),
       openingHours: e.openingHours || cafe.openingHours,
       phone: e.phone || cafe.phone,
       website: e.website || cafe.website,
       _googlePlaceId: e.googlePlaceId,
+      // Only overwrite if the existing value is null (manual curation wins)
+      hasWifi:         cafe.hasWifi         ?? attrs.hasWifi,
+      laptopFriendly:  cafe.laptopFriendly  ?? attrs.laptopFriendly,
+      dogFriendly:     cafe.dogFriendly     ?? attrs.dogFriendly,
+      outdoorSeating:  cafe.outdoorSeating  ?? attrs.outdoorSeating,
+      quiet:           cafe.quiet           ?? attrs.quiet,
+      matcha:          cafe.matcha          ?? attrs.matcha,
+      pastries:        cafe.pastries        ?? attrs.pastries,
+      hasDecaf:        cafe.hasDecaf        ?? attrs.hasDecaf,
+      specialtyCoffee: cafe.specialtyCoffee ?? attrs.specialtyCoffee,
     };
   });
 
@@ -511,6 +572,7 @@ for (const nc of progress.newCafes) {
   while (seen.has(slug)) slug = `${slugify(`${nc.name}-${suburb}`)}-${suffix++}`;
   seen.add(slug);
 
+  const ncAttrs = extractAttributes(nc.reviews || []);
   newConverted.push({
     id: slug,
     name: nc.name,
@@ -519,23 +581,24 @@ for (const nc of progress.newCafes) {
     latitude: nc.latitude,
     longitude: nc.longitude,
     rating: nc.rating,
+    userRatingsTotal: nc.userRatingsTotal,
     coffeeQuality: null,
     foodQuality: null,
     priceLevel: nc.priceLevel,
     images: nc.photoUrls?.length ? nc.photoUrls : [],
     shortDescription: null,
-    hasWifi: null,
-    laptopFriendly: null,
-    dogFriendly: null,
-    outdoorSeating: null,
-    quiet: null,
+    hasWifi:         ncAttrs.hasWifi,
+    laptopFriendly:  ncAttrs.laptopFriendly,
+    dogFriendly:     ncAttrs.dogFriendly,
+    outdoorSeating:  ncAttrs.outdoorSeating,
+    quiet:           ncAttrs.quiet,
     goodForDates: null,
     goodForWork: null,
     goodForGroups: null,
-    specialtyCoffee: null,
-    matcha: null,
-    pastries: null,
-    hasDecaf: null,
+    specialtyCoffee: ncAttrs.specialtyCoffee,
+    matcha:          ncAttrs.matcha,
+    pastries:        ncAttrs.pastries,
+    hasDecaf:        ncAttrs.hasDecaf,
     plantMilk: null,
     phone: nc.phone,
     website: nc.website,
