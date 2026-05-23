@@ -178,5 +178,25 @@
 - Works smoothly on iPhone Safari
 - Zero ongoing cost to run
 
-*Last updated: 22 May 2026*
+*Last updated: 23 May 2026*
+
+---
+
+## Phase 7: Advanced Filters (Planned)
+
+### Chai type
+- [ ] Filter: newspaper chai (pre-mixed masala / Arkadia-style)
+- [ ] Filter: loose leaf chai
+- [ ] Filter: powder chai
+
+Data field: `chaiType: 'newspaper' | 'leaf' | 'powder' | null`
+Sourced manually or via review keyword extraction.
+
+### Coffee brand
+- [ ] Display roaster/brand on cafe card (e.g. St Ali, Seven Seeds, Ona, Market Lane, Axil)
+- [ ] Filter by coffee brand
+- [ ] "Independent roaster" toggle
+
+Data field: `coffeeBrand: string | null`
+Sourced manually — no automated way to get this from Google.
 

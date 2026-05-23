@@ -72,10 +72,25 @@ async function findPlaceId(name, suburb, lat, lng) {
   }
   if (!data.candidates?.length) return null;
   const c = data.candidates[0];
-  // Must be within 600m of our known location
   const dlat = c.geometry.location.lat - lat;
   const dlng = c.geometry.location.lng - lng;
   if (Math.sqrt(dlat * dlat + dlng * dlng) * 111000 > 600) return null;
+  return c.place_id;
+}
+
+// Looser re-pass: wider bias, larger distance, name-only query
+async function findPlaceIdLoose(name, lat, lng) {
+  const q = encodeURIComponent(`${name} Melbourne`);
+  const bias = `circle:5000@${lat},${lng}`;
+  const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${q}&inputtype=textquery&fields=place_id,geometry&locationbias=${bias}&key=${KEY}`;
+  await sleep(RATE_MS);
+  const data = await get(url);
+  if (data.status !== 'OK') return null;
+  if (!data.candidates?.length) return null;
+  const c = data.candidates[0];
+  const dlat = c.geometry.location.lat - lat;
+  const dlng = c.geometry.location.lng - lng;
+  if (Math.sqrt(dlat * dlat + dlng * dlng) * 111000 > 1500) return null;
   return c.place_id;
 }
 
@@ -93,10 +108,20 @@ async function getPhotoUrl(ref) {
   return res.headers.get('location') || null;
 }
 
+async function getPhotoUrls(photos, max = 4) {
+  const urls = [];
+  for (const photo of (photos || []).slice(0, max)) {
+    const url = await getPhotoUrl(photo.photo_reference);
+    if (url) urls.push(url);
+  }
+  return urls;
+}
+
 // Returns all results across up to 3 pages (max 60 per location)
-async function nearbySearchAll(lat, lng, radiusM) {
+async function nearbySearchAll(lat, lng, radiusM, keyword = null) {
   const results = [];
-  let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusM}&type=cafe&key=${KEY}`;
+  const kw = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '';
+  let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusM}&type=cafe${kw}&key=${KEY}`;
 
   for (let page = 0; page < 3; page++) {
     await sleep(RATE_MS);
@@ -186,8 +211,7 @@ for (const cafe of cafes) {
       process.stdout.write('✗ not found\n');
     } else {
       const d = await getDetails(placeId);
-      let photoUrl = null;
-      if (d?.photos?.[0]) photoUrl = await getPhotoUrl(d.photos[0].photo_reference);
+      const photoUrls = await getPhotoUrls(d?.photos);
 
       progress.enriched[cafe.id] = {
         found: true,
@@ -196,7 +220,7 @@ for (const cafe of cafes) {
         rating: d?.rating ?? null,
         userRatingsTotal: d?.user_ratings_total ?? null,
         priceLevel: d?.price_level ?? null,
-        photoUrl,
+        photoUrls,
         openingHours: d?.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
         phone: d?.formatted_phone_number ?? null,
         website: d?.website ?? null,
@@ -204,7 +228,7 @@ for (const cafe of cafes) {
 
       const stars = d?.rating ? `${d.rating}★` : '–';
       const reviews = d?.user_ratings_total ? `${d.user_ratings_total} reviews` : 'no reviews';
-      process.stdout.write(`✓ ${stars} ${reviews}\n`);
+      process.stdout.write(`✓ ${stars} ${reviews} ${photoUrls.length}📷\n`);
     }
   } catch (err) {
     process.stdout.write(`error: ${err.message}\n`);
@@ -217,6 +241,47 @@ for (const cafe of cafes) {
 save();
 const foundCount = Object.values(progress.enriched).filter((e) => e.found).length;
 console.log(`\n✅  Enriched ${foundCount} / ${cafes.length} cafes`);
+
+// ── Step 1b: Re-pass for unmatched cafes with looser search ──────────────────
+
+console.log('\n─── Step 1b: Re-pass unmatched cafes (wider search) ─────────────────\n');
+
+const unmatched = cafes.filter((c) => progress.enriched[c.id]?.found === false);
+console.log(`  ${unmatched.length} cafes to retry\n`);
+
+let rematchCount = 0;
+for (const cafe of unmatched) {
+  process.stdout.write(`  ${cafe.name} (${cafe.suburb})… `);
+  try {
+    const placeId = await findPlaceIdLoose(cafe.name, cafe.latitude, cafe.longitude);
+    if (!placeId) {
+      process.stdout.write('✗ still not found\n');
+    } else {
+      const d = await getDetails(placeId);
+      const photoUrls = await getPhotoUrls(d?.photos);
+      progress.enriched[cafe.id] = {
+        found: true,
+        googlePlaceId: placeId,
+        businessStatus: d?.business_status ?? 'OPERATIONAL',
+        rating: d?.rating ?? null,
+        userRatingsTotal: d?.user_ratings_total ?? null,
+        priceLevel: d?.price_level ?? null,
+        photoUrls,
+        openingHours: d?.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
+        phone: d?.formatted_phone_number ?? null,
+        website: d?.website ?? null,
+      };
+      const stars = d?.rating ? `${d.rating}★` : '–';
+      process.stdout.write(`✓ ${stars} (rematch) ${photoUrls.length}📷\n`);
+      rematchCount++;
+    }
+  } catch (err) {
+    process.stdout.write(`error: ${err.message}\n`);
+  }
+}
+
+save();
+console.log(`\n✅  Rematched ${rematchCount} / ${unmatched.length} previously-unmatched cafes`);
 
 // ── Step 2: Discover missing cafes ───────────────────────────────────────────
 
@@ -295,8 +360,8 @@ for (const cell of deduped) {
       // New cafe — get full details
       const d = await getDetails(place.place_id);
       if (!d) continue;
-      let photoUrl = null;
-      if (d.photos?.[0]) photoUrl = await getPhotoUrl(d.photos[0].photo_reference);
+      if (d.business_status === 'CLOSED_PERMANENTLY') { knownGoogleIds.add(place.place_id); continue; }
+      const photoUrls = await getPhotoUrls(d.photos);
 
       progress.newCafes.push({
         _googlePlaceId: place.place_id,
@@ -306,7 +371,7 @@ for (const cell of deduped) {
         rating: d.rating ?? null,
         userRatingsTotal: d.user_ratings_total ?? null,
         priceLevel: d.price_level ?? null,
-        photoUrl,
+        photoUrls,
         openingHours: d.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
         phone: d.formatted_phone_number ?? null,
         website: d.website ?? null,
@@ -331,15 +396,93 @@ for (const cell of deduped) {
 save();
 console.log(`\n✅  Discovery done — ${progress.newCafes.length} new cafes found`);
 
+// ── Step 2b: Discovery with coffee/brunch keywords (catches non-"cafe" typed places) ──
+
+console.log('\n─── Step 2b: Discovery — coffee/brunch keyword sweep ────────────────\n');
+
+if (!progress.scannedCellsKw) progress.scannedCellsKw = [];
+const scannedSetKw = new Set(progress.scannedCellsKw);
+const KW_PASSES = ['coffee', 'brunch'];
+
+for (const kw of KW_PASSES) {
+  let kwCellN = 0;
+  for (const cell of deduped) {
+    kwCellN++;
+    const key = `${cell.key}:${kw}`;
+    if (scannedSetKw.has(key)) continue;
+
+    process.stdout.write(`  [${kw}] Cell ${kwCellN}/${deduped.length}… `);
+    try {
+      let places;
+      try {
+        places = await nearbySearchAll(cell.lat, cell.lng, cell.radiusM, kw);
+      } catch (e) {
+        if (e.message === 'OVER_QUERY_LIMIT') {
+          process.stdout.write('rate limited — pausing 10s\n');
+          await sleep(10000);
+          continue;
+        }
+        throw e;
+      }
+
+      let added = 0;
+      for (const place of places) {
+        if (knownGoogleIds.has(place.place_id)) continue;
+        const plat = place.geometry.location.lat;
+        const plng = place.geometry.location.lng;
+        const coordKey = `${Math.round(plat * 1000)},${Math.round(plng * 1000)}`;
+        if (knownCoords.has(coordKey)) continue;
+
+        const d = await getDetails(place.place_id);
+        if (!d) continue;
+        if (d.business_status === 'CLOSED_PERMANENTLY') { knownGoogleIds.add(place.place_id); continue; }
+        const photoUrls = await getPhotoUrls(d.photos);
+
+        progress.newCafes.push({
+          _googlePlaceId: place.place_id,
+          name: d.name || place.name,
+          latitude: plat,
+          longitude: plng,
+          rating: d.rating ?? null,
+          userRatingsTotal: d.user_ratings_total ?? null,
+          priceLevel: d.price_level ?? null,
+          photoUrls,
+          openingHours: d.opening_hours?.periods ? parseGoogleHours(d.opening_hours.periods) : null,
+          phone: d.formatted_phone_number ?? null,
+          website: d.website ?? null,
+          vicinity: place.vicinity ?? '',
+        });
+
+        knownGoogleIds.add(place.place_id);
+        knownCoords.add(coordKey);
+        added++;
+      }
+
+      process.stdout.write(`+${added} new (${places.length} results)\n`);
+      scannedSetKw.add(key);
+      progress.scannedCellsKw.push(key);
+    } catch (err) {
+      process.stdout.write(`error: ${err.message}\n`);
+    }
+
+    if (kwCellN % 20 === 0) save();
+  }
+}
+
+save();
+console.log(`\n✅  Keyword sweep done — ${progress.newCafes.length} total new cafes`);
+
 // ── Step 3: Merge & write output ──────────────────────────────────────────────
 
 console.log('\n─── Step 3: Building output ──────────────────────────────────────────\n');
 
-// Merge enrichment into existing cafes, dropping permanently closed ones
+// Merge enrichment into existing cafes, dropping permanently closed ones.
+// Also drop cafes that are confirmed not found AND have no rating/reviews — likely stale OSM ghosts.
 const merged = cafes
   .filter((cafe) => {
     const e = progress.enriched[cafe.id];
     if (e?.found && e.businessStatus === 'CLOSED_PERMANENTLY') return false;
+    if (e?.found === false && !cafe.rating && !cafe.userRatingsTotal) return false;
     return true;
   })
   .map((cafe) => {
@@ -349,7 +492,7 @@ const merged = cafes
       ...cafe,
       rating: e.rating,
       priceLevel: e.priceLevel,
-      images: e.photoUrl ? [e.photoUrl] : cafe.images,
+      images: e.photoUrls?.length ? e.photoUrls : (e.photoUrl ? [e.photoUrl] : cafe.images),
       openingHours: e.openingHours || cafe.openingHours,
       phone: e.phone || cafe.phone,
       website: e.website || cafe.website,
@@ -379,7 +522,7 @@ for (const nc of progress.newCafes) {
     coffeeQuality: null,
     foodQuality: null,
     priceLevel: nc.priceLevel,
-    images: nc.photoUrl ? [nc.photoUrl] : [],
+    images: nc.photoUrls?.length ? nc.photoUrls : [],
     shortDescription: null,
     hasWifi: null,
     laptopFriendly: null,
