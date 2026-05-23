@@ -71,8 +71,10 @@ const merged = cafes.map((cafe) => {
   };
 });
 
-// Filter: remove cafes with no rating AND no reviews (data quality)
-const clean = merged.filter((c) => c.rating != null || (c.images?.length > 0));
+// Filter: require at least 40 Google reviews OR manually curated (has boolean attributes)
+const hasCuration = (c) => [c.hasWifi, c.dogFriendly, c.outdoorSeating, c.laptopFriendly, c.quiet]
+  .some((v) => v != null);
+const clean = merged.filter((c) => (c.userRatingsTotal ?? 0) >= 40 || hasCuration(c));
 
 fs.writeFileSync(dest, JSON.stringify(clean));
 console.log(`\n✅  Published ${clean.length} cafes → public/cafes.json`);

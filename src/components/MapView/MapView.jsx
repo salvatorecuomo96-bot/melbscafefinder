@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
 
-const MELBOURNE = { lng: 144.9631, lat: -37.8136, zoom: 12.4 };
+const MELBOURNE = { lng: 144.9631, lat: -37.8136, zoom: 13.5 };
 const TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 const MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
 
