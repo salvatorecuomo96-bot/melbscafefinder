@@ -25,7 +25,7 @@ const ROOT = path.resolve(__dirname, '..');
 // Load .env manually (no dotenv dependency)
 const envPath = path.join(ROOT, '.env');
 if (fs.existsSync(envPath)) {
-  for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const m = line.match(/^([A-Z_]+)=(.+)$/);
     if (m) process.env[m[1]] = m[2].trim();
   }
