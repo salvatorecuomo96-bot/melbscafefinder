@@ -482,7 +482,7 @@ const merged = cafes
   .filter((cafe) => {
     const e = progress.enriched[cafe.id];
     if (e?.found && e.businessStatus === 'CLOSED_PERMANENTLY') return false;
-    if (e?.found === false && !cafe.rating && !cafe.userRatingsTotal) return false;
+    if (e?.found === false) return false;
     return true;
   })
   .map((cafe) => {
