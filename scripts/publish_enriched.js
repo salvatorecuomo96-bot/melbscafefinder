@@ -24,50 +24,49 @@ if (!fs.existsSync(src)) {
 const cafes = JSON.parse(fs.readFileSync(src, 'utf8'));
 
 // Load optional enrichment sources
-const yelpPath    = path.join(ROOT, 'data', 'yelp_attrs.json');
-const websitePath = path.join(ROOT, 'data', 'website_attrs.json');
+const reviewIntelPath = path.join(ROOT, 'data', 'review_intel.json');
+const websitePath     = path.join(ROOT, 'data', 'website_attrs.json');
 
-const yelpAttrs    = fs.existsSync(yelpPath)    ? JSON.parse(fs.readFileSync(yelpPath, 'utf8'))    : {};
-const websiteAttrs = fs.existsSync(websitePath) ? JSON.parse(fs.readFileSync(websitePath, 'utf8')) : {};
+const reviewIntel  = fs.existsSync(reviewIntelPath) ? JSON.parse(fs.readFileSync(reviewIntelPath, 'utf8')) : {};
+const websiteAttrs = fs.existsSync(websitePath)     ? JSON.parse(fs.readFileSync(websitePath, 'utf8'))     : {};
 
-const yelpCount    = Object.keys(yelpAttrs).length;
-const websiteCount = Object.keys(websiteAttrs).length;
-console.log(`📦  Google: ${cafes.length} cafes`);
-console.log(`📦  Yelp:   ${yelpCount} matched`);
-console.log(`📦  Web:    ${websiteCount} scraped`);
+console.log(`📦  Google:         ${cafes.length} cafes`);
+console.log(`📦  Review Intel:   ${Object.keys(reviewIntel).length} analyzed`);
+console.log(`📦  Website scrape: ${Object.keys(websiteAttrs).length} scraped`);
 
 // Merge: only fill in null fields (manual curation + Google always wins)
 const merged = cafes.map((cafe) => {
-  const y = yelpAttrs[cafe.id]    || {};
-  const w = websiteAttrs[cafe.id] || {};
+  const r = reviewIntel[cafe.id] || {};  // Claude Haiku analysis
+  const w = websiteAttrs[cafe.id] || {}; // Website scrape
 
+  // Priority: existing manual data > Claude review analysis > website scrape
   const fill = (field, ...sources) => {
-    if (cafe[field] != null) return cafe[field]; // Google/manual wins
+    if (cafe[field] != null) return cafe[field];
     for (const s of sources) {
       if (s[field] != null) return s[field];
     }
-    return cafe[field];
+    return null;
   };
 
   return {
     ...cafe,
-    // Boolean attributes — Yelp structured > website keyword
-    hasWifi:        fill('hasWifi', y, w),
-    dogFriendly:    fill('dogFriendly', y, w),
-    outdoorSeating: fill('outdoorSeating', y, w),
-    quiet:          fill('quiet', y, w),
-    goodForGroups:  fill('goodForGroups', y, w),
-    goodForDates:   fill('goodForDates', y, w),
-    laptopFriendly: fill('laptopFriendly', y, w),
-    hasDecaf:       fill('hasDecaf', w, y),
-    matcha:         fill('matcha', w, y),
-    pastries:       fill('pastries', w, y),
-    specialtyCoffee: fill('specialtyCoffee', w, y),
-    goodForWork:    fill('goodForWork', w, y),
-    // Website-only fields
-    plantMilk:      cafe.plantMilk  ?? w.plantMilk  ?? null,
-    coffeeBrand:    cafe.coffeeBrand ?? w.coffeeBrand ?? null,
-    chaiType:       cafe.chaiType   ?? w.chaiType    ?? null,
+    hasWifi:         fill('hasWifi', r, w),
+    outdoorSeating:  fill('outdoorSeating', r, w),
+    dogFriendly:     fill('dogFriendly', r, w),
+    laptopFriendly:  fill('laptopFriendly', r, w),
+    quiet:           fill('quiet', r, w),
+    goodForDates:    fill('goodForDates', r, w),
+    goodForGroups:   fill('goodForGroups', r, w),
+    goodForWork:     fill('goodForWork', r, w),
+    specialtyCoffee: fill('specialtyCoffee', r, w),
+    matcha:          fill('matcha', r, w),
+    pastries:        fill('pastries', r, w),
+    hasDecaf:        fill('hasDecaf', r, w),
+    // Website-only fields (reviews rarely mention these)
+    plantMilk:   cafe.plantMilk  ?? w.plantMilk  ?? null,
+    coffeeBrand: cafe.coffeeBrand ?? r.coffeeBrand ?? w.coffeeBrand ?? null,
+    chaiType:    cafe.chaiType   ?? w.chaiType    ?? null,
+    vibe:        cafe.vibe       ?? r.vibe        ?? null,
   };
 });
 
@@ -85,5 +84,6 @@ const withWifi     = clean.filter((c) => c.hasWifi).length;
 const withDogs     = clean.filter((c) => c.dogFriendly).length;
 const withBrand    = clean.filter((c) => c.coffeeBrand).length;
 const withChai     = clean.filter((c) => c.chaiType).length;
-console.log(`\n   WiFi: ${withWifi}  Dogs: ${withDogs}  Coffee brand: ${withBrand}  Chai: ${withChai}`);
+console.log(`\n   WiFi: ${withWifi}  Dogs: ${withDogs}  Brand: ${withBrand}  Chai: ${withChai}`)
+;
 console.log(`\n👉  git add public/cafes.json && git commit -m "data: enrichment update" && git push`);
