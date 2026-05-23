@@ -57,9 +57,13 @@ export default function CafeDetail({ cafe, onClose }) {
         </svg>
       </button>
       <div className="detail__sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="detail__hero">
-          <img src={cafe.images?.[0]} alt={cafe.name} />
-        </div>
+        {cafe.images?.length > 0 && (
+          <div className="detail__gallery">
+            {cafe.images.map((src, i) => (
+              <img key={i} src={src} alt={`${cafe.name} ${i + 1}`} />
+            ))}
+          </div>
+        )}
 
         <div className="detail__body">
           <div className="detail__handle" aria-hidden="true" />
@@ -103,21 +107,24 @@ export default function CafeDetail({ cafe, onClose }) {
             )}
           </section>
 
-          <section className="detail__section">
-            <h3>Features</h3>
-            <ul className="detail__features">
-              {featureRows.map(([label, on]) => (
-                <li key={label} className={on ? 'is-on' : 'is-off'}>
-                  <span className="detail__feat-icon">{on ? '✓' : '–'}</span>
-                  {label}
-                </li>
-              ))}
-            </ul>
-
-            <p className="detail__milk">
-              <strong>Milks:</strong> {plantMilkLabel(cafe.plantMilk)}
-            </p>
-          </section>
+          {featureRows.some(([, v]) => v != null) && (
+            <section className="detail__section">
+              <h3>Features</h3>
+              <ul className="detail__features">
+                {featureRows.filter(([, v]) => v != null).map(([label, on]) => (
+                  <li key={label} className={on ? 'is-on' : 'is-off'}>
+                    <span className="detail__feat-icon">{on ? '✓' : '–'}</span>
+                    {label}
+                  </li>
+                ))}
+              </ul>
+              {cafe.plantMilk != null && (
+                <p className="detail__milk">
+                  <strong>Milks:</strong> {plantMilkLabel(cafe.plantMilk)}
+                </p>
+              )}
+            </section>
+          )}
 
           <section className="detail__section">
             <h3>Hours</h3>
@@ -140,9 +147,18 @@ export default function CafeDetail({ cafe, onClose }) {
               rel="noreferrer"
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`}
             >
-              Open in Maps
+              Maps
             </a>
-            <button className="detail__btn" onClick={onClose}>Close</button>
+            {cafe.website && (
+              <a className="detail__btn" href={cafe.website} target="_blank" rel="noreferrer">
+                Website
+              </a>
+            )}
+            {cafe.phone && (
+              <a className="detail__btn" href={`tel:${cafe.phone}`}>
+                {cafe.phone}
+              </a>
+            )}
           </div>
         </div>
       </div>
