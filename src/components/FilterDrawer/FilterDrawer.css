@@ -87,6 +87,24 @@
   margin: 0 0 12px;
 }
 
+.drawer__enum {
+  margin-top: 14px;
+}
+
+.drawer__enum-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink-mute);
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+
+.drawer__pill--price {
+  min-width: 44px;
+  font-weight: 700;
+}
+
 .drawer__pills {
   display: flex;
   flex-wrap: wrap;

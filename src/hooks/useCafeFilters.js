@@ -10,16 +10,25 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     const q = filters.query.trim().toLowerCase();
 
     let list = cafes.filter((cafe) => {
-      // Text search across name + suburb + tags
       if (q) {
         const haystack = [cafe.name, cafe.suburb, cafe.address, ...(cafe.tags || [])]
           .join(' ').toLowerCase();
         if (!haystack.includes(q)) return false;
       }
 
-      // Boolean filters — only exclude if explicitly false; null means unknown, keep it
+      // Boolean filters — only exclude if explicitly false; null = unknown, passes through
       for (const [key, isOn] of Object.entries(filters.booleans)) {
         if (isOn && cafe[key] === false) return false;
+      }
+
+      // Enum filters — only exclude if cafe has a different explicit value; null passes
+      for (const [key, val] of Object.entries(filters.enums)) {
+        if (val && cafe[key] != null && cafe[key] !== val) return false;
+      }
+
+      // Coffee brands — hard match: null doesn't pass, must match a selected brand
+      if (filters.coffeeBrands.length) {
+        if (!filters.coffeeBrands.includes(cafe.coffeeBrand)) return false;
       }
 
       // Plant milk: cafe must offer ALL selected milks
@@ -28,25 +37,20 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         if (!filters.plantMilk.every((m) => offered.has(m))) return false;
       }
 
-      // Price level
       if (filters.priceLevels.length && !filters.priceLevels.includes(cafe.priceLevel)) {
         return false;
       }
 
       if (filters.minRating && cafe.rating < filters.minRating) return false;
-      if (filters.minCoffeeQuality && cafe.coffeeQuality < filters.minCoffeeQuality) return false;
 
       return true;
     });
 
-    // Decorate with distance
     list = list.map((cafe) => ({
       ...cafe,
-      distanceKm: userCoords ? haversineKm(userCoords, cafe) : null
+      distanceKm: userCoords ? haversineKm(userCoords, cafe) : null,
     }));
 
-    // Sort: preset rankBy takes priority over the sort dropdown,
-    // unless the user explicitly switched to distance/near-me.
     list.sort((a, b) => {
       if (sort === 'distance') {
         if (a.distanceKm == null) return 1;
@@ -54,12 +58,10 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         return a.distanceKm - b.distanceKm;
       }
 
-      // Preset-aware ranking: score each cafe by how many preferred fields it matches,
-      // then fall back to the preset's rankBy fields in order.
       if (activePreset) {
         const prefScore = (cafe) =>
           Object.entries(activePreset.preferred || {}).reduce((n, [k, v]) => {
-            if (v === false) return cafe[k] === false ? n + 1 : n; // penalise mismatch
+            if (v === false) return cafe[k] === false ? n + 1 : n;
             return cafe[k] === v ? n + 1 : n;
           }, 0);
 
@@ -74,8 +76,6 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       }
 
       if (sort === 'rating') {
-        // Bayesian score weighted by proximity to Melbourne CBD.
-        // Outer-suburb cafes get penalised so CBD/inner cafes rank first.
         const C = 4.2, m = 150;
         const CBD_LAT = -37.8136, CBD_LNG = 144.9631;
         const bayesian = (c) => {
@@ -84,7 +84,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         };
         const proximityBonus = (c) => {
           const d = Math.sqrt((c.latitude - CBD_LAT) ** 2 + (c.longitude - CBD_LNG) ** 2) * 111;
-          return Math.max(0, 1 - d / 40); // 40km = 0 bonus; 0km = full bonus
+          return Math.max(0, 1 - d / 40);
         };
         const score = (c) => bayesian(c) * (0.6 + 0.4 * proximityBonus(c));
         return score(b) - score(a);
@@ -96,11 +96,24 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     return list;
   }, [cafes, filters, sort, userCoords, activePreset]);
 
-  // ---- Update helpers ----
   const toggleBoolean = (key) =>
     setFilters((f) => ({
       ...f,
-      booleans: { ...f.booleans, [key]: !f.booleans[key] }
+      booleans: { ...f.booleans, [key]: !f.booleans[key] },
+    }));
+
+  const toggleEnum = (key, value) =>
+    setFilters((f) => ({
+      ...f,
+      enums: { ...f.enums, [key]: f.enums[key] === value ? undefined : value },
+    }));
+
+  const toggleCoffeeBrand = (brand) =>
+    setFilters((f) => ({
+      ...f,
+      coffeeBrands: f.coffeeBrands.includes(brand)
+        ? f.coffeeBrands.filter((b) => b !== brand)
+        : [...f.coffeeBrands, brand],
     }));
 
   const togglePlantMilk = (milk) =>
@@ -108,7 +121,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       ...f,
       plantMilk: f.plantMilk.includes(milk)
         ? f.plantMilk.filter((m) => m !== milk)
-        : [...f.plantMilk, milk]
+        : [...f.plantMilk, milk],
     }));
 
   const togglePriceLevel = (level) =>
@@ -116,24 +129,21 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       ...f,
       priceLevels: f.priceLevels.includes(level)
         ? f.priceLevels.filter((l) => l !== level)
-        : [...f.priceLevels, level]
+        : [...f.priceLevels, level],
     }));
 
   const setQuery = (query) => setFilters((f) => ({ ...f, query }));
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
-  const setMinCoffeeQuality = (n) => setFilters((f) => ({ ...f, minCoffeeQuality: n }));
   const reset = () => setFilters(DEFAULT_FILTERS);
-  // Used by mood presets: replace all booleans at once.
-  // Pass {} to clear all boolean filters.
   const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
 
-  // Active filter count (for the "Filters (3)" badge)
   const activeCount =
     Object.values(filters.booleans).filter(Boolean).length +
+    Object.values(filters.enums).filter(Boolean).length +
+    filters.coffeeBrands.length +
     filters.plantMilk.length +
     filters.priceLevels.length +
-    (filters.minRating ? 1 : 0) +
-    (filters.minCoffeeQuality ? 1 : 0);
+    (filters.minRating ? 1 : 0);
 
   return {
     filters,
@@ -143,11 +153,12 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     activeCount,
     setQuery,
     toggleBoolean,
-    setBooleans,
+    toggleEnum,
+    toggleCoffeeBrand,
     togglePlantMilk,
     togglePriceLevel,
+    setBooleans,
     setMinRating,
-    setMinCoffeeQuality,
-    reset
+    reset,
   };
 }

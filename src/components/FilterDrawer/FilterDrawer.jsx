@@ -1,15 +1,12 @@
 import { useEffect } from 'react';
 import {
-  BOOLEAN_FILTERS,
+  FILTER_SECTIONS,
   PLANT_MILK_OPTIONS,
-  PRICE_LEVELS
+  COFFEE_BRANDS,
+  PRICE_LEVELS,
 } from '../../constants/filters.js';
 import './FilterDrawer.css';
 
-/**
- * Bottom-sheet style drawer holding every filter.
- * Receives the full filter API from useCafeFilters().
- */
 export default function FilterDrawer({ open, onClose, api }) {
   useEffect(() => {
     if (!open) return;
@@ -27,13 +24,14 @@ export default function FilterDrawer({ open, onClose, api }) {
   const {
     filters,
     toggleBoolean,
+    toggleEnum,
+    toggleCoffeeBrand,
     togglePlantMilk,
     togglePriceLevel,
     setMinRating,
-    setMinCoffeeQuality,
     reset,
     activeCount,
-    visibleCafes
+    visibleCafes,
   } = api;
 
   return (
@@ -46,78 +44,124 @@ export default function FilterDrawer({ open, onClose, api }) {
         </header>
 
         <div className="drawer__body">
-          <section className="drawer__group">
-            <h3>Amenities &amp; vibe</h3>
-            <div className="drawer__pills">
-              {BOOLEAN_FILTERS.map((f) => (
-                <button
-                  key={f.key}
-                  className={`drawer__pill ${filters.booleans[f.key] ? 'is-on' : ''}`}
-                  onClick={() => toggleBoolean(f.key)}
-                  aria-pressed={!!filters.booleans[f.key]}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </section>
+          {FILTER_SECTIONS.map((section) => (
+            <section key={section.id} className="drawer__group">
+              <h3>{section.label}</h3>
+
+              {/* Boolean toggles */}
+              {section.booleans?.length > 0 && (
+                <div className="drawer__pills">
+                  {section.booleans.map((f) => (
+                    <button
+                      key={f.key}
+                      className={`drawer__pill ${filters.booleans[f.key] ? 'is-on' : ''}`}
+                      onClick={() => toggleBoolean(f.key)}
+                      aria-pressed={!!filters.booleans[f.key]}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Enum selectors */}
+              {section.enums?.map((enumDef) => {
+                const options = enumDef.options.map((o) =>
+                  typeof o === 'string' ? { value: o, label: o[0].toUpperCase() + o.slice(1) } : o
+                );
+                return (
+                  <div key={enumDef.key} className="drawer__enum">
+                    <span className="drawer__enum-label">{enumDef.label}</span>
+                    <div className="drawer__pills">
+                      {options.map((o) => (
+                        <button
+                          key={o.value}
+                          className={`drawer__pill ${filters.enums[enumDef.key] === o.value ? 'is-on' : ''}`}
+                          onClick={() => toggleEnum(enumDef.key, o.value)}
+                          aria-pressed={filters.enums[enumDef.key] === o.value}
+                        >
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Coffee brands */}
+              {section.brands && (
+                <div className="drawer__enum">
+                  <span className="drawer__enum-label">Coffee brand</span>
+                  <div className="drawer__pills">
+                    {COFFEE_BRANDS.map((brand) => (
+                      <button
+                        key={brand}
+                        className={`drawer__pill ${filters.coffeeBrands.includes(brand) ? 'is-on' : ''}`}
+                        onClick={() => toggleCoffeeBrand(brand)}
+                        aria-pressed={filters.coffeeBrands.includes(brand)}
+                      >
+                        {brand}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Plant milk */}
+              {section.plantMilk && (
+                <div className="drawer__enum">
+                  <span className="drawer__enum-label">Plant milk</span>
+                  <div className="drawer__pills">
+                    {PLANT_MILK_OPTIONS.map((m) => (
+                      <button
+                        key={m}
+                        className={`drawer__pill ${filters.plantMilk.includes(m) ? 'is-on' : ''}`}
+                        onClick={() => togglePlantMilk(m)}
+                        aria-pressed={filters.plantMilk.includes(m)}
+                      >
+                        {m[0].toUpperCase() + m.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Price */}
+              {section.price && (
+                <div className="drawer__enum">
+                  <span className="drawer__enum-label">Price</span>
+                  <div className="drawer__pills">
+                    {PRICE_LEVELS.map((p) => (
+                      <button
+                        key={p.value}
+                        className={`drawer__pill drawer__pill--price ${filters.priceLevels.includes(p.value) ? 'is-on' : ''}`}
+                        onClick={() => togglePriceLevel(p.value)}
+                        aria-pressed={filters.priceLevels.includes(p.value)}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          ))}
 
           <section className="drawer__group">
-            <h3>Plant milk</h3>
-            <div className="drawer__pills">
-              {PLANT_MILK_OPTIONS.map((m) => (
-                <button
-                  key={m}
-                  className={`drawer__pill ${filters.plantMilk.includes(m) ? 'is-on' : ''}`}
-                  onClick={() => togglePlantMilk(m)}
-                >
-                  {m[0].toUpperCase() + m.slice(1)}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="drawer__group">
-            <h3>Price</h3>
-            <div className="drawer__pills">
-              {PRICE_LEVELS.map((p) => (
-                <button
-                  key={p.value}
-                  className={`drawer__pill ${filters.priceLevels.includes(p.value) ? 'is-on' : ''}`}
-                  onClick={() => togglePriceLevel(p.value)}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="drawer__group">
-            <h3>Minimum overall rating</h3>
+            <h3>Minimum rating</h3>
             <SliderRow
               value={filters.minRating}
               onChange={setMinRating}
               max={5}
               step={0.5}
-              format={(v) => (v ? `${v}+ stars` : 'Any')}
-            />
-          </section>
-
-          <section className="drawer__group">
-            <h3>Minimum coffee quality</h3>
-            <SliderRow
-              value={filters.minCoffeeQuality}
-              onChange={setMinCoffeeQuality}
-              max={5}
-              step={1}
-              format={(v) => (v ? `${v}+ / 5` : 'Any')}
+              format={(v) => (v ? `${v}+ ★` : 'Any')}
             />
           </section>
         </div>
 
         <footer className="drawer__foot">
           <button className="drawer__reset" onClick={reset} disabled={activeCount === 0}>
-            Clear all{activeCount ? ` (${activeCount})` : ''}
+            Clear{activeCount ? ` (${activeCount})` : ''}
           </button>
           <button className="drawer__apply" onClick={onClose}>
             Show {visibleCafes.length} {visibleCafes.length === 1 ? 'cafe' : 'cafes'}

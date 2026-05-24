@@ -1,36 +1,117 @@
-/**
- * Filter definitions used by:
- *  - <FilterDrawer /> to render the UI
- *  - useCafeFilters to apply the filters
- *
- * To add a new boolean filter:
- *   1. Add it to BOOLEAN_FILTERS below
- *   2. Add the matching field to cafes.js
- *   3. That's it - the drawer and filter logic pick it up automatically.
- */
-
-export const BOOLEAN_FILTERS = [
-  { key: 'hasWifi',         label: 'Wi-Fi',            icon: 'wifi' },
-  { key: 'laptopFriendly',  label: 'Laptop friendly',  icon: 'laptop' },
-  { key: 'hasDecaf',        label: 'Decaf',            icon: 'decaf' },
-  { key: 'dogFriendly',     label: 'Dog friendly',     icon: 'dog' },
-  { key: 'outdoorSeating',  label: 'Outdoor seating',  icon: 'outdoor' },
-  { key: 'quiet',           label: 'Quiet',            icon: 'quiet' },
-  { key: 'goodForDates',    label: 'Good for dates',   icon: 'heart' },
-  { key: 'goodForWork',     label: 'Good for work',    icon: 'work' },
-  { key: 'goodForGroups',   label: 'Good for groups',  icon: 'group' },
-  { key: 'specialtyCoffee', label: 'Specialty coffee', icon: 'bean' },
-  { key: 'matcha',          label: 'Matcha',           icon: 'matcha' },
-  { key: 'pastries',        label: 'Pastries',         icon: 'pastry' }
+export const FILTER_SECTIONS = [
+  {
+    id: 'coffee',
+    label: 'Coffee',
+    booleans: [
+      { key: 'specialtyCoffee',  label: 'Specialty' },
+      { key: 'filterCoffee',     label: 'Filter coffee' },
+      { key: 'hasDecaf',         label: 'Decaf' },
+      { key: 'matcha',           label: 'Matcha' },
+    ],
+    enums: [
+      {
+        key: 'coffeeStyle',
+        label: 'Style',
+        options: ['third wave', 'specialty', 'classic', 'casual'],
+      },
+      {
+        key: 'chaiType',
+        label: 'Chai',
+        options: [
+          { value: 'leaf',      label: 'Leaf chai' },
+          { value: 'newspaper', label: 'Newspaper chai' },
+          { value: 'powder',    label: 'Powder chai' },
+        ],
+      },
+    ],
+    brands: true,
+  },
+  {
+    id: 'food',
+    label: 'Food',
+    booleans: [
+      { key: 'pastries',        label: 'Pastries' },
+      { key: 'breakfastAllDay', label: 'All-day brekky' },
+    ],
+    enums: [
+      {
+        key: 'veganOptions',
+        label: 'Vegan options',
+        options: ['excellent', 'good', 'limited'],
+      },
+    ],
+    plantMilk: true,
+  },
+  {
+    id: 'vibe',
+    label: 'Vibe',
+    booleans: [],
+    enums: [
+      {
+        key: 'noiseLevel',
+        label: 'Noise',
+        options: ['quiet', 'moderate', 'lively', 'loud'],
+      },
+      {
+        key: 'vibe',
+        label: 'Vibe',
+        options: ['cozy', 'warm', 'modern', 'minimal', 'industrial', 'eclectic', 'rustic', 'artsy'],
+      },
+      {
+        key: 'energyLevel',
+        label: 'Energy',
+        options: ['calm', 'focused', 'social', 'bustling'],
+      },
+    ],
+  },
+  {
+    id: 'work',
+    label: 'Work',
+    booleans: [
+      { key: 'hasWifi',             label: 'WiFi' },
+      { key: 'hasPowerOutlets',     label: 'Power outlets' },
+      { key: 'laptopFriendly',      label: 'Laptop friendly' },
+      { key: 'goodForDigitalNomads', label: 'Digital nomad' },
+    ],
+    enums: [
+      {
+        key: 'workPressure',
+        label: 'Work pressure',
+        options: [
+          { value: 'relaxed', label: 'Relaxed — stay all day' },
+          { value: 'medium',  label: 'Medium' },
+          { value: 'rushed',  label: 'Fast turnover' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'practical',
+    label: 'Practical',
+    booleans: [
+      { key: 'outdoorSeating', label: 'Outdoor seating' },
+      { key: 'dogFriendly',    label: 'Dog friendly' },
+      { key: 'pramFriendly',   label: 'Pram friendly' },
+    ],
+    enums: [],
+    price: true,
+  },
 ];
 
-export const PLANT_MILK_OPTIONS = ['oat', 'soy', 'almond', 'macadamia'];
+export const PLANT_MILK_OPTIONS = ['oat', 'soy', 'almond', 'macadamia', 'coconut'];
+
+export const COFFEE_BRANDS = [
+  'Seven Seeds', 'Market Lane', 'St Ali', 'Ona', 'Axil',
+  'Proud Mary', 'Dukes', 'Industry Beans', 'Veneziano', 'Patricia',
+  'Mecca', 'Sensory Lab', 'Code Black', 'Allpress', 'Five Senses',
+  'Campos', 'Edition', 'Rumble',
+];
 
 export const PRICE_LEVELS = [
   { value: 1, label: '$' },
   { value: 2, label: '$$' },
   { value: 3, label: '$$$' },
-  { value: 4, label: '$$$$' }
+  { value: 4, label: '$$$$' },
 ];
 
 export const SORT_OPTIONS = [
@@ -39,10 +120,11 @@ export const SORT_OPTIONS = [
 ];
 
 export const DEFAULT_FILTERS = {
-  query: '',
-  booleans: {},           // e.g. { hasWifi: true }
-  plantMilk: [],          // ['oat']
-  priceLevels: [],        // [2, 3]
-  minRating: 0,
-  minCoffeeQuality: 0
+  query:       '',
+  booleans:    {},   // { hasWifi: true }
+  enums:       {},   // { noiseLevel: 'quiet', vibe: 'cozy' }
+  coffeeBrands: [],  // ['Seven Seeds']
+  plantMilk:   [],   // ['oat']
+  priceLevels: [],
+  minRating:   0,
 };
