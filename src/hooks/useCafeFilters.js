@@ -40,9 +40,9 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         if (!haystack.includes(q)) return false;
       }
 
-      // Boolean: only exclude if explicitly false; null = unknown, passes
+      // Boolean: hard match — only show cafes explicitly marked true
       for (const [key, isOn] of Object.entries(filters.booleans)) {
-        if (isOn && cafe[key] === false) return false;
+        if (isOn && cafe[key] !== true) return false;
       }
 
       // Enum: hard match — null does NOT pass when filter is active
