@@ -62,10 +62,9 @@ export const FILTER_SECTIONS = [
     id: 'practical',
     label: 'Practical',
     booleans: [
-      { key: 'outdoorSeating',    label: 'Outdoor seating' },
-      { key: 'dogFriendly',       label: 'Dog friendly' },
-      { key: 'pramFriendly',      label: 'Pram friendly' },
-      { key: 'providesNewspaper', label: 'Newspapers' },
+      { key: 'outdoorSeating', label: 'Outdoor seating' },
+      { key: 'dogFriendly',    label: 'Dog friendly' },
+      { key: 'pramFriendly',   label: 'Pram friendly' },
     ],
     enums: [],
     price: true,
