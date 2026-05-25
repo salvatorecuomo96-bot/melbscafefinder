@@ -1,5 +1,7 @@
 import SearchBar from '../SearchBar/SearchBar.jsx';
 import ExploreSection from '../ExploreSection/ExploreSection.jsx';
+import EmptyState from '../EmptyState/EmptyState.jsx';
+import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './MobileExplore.css';
 
 export default function MobileExplore({
@@ -83,7 +85,14 @@ export default function MobileExplore({
       </div>
 
       <div className="mobile-explore__feed">
-        {filtersOrSearch ? (
+        {filtersOrSearch && api.visibleCafes.length === 0 ? (
+          <div style={{ padding: '0 14px' }}>
+            <EmptyState
+              onReset={api.reset}
+              activeFilters={getActiveFilterChips(api)}
+            />
+          </div>
+        ) : filtersOrSearch ? (
           <ExploreSection
             title={`${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} found`}
             cafes={api.visibleCafes.slice(0, 30)}

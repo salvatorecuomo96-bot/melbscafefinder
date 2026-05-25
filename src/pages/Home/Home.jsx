@@ -17,6 +17,7 @@ import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
 import { useCafes } from '../../hooks/useCafes.js';
 import { haversineKm } from '../../utils/distance.js';
+import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './Home.css';
 
 export default function Home() {
@@ -92,7 +93,10 @@ export default function Home() {
     <>
       <SortBar sort={api.sort} onChange={api.setSort} count={allDisplay.length} shown={displayCafes.length} cap={LIST_CAP} />
       {displayCafes.length === 0 ? (
-        <EmptyState onReset={savedView ? () => handleSavedView(false) : api.reset} />
+        <EmptyState
+          onReset={savedView ? () => handleSavedView(false) : api.reset}
+          activeFilters={savedView ? [] : getActiveFilterChips(api)}
+        />
       ) : (
         <ul className="layout__list">
           {displayCafes.map((cafe) => (
