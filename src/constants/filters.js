@@ -21,7 +21,9 @@ export const FILTER_SECTIONS = [
   {
     id: 'food',
     label: 'Food',
-    booleans: [],
+    booleans: [
+      { key: 'servesBrunch', label: 'Brunch' },
+    ],
     enums: [
       {
         key: 'veganOptions',
