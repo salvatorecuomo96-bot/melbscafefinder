@@ -1,0 +1,30 @@
+.suburb-picker {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 14px 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.suburb-picker::-webkit-scrollbar { display: none; }
+
+.suburb-picker__pill {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.suburb-picker__pill:hover {
+  border-color: var(--color-ink-mute);
+}
+.suburb-picker__pill.is-on {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+}

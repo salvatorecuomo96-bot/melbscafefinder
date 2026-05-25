@@ -44,7 +44,7 @@ export default function Home() {
   const { cafes: rawCafes, loading } = useCafes();
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ cafes: rawCafes, userCoords: coords });
-  const { isSaved, toggleSave, savedCount } = useSavedCafes();
+  const { isSaved, toggleSave, savedCount, getShareUrl } = useSavedCafes();
 
   const allCafes = useMemo(() =>
     rawCafes.map((cafe) => ({
@@ -134,6 +134,7 @@ export default function Home() {
           isSaved={isSaved}
           onToggleSave={toggleSave}
           onOpen={(cafe) => setDetailCafe(cafe)}
+          getShareUrl={getShareUrl}
         />
       )}
 

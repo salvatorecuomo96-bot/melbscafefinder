@@ -1,6 +1,8 @@
 import SearchBar from '../SearchBar/SearchBar.jsx';
 import ExploreSection from '../ExploreSection/ExploreSection.jsx';
 import EmptyState from '../EmptyState/EmptyState.jsx';
+import SuburbPicker from '../SuburbPicker/SuburbPicker.jsx';
+import AiSearch from '../AiSearch/AiSearch.jsx';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './MobileExplore.css';
 
@@ -20,7 +22,7 @@ export default function MobileExplore({
   const byDist    = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
   const hasCoords = cafes.some((c) => c.distanceKm != null);
 
-  const filtersOrSearch = api.activeCount > 0 || api.filters.query;
+  const filtersOrSearch = api.activeCount > 0 || api.filters.query || api.filters.suburb;
 
   const nearYou      = hasCoords ? [...cafes].sort(byDist).slice(0, 10) : [];
   const topRated     = [...cafes].sort(byRating).slice(0, 12);
@@ -50,6 +52,8 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
           placeholder="Search cafe, suburb..."
         />
       </div>
+
+      <AiSearch onApply={api.applyAiFilters} />
 
       <div className="mobile-explore__actions">
         <button
@@ -83,6 +87,10 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
         )}
       </div>
 
+      <div className="mobile-explore__suburbs">
+        <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} />
+      </div>
+
       <div className="mobile-explore__feed">
         {filtersOrSearch && api.visibleCafes.length === 0 ? (
           <div style={{ padding: '0 14px' }}>
@@ -93,7 +101,9 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
           </div>
         ) : filtersOrSearch ? (
           <ExploreSection
-            title={`${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} found`}
+            title={api.filters.suburb
+              ? `${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} in ${api.filters.suburb}`
+              : `${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} found`}
             cafes={api.visibleCafes.slice(0, 30)}
             isSaved={isSaved}
             onToggleSave={onToggleSave}

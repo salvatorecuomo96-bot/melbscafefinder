@@ -1,0 +1,80 @@
+import { useState } from 'react';
+import './AiSearch.css';
+
+const EXAMPLES = [
+  'quiet cafe to work with good wifi',
+  'dog friendly outdoor specialty coffee',
+  'cheap matcha in Fitzroy',
+  'open late with oat milk',
+];
+
+export default function AiSearch({ onApply }) {
+  const [query, setQuery]     = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState(null);
+  const [label, setLabel]     = useState(null);
+
+  const submit = async (q) => {
+    const text = (q || query).trim();
+    if (!text) return;
+    setLoading(true);
+    setError(null);
+    setLabel(null);
+    try {
+      const res = await fetch('/api/filter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: text }),
+      });
+      if (!res.ok) throw new Error('Request failed');
+      const data = await res.json();
+      if (data.filters) {
+        onApply(data.filters);
+        setLabel(data.label || 'Filters applied');
+        setQuery('');
+      }
+    } catch {
+      setError('Could not understand that. Try being more specific.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="ai-search">
+      <div className="ai-search__bar">
+        <span className="ai-search__icon" aria-hidden="true">✦</span>
+        <input
+          className="ai-search__input"
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setLabel(null); setError(null); }}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+          placeholder="Describe what you're looking for…"
+          disabled={loading}
+        />
+        {query && (
+          <button
+            className="ai-search__submit"
+            onClick={() => submit()}
+            disabled={loading}
+            aria-label="Search"
+          >
+            {loading ? '…' : '→'}
+          </button>
+        )}
+      </div>
+      {!label && !error && !query && (
+        <div className="ai-search__examples">
+          {EXAMPLES.map((ex) => (
+            <button key={ex} className="ai-search__example" onClick={() => submit(ex)}>
+              {ex}
+            </button>
+          ))}
+        </div>
+      )}
+      {label && <p className="ai-search__label">✓ {label}</p>}
+      {error && <p className="ai-search__error">{error}</p>}
+    </div>
+  );
+}

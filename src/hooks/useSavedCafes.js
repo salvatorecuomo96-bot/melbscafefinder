@@ -2,12 +2,27 @@ import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'mcf_saved';
 
-// Persists saved cafe IDs to localStorage.
-// No backend needed — migrates to Supabase in Phase 4.
+function getUrlSavedIds() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('saved');
+    return raw ? raw.split(',').filter(Boolean) : [];
+  } catch { return []; }
+}
+
 export function useSavedCafes() {
   const [savedIds, setSavedIds] = useState(() => {
     try {
-      return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
+      const local = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
+      const fromUrl = getUrlSavedIds();
+      fromUrl.forEach(id => local.add(id));
+      // Clean URL param without reloading
+      if (fromUrl.length > 0) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('saved');
+        window.history.replaceState({}, '', url);
+      }
+      return local;
     } catch {
       return new Set();
     }
@@ -27,5 +42,12 @@ export function useSavedCafes() {
 
   const isSaved = (id) => savedIds.has(id);
 
-  return { isSaved, toggleSave, savedCount: savedIds.size };
+  const getShareUrl = () => {
+    if (savedIds.size === 0) return null;
+    const url = new URL(window.location.origin);
+    url.searchParams.set('saved', [...savedIds].join(','));
+    return url.toString();
+  };
+
+  return { isSaved, toggleSave, savedCount: savedIds.size, getShareUrl };
 }

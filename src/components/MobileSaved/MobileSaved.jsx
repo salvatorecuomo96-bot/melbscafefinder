@@ -1,14 +1,36 @@
+import { useState } from 'react';
 import CafeCard from '../CafeCard/CafeCard.jsx';
 import './MobileSaved.css';
 
-export default function MobileSaved({ cafes, savedCafes, isSaved, onToggleSave, onOpen }) {
+export default function MobileSaved({ cafes, savedCafes, isSaved, onToggleSave, onOpen, getShareUrl }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = getShareUrl();
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt('Copy this link to share your saved cafes:', url);
+    }
+  };
+
   return (
     <div className="mobile-saved">
       <header className="mobile-saved__header">
         <h1 className="mobile-saved__title">Saved</h1>
-        {savedCafes.length > 0 && (
-          <span className="mobile-saved__count">{savedCafes.length}</span>
-        )}
+        <div className="mobile-saved__header-right">
+          {savedCafes.length > 0 && (
+            <span className="mobile-saved__count">{savedCafes.length}</span>
+          )}
+          {savedCafes.length > 0 && (
+            <button className="mobile-saved__share" onClick={handleShare}>
+              {copied ? 'Copied!' : 'Share'}
+            </button>
+          )}
+        </div>
       </header>
 
       {savedCafes.length === 0 ? (

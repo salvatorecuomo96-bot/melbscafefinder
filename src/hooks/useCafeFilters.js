@@ -53,6 +53,8 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         if (!haystack.includes(q)) return false;
       }
 
+      if (filters.suburb && cafe.suburb !== filters.suburb) return false;
+
       // Boolean: hard match — only show cafes explicitly marked true
       for (const [key, isOn] of Object.entries(filters.booleans)) {
         if (isOn && cafe[key] !== true) return false;
@@ -167,12 +169,26 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         : [...f.priceLevels, level],
     }));
 
-  const setQuery = (query) => setFilters((f) => ({ ...f, query }));
+  const setQuery  = (query)  => setFilters((f) => ({ ...f, query }));
+  const setSuburb = (suburb) => setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
   const toggleOpenNow  = () => setFilters((f) => ({ ...f, openNow:  !f.openNow  }));
   const toggleOpenLate = () => setFilters((f) => ({ ...f, openLate: !f.openLate }));
   const reset = () => setFilters(DEFAULT_FILTERS);
   const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
+
+  const applyAiFilters = (ai) => setFilters((f) => ({
+    ...f,
+    booleans:     { ...f.booleans,     ...(ai.booleans     || {}) },
+    enums:        { ...f.enums,        ...(ai.enums        || {}) },
+    coffeeBrands: ai.coffeeBrands?.length ? ai.coffeeBrands : f.coffeeBrands,
+    plantMilk:    ai.plantMilk?.length    ? ai.plantMilk    : f.plantMilk,
+    priceLevels:  ai.priceLevels?.length  ? ai.priceLevels  : f.priceLevels,
+    minRating:    ai.minRating            ?? f.minRating,
+    openNow:      ai.openNow              ?? f.openNow,
+    openLate:     ai.openLate             ?? f.openLate,
+    suburb:       ai.suburb               ?? f.suburb,
+  }));
 
   const activeCount =
     Object.values(filters.booleans).filter(Boolean).length +
@@ -181,12 +197,13 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     filters.plantMilk.length +
     filters.priceLevels.length +
     (filters.minRating ? 1 : 0) +
-    (filters.openNow  ? 1 : 0) +
-    (filters.openLate ? 1 : 0);
+    (filters.openNow   ? 1 : 0) +
+    (filters.openLate  ? 1 : 0) +
+    (filters.suburb    ? 1 : 0);
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
-    setQuery, toggleBoolean, toggleEnum, toggleCoffeeBrand,
+    setQuery, setSuburb, applyAiFilters, toggleBoolean, toggleEnum, toggleCoffeeBrand,
     togglePlantMilk, togglePriceLevel, setBooleans, setMinRating,
     toggleOpenNow, toggleOpenLate, reset,
   };

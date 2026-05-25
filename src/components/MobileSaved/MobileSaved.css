@@ -31,6 +31,22 @@
   color: var(--color-ink);
 }
 
+.mobile-saved__header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.mobile-saved__share {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-accent);
+}
+
 .mobile-saved__count {
   background: var(--color-ink);
   color: #fff;

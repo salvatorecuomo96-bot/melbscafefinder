@@ -109,6 +109,11 @@
 }
 .mexplore__reset:hover { color: var(--color-ink); }
 
+/* ===== Suburb picker ===== */
+.mobile-explore__suburbs {
+  padding-bottom: 16px;
+}
+
 /* ===== Sections feed ===== */
 .mobile-explore__feed {
   display: flex;

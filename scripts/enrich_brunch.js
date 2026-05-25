@@ -51,7 +51,7 @@ function ruleBasedBrunch(cafe) {
 
 async function askAI(cafes) {
   const lines = cafes.map((c, i) =>
-    `${i + 1}. "${c.name}" (${c.suburb}) — vibe: ${c.vibe ?? 'unknown'}, brunchQuality: ${c.brunchQuality ?? 'unknown'}, breakfastAllDay: ${c.breakfastAllDay ?? 'unknown'}, priceLevel: ${c.priceLevel ?? '?'}`
+    `${i + 1}. "${c.name}" (${c.suburb}) — vibe: ${c.vibe ?? 'unknown'}, priceLevel: ${c.priceLevel ?? '?'}`
   ).join('\n');
 
   const message = await client.messages.create({
