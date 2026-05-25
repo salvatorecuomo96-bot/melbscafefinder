@@ -10,9 +10,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap" rel="stylesheet">
+    <link rel="preload" href="/cafes.json" as="fetch">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="app-shell" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#f5f0eb;font-family:Inter,sans-serif;">
+        <svg width="40" height="40" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a1a1a"/><path d="M20 22h22a6 6 0 0 1 0 12h-2v4a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V22zm22 4v6a2 2 0 0 0 0-6z" fill="#e8c39e"/></svg>
+        <p style="font-size:14px;color:#666;margin:0;letter-spacing:0.01em">Loading cafes…</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

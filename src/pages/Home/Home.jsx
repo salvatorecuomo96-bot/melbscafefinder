@@ -12,6 +12,7 @@ import BottomSheet from '../../components/BottomSheet/BottomSheet.jsx';
 import BottomNav from '../../components/BottomNav/BottomNav.jsx';
 import MobileExplore from '../../components/MobileExplore/MobileExplore.jsx';
 import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
+import LoadingState from '../../components/LoadingState/LoadingState.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
@@ -80,16 +81,9 @@ export default function Home() {
     setSheetSnap(val ? 1 : 0);
   };
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100dvh', background: '#f5f0eb', flexDirection: 'column', gap: '12px' }}>
-        <svg width="40" height="40" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a1a1a" /><path d="M20 22h22a6 6 0 0 1 0 12h-2v4a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V22zm22 4v6a2 2 0 0 0 0-6z" fill="#e8c39e" /></svg>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#666', margin: 0 }}>Loading cafes…</p>
-      </div>
-    );
-  }
-
-  const cafeList = (
+  const cafeList = loading ? (
+    <LoadingState count={6} />
+  ) : (
     <>
       <SortBar sort={api.sort} onChange={api.setSort} count={allDisplay.length} shown={displayCafes.length} cap={LIST_CAP} />
       {displayCafes.length === 0 ? (

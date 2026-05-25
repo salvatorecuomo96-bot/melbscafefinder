@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_FILTERS, FILTER_SECTIONS } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
 import { openStatus } from '../utils/format.js';
@@ -9,6 +9,15 @@ const ENUM_KEYS = FILTER_SECTIONS.flatMap((s) => (s.enums || []).map((e) => e.ke
 export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
+
+  // Debounce the search query: input updates immediately, filtering waits 200 ms
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const debounceRef = useRef(null);
+  useEffect(() => {
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedQuery(filters.query), 200);
+    return () => clearTimeout(debounceRef.current);
+  }, [filters.query]);
 
   // Count how many cafes match each filter option (for display in drawer)
   const filterCounts = useMemo(() => {
@@ -34,7 +43,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   }, [cafes]);
 
   const visibleCafes = useMemo(() => {
-    const q = filters.query.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
 
     let list = cafes.filter((cafe) => {
       if (q) {
@@ -121,7 +130,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     });
 
     return list;
-  }, [cafes, filters, sort, userCoords, activePreset]);
+  }, [cafes, filters, debouncedQuery, sort, userCoords, activePreset]);
 
   const toggleBoolean = (key) =>
     setFilters((f) => ({ ...f, booleans: { ...f.booleans, [key]: !f.booleans[key] } }));
