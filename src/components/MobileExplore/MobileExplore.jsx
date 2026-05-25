@@ -32,6 +32,7 @@ export default function MobileExplore({
 const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);
   const outdoor      = cafes.filter((c) => c.outdoorSeating).sort(byRating).slice(0, 10);
   const savedCafes   = cafes.filter((c) => isSaved(c.id));
+  const suburbs      = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
 
   return (
     <div className={`mobile-explore${hidden ? ' mobile-explore--hidden' : ''}`}>
@@ -88,7 +89,7 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
       </div>
 
       <div className="mobile-explore__suburbs">
-        <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} />
+        <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
       </div>
 
       <div className="mobile-explore__feed">

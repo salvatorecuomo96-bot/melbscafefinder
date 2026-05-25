@@ -102,10 +102,3 @@ export const DEFAULT_FILTERS = {
   openNow:      false,
   openLate:     false,
 };
-
-export const TOP_SUBURBS = [
-  'Melbourne', 'Fitzroy', 'Collingwood', 'Richmond', 'Carlton',
-  'South Yarra', 'St Kilda', 'Brunswick', 'Northcote', 'Thornbury',
-  'Footscray', 'Coburg', 'Hawthorn', 'Camberwell', 'Port Melbourne',
-  'South Melbourne', 'Southbank', 'Abbotsford', 'Docklands', 'Prahran',
-];
