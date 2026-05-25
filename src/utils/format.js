@@ -33,7 +33,7 @@ export function openStatus(openingHours, now = new Date()) {
   };
 }
 
-const LATE_THRESHOLD = 17 * 60 + 30; // 17:30
+const LATE_THRESHOLD = 18 * 60 + 30; // 18:30
 
 export function isOpenLate(openingHours) {
   const key = dayKeyForToday();
