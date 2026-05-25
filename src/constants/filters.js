@@ -26,14 +26,6 @@ export const FILTER_SECTIONS = [
     ],
     enums: [
       {
-        key: 'brunchQuality',
-        label: 'Brunch',
-        options: [
-          { value: 'excellent', label: 'Excellent brunch' },
-          { value: 'good',      label: 'Good brunch' },
-        ],
-      },
-      {
         key: 'veganOptions',
         label: 'Vegan options',
         options: [

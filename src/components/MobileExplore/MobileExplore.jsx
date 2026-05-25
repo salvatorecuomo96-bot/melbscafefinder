@@ -25,7 +25,6 @@ export default function MobileExplore({
   const nearYou      = hasCoords ? [...cafes].sort(byDist).slice(0, 10) : [];
   const topRated     = [...cafes].sort(byRating).slice(0, 12);
   const specialty    = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
-  const goodBrunch   = cafes.filter((c) => c.brunchQuality === 'excellent').sort(byRating).slice(0, 10);
   const bestWork     = cafes.filter((c) => c.hasWifi && c.laptopFriendly).sort(byRating).slice(0, 10);
   const dogFriendly  = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
   const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);
@@ -113,8 +112,7 @@ export default function MobileExplore({
             )}
             <ExploreSection title="Top rated" cafes={topRated} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Specialty coffee" cafes={specialty} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Great brunch" cafes={goodBrunch} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Work-friendly" cafes={bestWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
+<ExploreSection title="Work-friendly" cafes={bestWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Dog friendly" cafes={dogFriendly} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Matcha + pastry" cafes={matchaPastry} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Outdoor seating" cafes={outdoor} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
