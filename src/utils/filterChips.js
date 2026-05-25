@@ -20,14 +20,13 @@ export function getActiveFilterChips(api) {
   const {
     filters,
     toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePlantMilk, togglePriceLevel, toggleOpenNow, setMinRating,
+    togglePlantMilk, togglePriceLevel, toggleOpenNow, toggleOpenLate, setMinRating,
   } = api;
 
   const chips = [];
 
-  if (filters.openNow) {
-    chips.push({ label: 'Open now', onRemove: toggleOpenNow });
-  }
+  if (filters.openNow)  chips.push({ label: 'Open now',  onRemove: toggleOpenNow  });
+  if (filters.openLate) chips.push({ label: 'Open late', onRemove: toggleOpenLate });
 
   for (const [key, val] of Object.entries(filters.booleans)) {
     if (!val) continue;

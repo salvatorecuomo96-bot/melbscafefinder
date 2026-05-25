@@ -33,6 +33,19 @@ export function openStatus(openingHours, now = new Date()) {
   };
 }
 
+const LATE_THRESHOLD = 17 * 60 + 30; // 17:30
+
+export function isOpenLate(openingHours) {
+  const key = dayKeyForToday();
+  const raw = openingHours?.[key];
+  if (!raw || raw === 'Closed') return false;
+  if (raw === 'Open 24h') return true;
+  const parts = raw.split(' - ');
+  if (parts.length < 2) return false;
+  const [closeH, closeM] = parts[1].split(':').map(Number);
+  return (closeH * 60 + (closeM || 0)) >= LATE_THRESHOLD;
+}
+
 export function plantMilkLabel(milks) {
   if (!milks?.length) return 'Dairy only';
   return milks.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ');

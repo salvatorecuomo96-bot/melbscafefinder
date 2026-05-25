@@ -118,4 +118,5 @@ export const DEFAULT_FILTERS = {
   priceLevels:  [],
   minRating:    0,
   openNow:      false,
+  openLate:     false,
 };
