@@ -1,10 +1,34 @@
 import { useMemo, useState } from 'react';
-import { DEFAULT_FILTERS } from '../constants/filters.js';
+import { DEFAULT_FILTERS, FILTER_SECTIONS } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
+
+const BOOL_KEYS = FILTER_SECTIONS.flatMap((s) => (s.booleans || []).map((b) => b.key));
+const ENUM_KEYS = FILTER_SECTIONS.flatMap((s) => (s.enums || []).map((e) => e.key));
 
 export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
+
+  // Count how many cafes match each filter option (for display in drawer)
+  const filterCounts = useMemo(() => {
+    const booleans = {}, enums = {}, brands = {}, plantMilk = {};
+    for (const cafe of cafes) {
+      for (const key of BOOL_KEYS) {
+        if (cafe[key] === true) booleans[key] = (booleans[key] || 0) + 1;
+      }
+      for (const key of ENUM_KEYS) {
+        if (cafe[key]) {
+          if (!enums[key]) enums[key] = {};
+          enums[key][cafe[key]] = (enums[key][cafe[key]] || 0) + 1;
+        }
+      }
+      if (cafe.coffeeBrand) brands[cafe.coffeeBrand] = (brands[cafe.coffeeBrand] || 0) + 1;
+      for (const milk of (cafe.plantMilk || [])) {
+        plantMilk[milk] = (plantMilk[milk] || 0) + 1;
+      }
+    }
+    return { booleans, enums, brands, plantMilk };
+  }, [cafes]);
 
   const visibleCafes = useMemo(() => {
     const q = filters.query.trim().toLowerCase();
@@ -16,22 +40,22 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         if (!haystack.includes(q)) return false;
       }
 
-      // Boolean filters — only exclude if explicitly false; null = unknown, passes through
+      // Boolean: only exclude if explicitly false; null = unknown, passes
       for (const [key, isOn] of Object.entries(filters.booleans)) {
         if (isOn && cafe[key] === false) return false;
       }
 
-      // Enum filters — only exclude if cafe has a different explicit value; null passes
+      // Enum: hard match — null does NOT pass when filter is active
       for (const [key, val] of Object.entries(filters.enums)) {
-        if (val && cafe[key] != null && cafe[key] !== val) return false;
+        if (val && cafe[key] !== val) return false;
       }
 
-      // Coffee brands — hard match: null doesn't pass, must match a selected brand
+      // Coffee brands: hard match
       if (filters.coffeeBrands.length) {
         if (!filters.coffeeBrands.includes(cafe.coffeeBrand)) return false;
       }
 
-      // Plant milk: cafe must offer ALL selected milks
+      // Plant milk: must offer ALL selected milks
       if (filters.plantMilk.length) {
         const offered = new Set(cafe.plantMilk || []);
         if (!filters.plantMilk.every((m) => offered.has(m))) return false;
@@ -64,10 +88,8 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
             if (v === false) return cafe[k] === false ? n + 1 : n;
             return cafe[k] === v ? n + 1 : n;
           }, 0);
-
         const scoreDiff = prefScore(b) - prefScore(a);
         if (scoreDiff !== 0) return scoreDiff;
-
         for (const field of (activePreset.rankBy || [])) {
           const diff = (b[field] ?? 0) - (a[field] ?? 0);
           if (diff !== 0) return diff;
@@ -97,10 +119,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   }, [cafes, filters, sort, userCoords, activePreset]);
 
   const toggleBoolean = (key) =>
-    setFilters((f) => ({
-      ...f,
-      booleans: { ...f.booleans, [key]: !f.booleans[key] },
-    }));
+    setFilters((f) => ({ ...f, booleans: { ...f.booleans, [key]: !f.booleans[key] } }));
 
   const toggleEnum = (key, value) =>
     setFilters((f) => ({
@@ -146,19 +165,8 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     (filters.minRating ? 1 : 0);
 
   return {
-    filters,
-    sort,
-    setSort,
-    visibleCafes,
-    activeCount,
-    setQuery,
-    toggleBoolean,
-    toggleEnum,
-    toggleCoffeeBrand,
-    togglePlantMilk,
-    togglePriceLevel,
-    setBooleans,
-    setMinRating,
-    reset,
+    filters, sort, setSort, visibleCafes, filterCounts, activeCount,
+    setQuery, toggleBoolean, toggleEnum, toggleCoffeeBrand,
+    togglePlantMilk, togglePriceLevel, setBooleans, setMinRating, reset,
   };
 }

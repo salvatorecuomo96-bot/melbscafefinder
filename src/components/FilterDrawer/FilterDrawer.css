@@ -127,6 +127,16 @@
   border-color: var(--color-ink);
   color: #fff;
 }
+.drawer__pill.is-on .drawer__pill-count { opacity: 0.6; }
+.drawer__pill.is-sparse {
+  opacity: 0.45;
+}
+.drawer__pill-count {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.45;
+  margin-left: 4px;
+}
 
 .slider {
   display: flex;

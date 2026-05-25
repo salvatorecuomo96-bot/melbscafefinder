@@ -7,6 +7,8 @@ import {
 } from '../../constants/filters.js';
 import './FilterDrawer.css';
 
+const SPARSE_THRESHOLD = 40;
+
 export default function FilterDrawer({ open, onClose, api }) {
   useEffect(() => {
     if (!open) return;
@@ -22,17 +24,16 @@ export default function FilterDrawer({ open, onClose, api }) {
   if (!open) return null;
 
   const {
-    filters,
-    toggleBoolean,
-    toggleEnum,
-    toggleCoffeeBrand,
-    togglePlantMilk,
-    togglePriceLevel,
-    setMinRating,
-    reset,
-    activeCount,
-    visibleCafes,
+    filters, filterCounts,
+    toggleBoolean, toggleEnum, toggleCoffeeBrand,
+    togglePlantMilk, togglePriceLevel, setMinRating,
+    reset, activeCount, visibleCafes,
   } = api;
+
+  const boolCount = (key) => filterCounts.booleans[key] || 0;
+  const enumCount = (key, val) => filterCounts.enums?.[key]?.[val] || 0;
+  const brandCount = (brand) => filterCounts.brands[brand] || 0;
+  const milkCount = (milk) => filterCounts.plantMilk[milk] || 0;
 
   return (
     <div className="drawer" onClick={onClose} role="dialog" aria-modal="true" aria-label="Filters">
@@ -48,23 +49,26 @@ export default function FilterDrawer({ open, onClose, api }) {
             <section key={section.id} className="drawer__group">
               <h3>{section.label}</h3>
 
-              {/* Boolean toggles */}
               {section.booleans?.length > 0 && (
                 <div className="drawer__pills">
-                  {section.booleans.map((f) => (
-                    <button
-                      key={f.key}
-                      className={`drawer__pill ${filters.booleans[f.key] ? 'is-on' : ''}`}
-                      onClick={() => toggleBoolean(f.key)}
-                      aria-pressed={!!filters.booleans[f.key]}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+                  {section.booleans.map((f) => {
+                    const count = boolCount(f.key);
+                    const sparse = count < SPARSE_THRESHOLD;
+                    return (
+                      <button
+                        key={f.key}
+                        className={`drawer__pill ${filters.booleans[f.key] ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
+                        onClick={() => toggleBoolean(f.key)}
+                        aria-pressed={!!filters.booleans[f.key]}
+                      >
+                        {f.label}
+                        <span className="drawer__pill-count">{count}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
-              {/* Enum selectors */}
               {section.enums?.map((enumDef) => {
                 const options = enumDef.options.map((o) =>
                   typeof o === 'string' ? { value: o, label: o[0].toUpperCase() + o.slice(1) } : o
@@ -73,60 +77,72 @@ export default function FilterDrawer({ open, onClose, api }) {
                   <div key={enumDef.key} className="drawer__enum">
                     <span className="drawer__enum-label">{enumDef.label}</span>
                     <div className="drawer__pills">
-                      {options.map((o) => (
-                        <button
-                          key={o.value}
-                          className={`drawer__pill ${filters.enums[enumDef.key] === o.value ? 'is-on' : ''}`}
-                          onClick={() => toggleEnum(enumDef.key, o.value)}
-                          aria-pressed={filters.enums[enumDef.key] === o.value}
-                        >
-                          {o.label}
-                        </button>
-                      ))}
+                      {options.map((o) => {
+                        const count = enumCount(enumDef.key, o.value);
+                        const sparse = count < SPARSE_THRESHOLD;
+                        return (
+                          <button
+                            key={o.value}
+                            className={`drawer__pill ${filters.enums[enumDef.key] === o.value ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
+                            onClick={() => toggleEnum(enumDef.key, o.value)}
+                            aria-pressed={filters.enums[enumDef.key] === o.value}
+                          >
+                            {o.label}
+                            <span className="drawer__pill-count">{count}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 );
               })}
 
-              {/* Coffee brands */}
               {section.brands && (
                 <div className="drawer__enum">
                   <span className="drawer__enum-label">Coffee brand</span>
                   <div className="drawer__pills">
-                    {COFFEE_BRANDS.map((brand) => (
-                      <button
-                        key={brand}
-                        className={`drawer__pill ${filters.coffeeBrands.includes(brand) ? 'is-on' : ''}`}
-                        onClick={() => toggleCoffeeBrand(brand)}
-                        aria-pressed={filters.coffeeBrands.includes(brand)}
-                      >
-                        {brand}
-                      </button>
-                    ))}
+                    {COFFEE_BRANDS.map((brand) => {
+                      const count = brandCount(brand);
+                      const sparse = count < SPARSE_THRESHOLD;
+                      return (
+                        <button
+                          key={brand}
+                          className={`drawer__pill ${filters.coffeeBrands.includes(brand) ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
+                          onClick={() => toggleCoffeeBrand(brand)}
+                          aria-pressed={filters.coffeeBrands.includes(brand)}
+                        >
+                          {brand}
+                          <span className="drawer__pill-count">{count}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Plant milk */}
               {section.plantMilk && (
                 <div className="drawer__enum">
                   <span className="drawer__enum-label">Plant milk</span>
                   <div className="drawer__pills">
-                    {PLANT_MILK_OPTIONS.map((m) => (
-                      <button
-                        key={m}
-                        className={`drawer__pill ${filters.plantMilk.includes(m) ? 'is-on' : ''}`}
-                        onClick={() => togglePlantMilk(m)}
-                        aria-pressed={filters.plantMilk.includes(m)}
-                      >
-                        {m[0].toUpperCase() + m.slice(1)}
-                      </button>
-                    ))}
+                    {PLANT_MILK_OPTIONS.map((m) => {
+                      const count = milkCount(m);
+                      const sparse = count < SPARSE_THRESHOLD;
+                      return (
+                        <button
+                          key={m}
+                          className={`drawer__pill ${filters.plantMilk.includes(m) ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
+                          onClick={() => togglePlantMilk(m)}
+                          aria-pressed={filters.plantMilk.includes(m)}
+                        >
+                          {m[0].toUpperCase() + m.slice(1)}
+                          <span className="drawer__pill-count">{count}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Price */}
               {section.price && (
                 <div className="drawer__enum">
                   <span className="drawer__enum-label">Price</span>
@@ -176,11 +192,7 @@ function SliderRow({ value, onChange, max, step, format }) {
   return (
     <div className="slider">
       <input
-        type="range"
-        min="0"
-        max={max}
-        step={step}
-        value={value}
+        type="range" min="0" max={max} step={step} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
       />
       <span className="slider__value">{format(value)}</span>

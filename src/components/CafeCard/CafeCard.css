@@ -133,6 +133,10 @@
   border-radius: var(--radius-pill);
   color: var(--color-ink-soft);
 }
+.card__badges li[data-type="brand"] {
+  background: #1a1a1a;
+  color: #fff;
+}
 
 /* ===== Save button ===== */
 .card__save {

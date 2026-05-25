@@ -2,17 +2,24 @@ import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import './CafeCard.css';
 
+const CHAI_LABEL = { leaf: 'Leaf chai', newspaper: 'Masala chai', powder: 'Powder chai' };
+
 export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }) {
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
 
-  const quickBadges = [
-    cafe.laptopFriendly && 'Laptop',
-    cafe.hasWifi && 'Wi-Fi',
-    cafe.outdoorSeating && 'Outdoor',
-    cafe.dogFriendly && 'Dog friendly',
-    cafe.quiet && 'Quiet',
-    cafe.specialtyCoffee && 'Specialty'
-  ].filter(Boolean).slice(0, 3);
+  const badges = [
+    cafe.coffeeBrand     && { label: cafe.coffeeBrand,            type: 'brand' },
+    cafe.noiseLevel === 'quiet' && { label: 'Quiet',              type: 'attr' },
+    cafe.dogFriendly     && { label: 'Dog friendly',              type: 'attr' },
+    cafe.outdoorSeating  && { label: 'Outdoor',                   type: 'attr' },
+    cafe.chaiType        && { label: CHAI_LABEL[cafe.chaiType],   type: 'attr' },
+    cafe.specialtyCoffee && { label: 'Specialty coffee',          type: 'attr' },
+    cafe.hasWifi         && { label: 'WiFi',                      type: 'attr' },
+    cafe.laptopFriendly  && { label: 'Laptop friendly',           type: 'attr' },
+    cafe.matcha          && { label: 'Matcha',                    type: 'attr' },
+    cafe.breakfastAllDay && { label: 'All-day brekky',            type: 'attr' },
+    cafe.hasDecaf        && { label: 'Decaf',                     type: 'attr' },
+  ].filter(Boolean).slice(0, 4);
 
   return (
     <article className="card" onClick={onOpen}>
@@ -51,15 +58,17 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
         </div>
 
         <p className="card__meta">
-          {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}{cafe.vibe ? ` · ${cafe.vibe}` : ''}
+          {cafe.suburb}
+          {priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
+          {cafe.vibe ? ` · ${cafe.vibe}` : ''}
         </p>
 
         <p className="card__desc">{cafe.shortDescription}</p>
 
-        {!!quickBadges.length && (
+        {badges.length > 0 && (
           <ul className="card__badges">
-            {quickBadges.map((b) => (
-              <li key={b}>{b}</li>
+            {badges.map((b) => (
+              <li key={b.label} data-type={b.type}>{b.label}</li>
             ))}
           </ul>
         )}
