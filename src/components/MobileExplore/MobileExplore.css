@@ -14,47 +14,105 @@
   display: none;
 }
 
-/* Desktop: this screen is never shown */
 @media (min-width: 900px) {
-  .mobile-explore {
-    display: none;
-  }
+  .mobile-explore { display: none; }
 }
 
 .mobile-explore__header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
+  padding: calc(18px + env(safe-area-inset-top)) 16px 14px;
 }
 
-.mobile-explore__logo {
-  display: inline-flex;
-  flex-shrink: 0;
-}
+.mobile-explore__logo { display: inline-flex; flex-shrink: 0; }
 
 .mobile-explore__wordmark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 18px;
   letter-spacing: -0.01em;
   color: var(--color-ink);
 }
-
 .mobile-explore__wordmark em {
   font-style: italic;
   font-weight: 500;
   color: var(--color-accent);
 }
 
-.mobile-explore__moods {
-  padding: 0 12px 6px;
-  min-width: 0;
+.mobile-explore__search {
+  padding: 0 14px 10px;
 }
 
+.mobile-explore__actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 18px;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+/* ===== Filter / Near me action buttons ===== */
+.mexplore__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-ink-soft);
+  transition: all 120ms ease;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+.mexplore__btn:hover:not(:disabled) {
+  color: var(--color-ink);
+  border-color: #b8b0a0;
+}
+.mexplore__btn:disabled { opacity: 0.6; cursor: default; }
+.mexplore__btn.is-active {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+  box-shadow: none;
+}
+
+.mexplore__badge {
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.mexplore__reset {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-mute);
+  padding: 4px 2px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mexplore__reset:hover { color: var(--color-ink); }
+
+/* ===== Sections feed ===== */
 .mobile-explore__feed {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding-top: 12px;
+  gap: 28px;
+  padding-top: 4px;
 }

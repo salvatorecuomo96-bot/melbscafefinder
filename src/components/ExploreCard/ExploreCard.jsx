@@ -4,7 +4,7 @@ import './ExploreCard.css';
 
 export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
   const tags = [
-    cafe.quiet && 'Quiet',
+    cafe.noiseLevel === 'quiet' && 'Quiet',
     cafe.specialtyCoffee && 'Specialty coffee',
     cafe.outdoorSeating && 'Outdoor',
     cafe.matcha && 'Matcha',
@@ -25,9 +25,15 @@ export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
             <p className="explore-card__meta">
               {cafe.suburb}
               {cafe.distanceKm != null ? ` · ${formatDistance(cafe.distanceKm)}` : ''}
-              {` · ${priceLabel(cafe.priceLevel)}`}
+              {priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
             </p>
           </div>
+          {cafe.rating != null && (
+            <span className="explore-card__rating">
+              <StarIcon />
+              {cafe.rating.toFixed(1)}
+            </span>
+          )}
           {onToggleSave && (
             <button
               className={`explore-card__save${isSaved ? ' is-saved' : ''}`}
@@ -46,6 +52,14 @@ export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
         )}
       </div>
     </article>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
   );
 }
 

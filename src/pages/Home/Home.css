@@ -189,28 +189,9 @@
   font-weight: 700;
 }
 
-/* Mood presets wrapper — desktop sidebar only; mobile shows in the sheet */
-.layout__presets-wrap { display: none; }
-
 /* FilterChips wrapper — hidden on mobile */
 .layout__chips-wrap { display: none; }
 
-/* Sheet controls area (mood presets inside bottom sheet on mobile) */
-.sheet__controls {
-  padding: 10px 12px 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* ===== Active preset description ===== */
-.layout__preset-desc {
-  font-size: 12.5px;
-  color: var(--color-ink-mute);
-  padding: 0 2px;
-  margin: -4px 0 0;
-  font-style: italic;
-}
 
 /* ===== Saved tab (brand row — desktop only) ===== */
 .layout__saved-tab {
@@ -303,12 +284,10 @@
 
   /* Restore elements hidden on mobile */
   .layout__saved-tab { display: inline-flex; }
-  .layout__chips-wrap { display: none; } /* redundant with filter drawer on desktop */
+  .layout__chips-wrap { display: none; }
   .layout__near-me { display: flex; }
   .layout__actions { display: none; }
   .layout__fab--filters { display: inline-flex; }
-  .layout__presets-wrap { display: block; }
-  .sheet__controls { display: none; } /* presets are in sidebar on desktop */
 
   .layout__fab {
     bottom: auto;

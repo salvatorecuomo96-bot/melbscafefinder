@@ -8,7 +8,6 @@ import CafePreviewCard from '../../components/CafePreviewCard/CafePreviewCard.js
 import FilterDrawer from '../../components/FilterDrawer/FilterDrawer.jsx';
 import MapView from '../../components/MapView/MapView.jsx';
 import EmptyState from '../../components/EmptyState/EmptyState.jsx';
-import MoodPresets from '../../components/MoodPresets/MoodPresets.jsx';
 import BottomSheet from '../../components/BottomSheet/BottomSheet.jsx';
 import BottomNav from '../../components/BottomNav/BottomNav.jsx';
 import MobileExplore from '../../components/MobileExplore/MobileExplore.jsx';
@@ -30,7 +29,6 @@ export default function Home() {
     setSheetSnap(snap);
     if (snap >= 1) setPreviewCafe(null);
   };
-  const [activePreset, setActivePreset] = useState(null);
   const [activeTab, setActiveTab]       = useState('explore');
 
   const handleTabChange = (tab) => {
@@ -43,7 +41,7 @@ export default function Home() {
 
   const { cafes: rawCafes, loading } = useCafes();
   const { coords, status: geoStatus } = useGeolocation();
-  const api = useCafeFilters({ cafes: rawCafes, userCoords: coords, activePreset });
+  const api = useCafeFilters({ cafes: rawCafes, userCoords: coords });
   const { isSaved, toggleSave, savedCount } = useSavedCafes();
 
   const allCafes = useMemo(() =>
@@ -55,16 +53,6 @@ export default function Home() {
   );
 
   const savedCafes = allCafes.filter((c) => isSaved(c.id));
-
-  const handlePresetSelect = (preset) => {
-    if (activePreset?.id === preset.id) {
-      setActivePreset(null);
-      api.setBooleans({});
-    } else {
-      setActivePreset(preset);
-      api.setBooleans(preset.required || {});
-    }
-  };
 
   const nearMeActive = api.sort === 'distance';
   const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
@@ -122,9 +110,12 @@ export default function Home() {
         isSaved={isSaved}
         onToggleSave={toggleSave}
         onOpen={(cafe) => setDetailCafe(cafe)}
-        activePreset={activePreset}
-        onPresetSelect={handlePresetSelect}
+        onOpenFilters={() => setDrawerOpen(true)}
+        api={api}
         hidden={activeTab !== 'explore'}
+        geoStatus={geoStatus}
+        nearMeActive={nearMeActive}
+        onNearMe={handleNearMe}
       />
 
       {activeTab === 'saved' && (
@@ -169,16 +160,6 @@ export default function Home() {
               onChange={api.setQuery}
               placeholder="Search cafe, suburb, or vibe"
             />
-
-            <div className="layout__presets-wrap">
-              <MoodPresets
-                activePresetId={activePreset?.id}
-                onSelect={handlePresetSelect}
-              />
-              {activePreset && (
-                <p className="layout__preset-desc">{activePreset.description}</p>
-              )}
-            </div>
 
             <div className="layout__actions">
               <button className="layout__action-btn" onClick={() => setDrawerOpen(true)}>
@@ -250,17 +231,6 @@ export default function Home() {
 
       {activeTab === 'map' && (
         <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
-          {!savedView && (
-            <div className="sheet__controls">
-              <MoodPresets
-                activePresetId={activePreset?.id}
-                onSelect={handlePresetSelect}
-              />
-              {activePreset && (
-                <p className="layout__preset-desc">{activePreset.description}</p>
-              )}
-            </div>
-          )}
           {cafeList}
         </BottomSheet>
       )}
