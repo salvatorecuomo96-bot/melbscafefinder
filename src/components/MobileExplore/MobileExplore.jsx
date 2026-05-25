@@ -23,7 +23,7 @@ export default function MobileExplore({
   const nearYou      = hasCoords ? [...cafes].sort(byDist).slice(0, 10) : [];
   const topRated     = [...cafes].sort(byRating).slice(0, 12);
   const specialty    = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
-  const goodBrunch   = cafes.filter((c) => c.brunchQuality === 'great').sort(byRating).slice(0, 10);
+  const goodBrunch   = cafes.filter((c) => c.brunchQuality === 'excellent').sort(byRating).slice(0, 10);
   const bestWork     = cafes.filter((c) => c.hasWifi && c.laptopFriendly).sort(byRating).slice(0, 10);
   const dogFriendly  = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
   const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);

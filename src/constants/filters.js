@@ -3,15 +3,13 @@ export const FILTER_SECTIONS = [
     id: 'coffee',
     label: 'Coffee',
     booleans: [
-      { key: 'specialtyCoffee', label: 'Specialty coffee' },
-      { key: 'filterCoffee',    label: 'Filter coffee' },
-      { key: 'hasDecaf',        label: 'Decaf' },
-      { key: 'matcha',          label: 'Matcha' },
+      { key: 'specialtyCoffee', label: 'Specialty coffee' },  // 73%
+      { key: 'matcha',          label: 'Matcha' },            // 19%
     ],
     enums: [
       {
         key: 'chaiType',
-        label: 'Chai',
+        label: 'Chai type',
         options: [
           { value: 'leaf',   label: 'Leaf chai' },
           { value: 'powder', label: 'Powder chai' },
@@ -24,15 +22,15 @@ export const FILTER_SECTIONS = [
     id: 'food',
     label: 'Food',
     booleans: [
-      { key: 'pastries', label: 'Pastries' },
+      { key: 'pastries', label: 'Pastries' },  // 68%
     ],
     enums: [
       {
         key: 'brunchQuality',
         label: 'Brunch',
         options: [
-          { value: 'great',  label: 'Great brunch' },
-          { value: 'okay',   label: 'Decent brunch' },
+          { value: 'excellent', label: 'Excellent brunch' },
+          { value: 'good',      label: 'Good brunch' },
         ],
       },
       {
@@ -57,15 +55,22 @@ export const FILTER_SECTIONS = [
         label: 'Noise level',
         options: ['quiet', 'moderate', 'lively', 'loud'],
       },
+      {
+        key: 'serviceStyle',
+        label: 'Service',
+        options: [
+          { value: 'counter',       label: 'Counter service' },
+          { value: 'table service', label: 'Table service' },
+        ],
+      },
     ],
   },
   {
-    id: 'work',
-    label: 'Work',
+    id: 'character',
+    label: 'Character',
     booleans: [
-      { key: 'hasWifi',         label: 'WiFi' },
-      { key: 'hasPowerOutlets', label: 'Power outlets' },
-      { key: 'laptopFriendly',  label: 'Laptop friendly' },
+      { key: 'hiddenGem',    label: 'Hidden gem' },    // 30%
+      { key: 'locallyOwned', label: 'Locally owned' }, // 32%
     ],
     enums: [],
   },
@@ -73,9 +78,10 @@ export const FILTER_SECTIONS = [
     id: 'practical',
     label: 'Practical',
     booleans: [
-      { key: 'outdoorSeating', label: 'Outdoor seating' },
-      { key: 'dogFriendly',    label: 'Dog friendly' },
-      { key: 'pramFriendly',   label: 'Pram friendly' },
+      { key: 'outdoorSeating', label: 'Outdoor seating' }, // 40%
+      { key: 'dogFriendly',    label: 'Dog friendly' },    // 12%
+      { key: 'pramFriendly',   label: 'Pram friendly' },   // 11%
+      { key: 'kidFriendly',    label: 'Kid friendly' },    // 29%
     ],
     enums: [],
     price: true,
@@ -104,12 +110,12 @@ export const SORT_OPTIONS = [
 ];
 
 export const DEFAULT_FILTERS = {
-  query:       '',
-  booleans:    {},
-  enums:       {},
+  query:        '',
+  booleans:     {},
+  enums:        {},
   coffeeBrands: [],
-  plantMilk:   [],
-  priceLevels: [],
-  minRating:   0,
-  openNow:     false,
+  plantMilk:    [],
+  priceLevels:  [],
+  minRating:    0,
+  openNow:      false,
 };
