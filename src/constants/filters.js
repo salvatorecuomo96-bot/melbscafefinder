@@ -48,22 +48,11 @@ export const FILTER_SECTIONS = [
     ],
   },
   {
-    id: 'character',
-    label: 'Character',
-    booleans: [
-      { key: 'hiddenGem',    label: 'Hidden gem' },    // 30%
-      { key: 'locallyOwned', label: 'Locally owned' }, // 32%
-    ],
-    enums: [],
-  },
-  {
     id: 'practical',
     label: 'Practical',
     booleans: [
       { key: 'outdoorSeating', label: 'Outdoor seating' }, // 40%
       { key: 'dogFriendly',    label: 'Dog friendly' },    // 12%
-      { key: 'pramFriendly',   label: 'Pram friendly' },   // 11%
-      { key: 'kidFriendly',    label: 'Kid friendly' },    // 29%
     ],
     enums: [],
     price: true,
@@ -82,7 +71,6 @@ export const PRICE_LEVELS = [
   { value: 1, label: '$' },
   { value: 2, label: '$$' },
   { value: 3, label: '$$$' },
-  { value: 4, label: '$$$$' },
 ];
 
 export const SORT_OPTIONS = [
