@@ -74,12 +74,33 @@
   background: linear-gradient(135deg, #e8c39e, #b8854a);
 }
 .detail__gallery::-webkit-scrollbar { display: none; }
-.detail__gallery img {
+
+.detail__gallery-item {
   flex: 0 0 100%;
+  position: relative;
+  scroll-snap-align: start;
+  cursor: zoom-in;
+}
+.detail__gallery-item img {
   width: 100%;
   aspect-ratio: 5 / 3;
   object-fit: cover;
-  scroll-snap-align: start;
+  display: block;
+}
+.detail__gallery-count {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(4px);
 }
 
 .detail__body {
@@ -261,6 +282,13 @@
   font-size: 13.5px;
   color: var(--color-ink-soft);
 }
+
+.detail__attr {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  color: var(--color-ink-soft);
+}
+.detail__attr strong { color: var(--color-ink); }
 
 .detail__hours {
   width: 100%;
