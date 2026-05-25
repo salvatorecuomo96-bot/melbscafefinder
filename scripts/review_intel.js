@@ -97,6 +97,7 @@ Return ONLY a JSON object with these exact fields (no extras):
   "outdoorSeating": null,
   "dogFriendly": null,
   "pramFriendly": null,
+  "providesNewspaper": null,
   "goodForSolo": null,
   "goodForDates": null,
   "goodForGroups": null,
@@ -133,6 +134,7 @@ Extra notes:
 - "hiddenGem": true only if reviews call it hidden, tucked away, or underrated
 - "locallyOwned": true only if reviews mention independent, family-owned, or local
 - "breakfastAllDay": true if reviews mention all-day breakfast or ordering brekky in the afternoon
+- "providesNewspaper": true if reviews mention newspapers or magazines available to read
 Return raw JSON only, no markdown, no explanation.`
     }]
   };

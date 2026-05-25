@@ -2,7 +2,7 @@ import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import './CafeCard.css';
 
-const CHAI_LABEL = { leaf: 'Leaf chai', newspaper: 'Masala chai', powder: 'Powder chai' };
+const CHAI_LABEL = { leaf: 'Leaf chai', powder: 'Powder chai' };
 
 export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }) {
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);

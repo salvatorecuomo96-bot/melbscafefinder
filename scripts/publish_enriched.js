@@ -89,6 +89,7 @@ const merged = cafes.map((cafe) => {
     outdoorSeating:       fill('outdoorSeating', r, w),
     dogFriendly:          fill('dogFriendly', r, w),
     pramFriendly:         fill('pramFriendly', r, w),
+    providesNewspaper:    fill('providesNewspaper', r, w),
     // Social
     goodForSolo:          fill('goodForSolo', r, w),
     goodForDates:         fill('goodForDates', r, w),
