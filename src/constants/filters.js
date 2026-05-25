@@ -45,15 +45,6 @@ export const FILTER_SECTIONS = [
         label: 'Noise level',
         options: ['quiet', 'moderate', 'lively', 'loud'],
       },
-      {
-        key: 'serviceStyle',
-        label: 'Service',
-        options: [
-          { value: 'counter',       label: 'Counter service' },
-          { value: 'table service', label: 'Table service' },
-          { value: 'mixed',         label: 'Mixed service' },
-        ],
-      },
     ],
   },
   {
