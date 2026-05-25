@@ -40,8 +40,14 @@ export default function FilterDrawer({ open, onClose, api }) {
       <div className="drawer__sheet" onClick={(e) => e.stopPropagation()}>
         <header className="drawer__head">
           <div className="drawer__handle" aria-hidden="true" />
-          <h2>Filters</h2>
-          <button className="drawer__close" onClick={onClose} aria-label="Close filters">×</button>
+          <div className="drawer__head-row">
+            <h2>Filters</h2>
+            <button className="drawer__close" onClick={onClose} aria-label="Close filters">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <div className="drawer__body">

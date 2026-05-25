@@ -69,12 +69,6 @@ export default function MobileExplore({
           Open now
         </button>
         <button
-          className={`mexplore__btn${api.filters.openLate ? ' is-active' : ''}`}
-          onClick={api.toggleOpenLate}
-        >
-          Open late
-        </button>
-        <button
           className={`mexplore__btn${nearMeActive ? ' is-active' : ''}`}
           onClick={onNearMe}
           disabled={geoStatus === 'asking'}
