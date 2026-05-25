@@ -1,5 +1,19 @@
 .explore-section {
   min-width: 0;
+  position: relative;
+}
+
+/* Fade-out on right edge hints that cards continue scrolling */
+.explore-section::after {
+  content: '';
+  position: absolute;
+  top: 30px;
+  right: 0;
+  bottom: 4px;
+  width: 44px;
+  background: linear-gradient(to right, transparent, var(--color-bg) 80%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .explore-section__title {

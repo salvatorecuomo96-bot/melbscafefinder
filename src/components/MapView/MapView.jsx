@@ -114,8 +114,28 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
 
       map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
-      map.on('mouseenter', 'pins', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'pins', () => { map.getCanvas().style.cursor = ''; });
+
+      let hoverPopup = null;
+      map.on('mouseenter', 'pins', (e) => {
+        map.getCanvas().style.cursor = 'pointer';
+        const id = e.features[0].properties.id;
+        const cafe = cafesRef.current.find((c) => c.id === id);
+        if (!cafe) return;
+        hoverPopup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          offset: 14,
+          className: 'map-pin-tooltip',
+        })
+          .setLngLat(e.features[0].geometry.coordinates)
+          .setHTML(`<strong>${cafe.name}</strong><span>${cafe.suburb}</span>`)
+          .addTo(map);
+      });
+      map.on('mouseleave', 'pins', () => {
+        map.getCanvas().style.cursor = '';
+        hoverPopup?.remove();
+        hoverPopup = null;
+      });
 
       setReady(true);
     });

@@ -6,6 +6,19 @@ import './CafeDetail.css';
 
 export default function CafeDetail({ cafe, onClose }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = () => {
+    const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
+    if (navigator.share) {
+      navigator.share({ title: cafe.name, text: `Check out ${cafe.name}`, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  };
 
   useEffect(() => {
     if (!cafe) return;
@@ -155,6 +168,9 @@ export default function CafeDetail({ cafe, onClose }) {
               {cafe.phone && (
                 <a className="detail__btn" href={`tel:${cafe.phone}`}>{cafe.phone}</a>
               )}
+              <button className="detail__btn" onClick={handleShare}>
+                {copied ? 'Copied!' : 'Share'}
+              </button>
             </div>
           </div>
         </div>

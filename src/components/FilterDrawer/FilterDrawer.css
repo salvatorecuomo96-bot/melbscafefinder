@@ -100,6 +100,22 @@
   letter-spacing: 0.03em;
 }
 
+.drawer__group--open {
+  padding: 12px 0 14px;
+}
+
+.drawer__pill--open {
+  background: var(--color-accent-soft);
+  border-color: transparent;
+  color: var(--color-accent-ink);
+  font-weight: 600;
+}
+.drawer__pill--open.is-on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
 .drawer__pill--price {
   min-width: 44px;
   font-weight: 700;

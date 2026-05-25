@@ -24,14 +24,25 @@ export const FILTER_SECTIONS = [
     id: 'food',
     label: 'Food',
     booleans: [
-      { key: 'pastries',        label: 'Pastries' },
-      { key: 'breakfastAllDay', label: 'All-day brekky' },
+      { key: 'pastries', label: 'Pastries' },
     ],
     enums: [
       {
+        key: 'brunchQuality',
+        label: 'Brunch',
+        options: [
+          { value: 'great',  label: 'Great brunch' },
+          { value: 'okay',   label: 'Decent brunch' },
+        ],
+      },
+      {
         key: 'veganOptions',
         label: 'Vegan options',
-        options: ['excellent', 'good', 'limited'],
+        options: [
+          { value: 'excellent', label: 'Excellent' },
+          { value: 'good',      label: 'Good' },
+          { value: 'limited',   label: 'Limited' },
+        ],
       },
     ],
     plantMilk: true,
@@ -94,10 +105,11 @@ export const SORT_OPTIONS = [
 
 export const DEFAULT_FILTERS = {
   query:       '',
-  booleans:    {},   // { hasWifi: true }
-  enums:       {},   // { noiseLevel: 'quiet', vibe: 'cozy' }
-  coffeeBrands: [],  // ['Seven Seeds']
-  plantMilk:   [],   // ['oat']
+  booleans:    {},
+  enums:       {},
+  coffeeBrands: [],
+  plantMilk:   [],
   priceLevels: [],
   minRating:   0,
+  openNow:     false,
 };

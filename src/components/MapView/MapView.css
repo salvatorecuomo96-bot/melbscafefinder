@@ -48,6 +48,36 @@
   box-shadow: 0 0 0 1.5px rgba(0,0,0,0.12);
 }
 
+/* Pin hover tooltip */
+.map-pin-tooltip .mapboxgl-popup-content {
+  padding: 7px 11px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.3;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  pointer-events: none;
+  min-width: 0;
+  max-width: 180px;
+}
+.map-pin-tooltip .mapboxgl-popup-content strong {
+  display: block;
+  font-weight: 700;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.map-pin-tooltip .mapboxgl-popup-content span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--color-ink-mute);
+  margin-top: 1px;
+}
+.map-pin-tooltip .mapboxgl-popup-tip { border-top-color: #fff; }
+
 .mapview--fallback {
   display: flex;
   align-items: center;

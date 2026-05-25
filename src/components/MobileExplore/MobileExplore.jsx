@@ -14,17 +14,21 @@ export default function MobileExplore({
   nearMeActive,
   onNearMe,
 }) {
-  const byRating = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
+  const byRating  = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
+  const byDist    = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
+  const hasCoords = cafes.some((c) => c.distanceKm != null);
 
   const filtersOrSearch = api.activeCount > 0 || api.filters.query;
 
-  const topRated       = [...cafes].sort(byRating).slice(0, 12);
-  const specialty      = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
-  const quietWork      = cafes.filter((c) => c.laptopFriendly && c.hasWifi).sort(byRating).slice(0, 10);
-  const dogFriendly    = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
-  const matchaPastry   = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);
-  const outdoor        = cafes.filter((c) => c.outdoorSeating).sort(byRating).slice(0, 10);
-  const savedCafes     = cafes.filter((c) => isSaved(c.id));
+  const nearYou      = hasCoords ? [...cafes].sort(byDist).slice(0, 10) : [];
+  const topRated     = [...cafes].sort(byRating).slice(0, 12);
+  const specialty    = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
+  const goodBrunch   = cafes.filter((c) => c.brunchQuality === 'great').sort(byRating).slice(0, 10);
+  const bestWork     = cafes.filter((c) => c.hasWifi && c.laptopFriendly).sort(byRating).slice(0, 10);
+  const dogFriendly  = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
+  const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);
+  const outdoor      = cafes.filter((c) => c.outdoorSeating).sort(byRating).slice(0, 10);
+  const savedCafes   = cafes.filter((c) => isSaved(c.id));
 
   return (
     <div className={`mobile-explore${hidden ? ' mobile-explore--hidden' : ''}`}>
@@ -58,6 +62,12 @@ export default function MobileExplore({
           )}
         </button>
         <button
+          className={`mexplore__btn${api.filters.openNow ? ' is-active' : ''}`}
+          onClick={api.toggleOpenNow}
+        >
+          Open now
+        </button>
+        <button
           className={`mexplore__btn${nearMeActive ? ' is-active' : ''}`}
           onClick={onNearMe}
           disabled={geoStatus === 'asking'}
@@ -83,9 +93,13 @@ export default function MobileExplore({
           />
         ) : (
           <>
+            {nearYou.length > 0 && (
+              <ExploreSection title="Near you" cafes={nearYou} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
+            )}
             <ExploreSection title="Top rated" cafes={topRated} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Specialty coffee" cafes={specialty} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Quiet work spots" cafes={quietWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
+            <ExploreSection title="Great brunch" cafes={goodBrunch} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
+            <ExploreSection title="Work-friendly" cafes={bestWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Dog friendly" cafes={dogFriendly} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Matcha + pastry" cafes={matchaPastry} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Outdoor seating" cafes={outdoor} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />

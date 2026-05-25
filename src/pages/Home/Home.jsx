@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import FilterChips from '../../components/FilterChips/FilterChips.jsx';
 import SortBar from '../../components/SortBar/SortBar.jsx';
@@ -56,6 +56,17 @@ export default function Home() {
 
   const nearMeActive = api.sort === 'distance';
   const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
+
+  // Deep-link: open cafe from ?cafe=<id> on initial load
+  const deepLinked = useRef(false);
+  useEffect(() => {
+    if (!rawCafes.length || deepLinked.current) return;
+    deepLinked.current = true;
+    const id = new URLSearchParams(window.location.search).get('cafe');
+    if (!id) return;
+    const cafe = rawCafes.find((c) => c.id === id);
+    if (cafe) setDetailCafe(cafe);
+  }, [rawCafes]);
 
   const LIST_CAP = 100;
   const allDisplay = savedView

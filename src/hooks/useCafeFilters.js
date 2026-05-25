@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { DEFAULT_FILTERS, FILTER_SECTIONS } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
+import { openStatus } from '../utils/format.js';
 
 const BOOL_KEYS = FILTER_SECTIONS.flatMap((s) => (s.booleans || []).map((b) => b.key));
 const ENUM_KEYS = FILTER_SECTIONS.flatMap((s) => (s.enums || []).map((e) => e.key));
@@ -12,6 +13,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   // Count how many cafes match each filter option (for display in drawer)
   const filterCounts = useMemo(() => {
     const booleans = {}, enums = {}, brands = {}, plantMilk = {};
+    let openNow = 0;
     for (const cafe of cafes) {
       for (const key of BOOL_KEYS) {
         if (cafe[key] === true) booleans[key] = (booleans[key] || 0) + 1;
@@ -26,8 +28,9 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       for (const milk of (cafe.plantMilk || [])) {
         plantMilk[milk] = (plantMilk[milk] || 0) + 1;
       }
+      if (openStatus(cafe.openingHours).isOpen) openNow++;
     }
-    return { booleans, enums, brands, plantMilk };
+    return { booleans, enums, brands, plantMilk, openNow };
   }, [cafes]);
 
   const visibleCafes = useMemo(() => {
@@ -66,6 +69,8 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       }
 
       if (filters.minRating && cafe.rating < filters.minRating) return false;
+
+      if (filters.openNow && !openStatus(cafe.openingHours).isOpen) return false;
 
       return true;
     });
@@ -153,6 +158,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
 
   const setQuery = (query) => setFilters((f) => ({ ...f, query }));
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
+  const toggleOpenNow = () => setFilters((f) => ({ ...f, openNow: !f.openNow }));
   const reset = () => setFilters(DEFAULT_FILTERS);
   const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
 
@@ -162,11 +168,12 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     filters.coffeeBrands.length +
     filters.plantMilk.length +
     filters.priceLevels.length +
-    (filters.minRating ? 1 : 0);
+    (filters.minRating ? 1 : 0) +
+    (filters.openNow ? 1 : 0);
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
     setQuery, toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePlantMilk, togglePriceLevel, setBooleans, setMinRating, reset,
+    togglePlantMilk, togglePriceLevel, setBooleans, setMinRating, toggleOpenNow, reset,
   };
 }

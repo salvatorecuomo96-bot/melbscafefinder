@@ -27,7 +27,7 @@ export default function FilterDrawer({ open, onClose, api }) {
     filters, filterCounts,
     toggleBoolean, toggleEnum, toggleCoffeeBrand,
     togglePlantMilk, togglePriceLevel, setMinRating,
-    reset, activeCount, visibleCafes,
+    toggleOpenNow, reset, activeCount, visibleCafes,
   } = api;
 
   const boolCount = (key) => filterCounts.booleans[key] || 0;
@@ -45,6 +45,19 @@ export default function FilterDrawer({ open, onClose, api }) {
         </header>
 
         <div className="drawer__body">
+          <section className="drawer__group drawer__group--open">
+            <div className="drawer__pills">
+              <button
+                className={`drawer__pill drawer__pill--open ${filters.openNow ? 'is-on' : ''}`}
+                onClick={toggleOpenNow}
+                aria-pressed={filters.openNow}
+              >
+                Open now
+                <span className="drawer__pill-count">{filterCounts.openNow || 0}</span>
+              </button>
+            </div>
+          </section>
+
           {FILTER_SECTIONS.map((section) => (
             <section key={section.id} className="drawer__group">
               <h3>{section.label}</h3>
