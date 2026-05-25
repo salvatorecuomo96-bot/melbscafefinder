@@ -14,4 +14,5 @@
 
 ## Features
 
+- [ ] **AI natural language search** — User types e.g. "quiet cafe to work with specialty coffee near the city" and Claude maps it to the right filters automatically. Needs a serverless function (Vercel `/api/filter`) to proxy Anthropic API calls so the key isn't exposed client-side.
 - [ ] **Saved cafes persistence** — Encode saved IDs in the URL so bookmarks and share links work without a backend.
