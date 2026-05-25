@@ -21,9 +21,7 @@ export const FILTER_SECTIONS = [
   {
     id: 'food',
     label: 'Food',
-    booleans: [
-      { key: 'pastries', label: 'Pastries' },  // 68%
-    ],
+    booleans: [],
     enums: [
       {
         key: 'veganOptions',
@@ -53,6 +51,7 @@ export const FILTER_SECTIONS = [
         options: [
           { value: 'counter',       label: 'Counter service' },
           { value: 'table service', label: 'Table service' },
+          { value: 'mixed',         label: 'Mixed service' },
         ],
       },
     ],
@@ -83,10 +82,9 @@ export const FILTER_SECTIONS = [
 export const PLANT_MILK_OPTIONS = ['oat', 'soy', 'almond', 'macadamia', 'coconut'];
 
 export const COFFEE_BRANDS = [
-  'Seven Seeds', 'Market Lane', 'St Ali', 'Ona', 'Axil',
-  'Proud Mary', 'Dukes', 'Industry Beans', 'Veneziano', 'Patricia',
-  'Mecca', 'Sensory Lab', 'Code Black', 'Allpress', 'Five Senses',
-  'Campos', 'Edition', 'Rumble',
+  'Single O', 'Code Black', 'Five Senses', 'Allpress', 'St Ali',
+  'Industry Beans', 'Axil', 'Seven Seeds', 'Market Lane', 'Veneziano',
+  'Proud Mary', 'Dukes', 'Rumble', 'Campos', 'Ona', 'Padre',
 ];
 
 export const PRICE_LEVELS = [
