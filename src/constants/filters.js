@@ -3,17 +3,12 @@ export const FILTER_SECTIONS = [
     id: 'coffee',
     label: 'Coffee',
     booleans: [
-      { key: 'specialtyCoffee',  label: 'Specialty' },
-      { key: 'filterCoffee',     label: 'Filter coffee' },
-      { key: 'hasDecaf',         label: 'Decaf' },
-      { key: 'matcha',           label: 'Matcha' },
+      { key: 'specialtyCoffee', label: 'Specialty coffee' },
+      { key: 'filterCoffee',    label: 'Filter coffee' },
+      { key: 'hasDecaf',        label: 'Decaf' },
+      { key: 'matcha',          label: 'Matcha' },
     ],
     enums: [
-      {
-        key: 'coffeeStyle',
-        label: 'Style',
-        options: ['third wave', 'specialty', 'classic', 'casual'],
-      },
       {
         key: 'chaiType',
         label: 'Chai',
@@ -42,24 +37,14 @@ export const FILTER_SECTIONS = [
     plantMilk: true,
   },
   {
-    id: 'vibe',
-    label: 'Vibe',
+    id: 'atmosphere',
+    label: 'Atmosphere',
     booleans: [],
     enums: [
       {
         key: 'noiseLevel',
-        label: 'Noise',
+        label: 'Noise level',
         options: ['quiet', 'moderate', 'lively', 'loud'],
-      },
-      {
-        key: 'vibe',
-        label: 'Vibe',
-        options: ['cozy', 'warm', 'modern', 'minimal', 'industrial', 'eclectic', 'rustic', 'artsy'],
-      },
-      {
-        key: 'energyLevel',
-        label: 'Energy',
-        options: ['calm', 'focused', 'social', 'bustling'],
       },
     ],
   },
@@ -67,22 +52,11 @@ export const FILTER_SECTIONS = [
     id: 'work',
     label: 'Work',
     booleans: [
-      { key: 'hasWifi',             label: 'WiFi' },
-      { key: 'hasPowerOutlets',     label: 'Power outlets' },
-      { key: 'laptopFriendly',      label: 'Laptop friendly' },
-      { key: 'goodForDigitalNomads', label: 'Digital nomad' },
+      { key: 'hasWifi',         label: 'WiFi' },
+      { key: 'hasPowerOutlets', label: 'Power outlets' },
+      { key: 'laptopFriendly',  label: 'Laptop friendly' },
     ],
-    enums: [
-      {
-        key: 'workPressure',
-        label: 'Work pressure',
-        options: [
-          { value: 'relaxed', label: 'Relaxed — stay all day' },
-          { value: 'medium',  label: 'Medium' },
-          { value: 'rushed',  label: 'Fast turnover' },
-        ],
-      },
-    ],
+    enums: [],
   },
   {
     id: 'practical',
@@ -91,7 +65,7 @@ export const FILTER_SECTIONS = [
       { key: 'outdoorSeating',    label: 'Outdoor seating' },
       { key: 'dogFriendly',       label: 'Dog friendly' },
       { key: 'pramFriendly',      label: 'Pram friendly' },
-      { key: 'providesNewspaper', label: 'Newspapers provided' },
+      { key: 'providesNewspaper', label: 'Newspapers' },
     ],
     enums: [],
     price: true,
