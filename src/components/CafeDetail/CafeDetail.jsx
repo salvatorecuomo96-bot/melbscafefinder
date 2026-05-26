@@ -37,6 +37,20 @@ export default function CafeDetail({ cafe, match, onClose }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
   const [hoursOpen, setHoursOpen]     = useState(false);
+  const [reportState, setReportState] = useState('idle'); // idle | sending | done
+
+  const handleReportClosed = async () => {
+    if (reportState !== 'idle') return;
+    setReportState('sending');
+    try {
+      await fetch('/api/report-closed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cafeId: cafe.id, cafeName: cafe.name, suburb: cafe.suburb }),
+      });
+    } catch {}
+    setReportState('done');
+  };
 
   const handleShare = () => {
     const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
@@ -228,11 +242,18 @@ export default function CafeDetail({ cafe, match, onClose }) {
               </button>
             </div>
 
-            {/* ── Suggest edit ── */}
+            {/* ── Suggest edit / report closed ── */}
             <div className="detail__footer">
               <a href={suggestEditUrl} className="detail__suggest">
                 Something wrong? Suggest an edit
               </a>
+              <button
+                className="detail__suggest detail__suggest--closed"
+                onClick={handleReportClosed}
+                disabled={reportState !== 'idle'}
+              >
+                {reportState === 'done' ? 'Thanks, we\'ll check it out' : 'Is this place closed?'}
+              </button>
             </div>
           </div>
         </div>
