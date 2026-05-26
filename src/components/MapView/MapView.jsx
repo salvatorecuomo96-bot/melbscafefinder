@@ -5,7 +5,10 @@ import './MapView.css';
 
 const MELBOURNE = { lng: 144.9631, lat: -37.8136, zoom: 13.5 };
 const TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
-const MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
+const STYLES = {
+  map:       'mapbox://styles/mapbox/light-v11',
+  satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
+};
 
 function buildGeoJSON(cafes) {
   return {
@@ -18,12 +21,64 @@ function buildGeoJSON(cafes) {
   };
 }
 
+function addLayers(map, cafes) {
+  if (map.getSource('cafes')) return;
+
+  map.addSource('cafes', {
+    type: 'geojson',
+    data: buildGeoJSON(cafes),
+    cluster: true,
+    clusterMaxZoom: 13,
+    clusterRadius: 40,
+  });
+
+  map.addLayer({
+    id: 'clusters',
+    type: 'circle',
+    source: 'cafes',
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': '#1a1a1a',
+      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#fff',
+    },
+  });
+
+  map.addLayer({
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'cafes',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12,
+    },
+    paint: { 'text-color': '#fff' },
+  });
+
+  map.addLayer({
+    id: 'pins',
+    type: 'circle',
+    source: 'cafes',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+      'circle-color': ['case', ['==', ['get', 'id'], ''], '#e8c39e', '#fff'],
+      'circle-radius': 10,
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#1a1a1a',
+    },
+  });
+}
+
 export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
-  const containerRef = useRef(null);
-  const mapRef = useRef(null);
-  const cafesRef = useRef(cafes);
+  const containerRef  = useRef(null);
+  const mapRef        = useRef(null);
+  const cafesRef      = useRef(cafes);
   const userMarkerRef = useRef(null);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady]           = useState(false);
+  const [satellite, setSatellite]   = useState(false);
 
   useEffect(() => { cafesRef.current = cafes; }, [cafes]);
 
@@ -34,7 +89,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
 
     const map = new mapboxgl.Map({
       container: containerRef.current,
-      style: MAP_STYLE,
+      style: STYLES.map,
       center: [MELBOURNE.lng, MELBOURNE.lat],
       zoom: MELBOURNE.zoom,
       minZoom: 9,
@@ -46,57 +101,8 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('load', () => {
-      map.addSource('cafes', {
-        type: 'geojson',
-        data: buildGeoJSON([]),
-        cluster: true,
-        clusterMaxZoom: 13,
-        clusterRadius: 40,
-      });
+      addLayers(map, cafesRef.current);
 
-      // Cluster bubble
-      map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'cafes',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': '#1a1a1a',
-          'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff',
-        },
-      });
-
-      // Cluster count
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'cafes',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12,
-        },
-        paint: { 'text-color': '#fff' },
-      });
-
-      // Individual point
-      map.addLayer({
-        id: 'pins',
-        type: 'circle',
-        source: 'cafes',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': ['case', ['==', ['get', 'id'], ''], '#e8c39e', '#fff'],
-          'circle-radius': 10,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#1a1a1a',
-        },
-      });
-
-      // Click cluster → zoom in
       map.on('click', 'clusters', (e) => {
         const [feature] = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
         map.getSource('cafes').getClusterExpansionZoom(feature.properties.cluster_id, (err, zoom) => {
@@ -105,7 +111,6 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         });
       });
 
-      // Click individual pin → select cafe
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
@@ -144,7 +149,17 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     return () => map.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Update GeoJSON data when cafes change
+  // Toggle satellite style
+  useEffect(() => {
+    if (!ready) return;
+    const map = mapRef.current;
+    map.setStyle(satellite ? STYLES.satellite : STYLES.map);
+    map.once('style.load', () => {
+      addLayers(map, cafesRef.current);
+    });
+  }, [satellite, ready]);
+
+  // Update GeoJSON when cafes change
   useEffect(() => {
     if (!ready) return;
     mapRef.current.getSource('cafes')?.setData(buildGeoJSON(cafes));
@@ -175,7 +190,29 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   }, [userCoords, ready]);
 
   if (!TOKEN) return <NoTokenFallback />;
-  return <div ref={containerRef} className="mapview" />;
+
+  return (
+    <div style={{ position: 'absolute', inset: 0 }}>
+      <div ref={containerRef} className="mapview" />
+      <button
+        className={`map-style-toggle${satellite ? ' is-satellite' : ''}`}
+        onClick={() => setSatellite((s) => !s)}
+        aria-label={satellite ? 'Switch to map view' : 'Switch to satellite view'}
+      >
+        {satellite ? (
+          <>
+            <MapIcon />
+            Map
+          </>
+        ) : (
+          <>
+            <SatelliteIcon />
+            Satellite
+          </>
+        )}
+      </button>
+    </div>
+  );
 }
 
 function NoTokenFallback() {
@@ -187,5 +224,24 @@ function NoTokenFallback() {
         <p>The list works without it.</p>
       </div>
     </div>
+  );
+}
+
+function SatelliteIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a13 13 0 0 0 0 17M20.5 3.5a13 13 0 0 1 0 17"/>
+    </svg>
+  );
+}
+
+function MapIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+      <line x1="9" y1="3" x2="9" y2="18"/>
+      <line x1="15" y1="6" x2="15" y2="21"/>
+    </svg>
   );
 }
