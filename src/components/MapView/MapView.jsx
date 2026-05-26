@@ -149,9 +149,11 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     return () => map.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Toggle satellite style
+  // Toggle satellite style — only fires when user changes the toggle, not on initial mount
+  const prevSatellite = useRef(null);
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || prevSatellite.current === satellite) return;
+    prevSatellite.current = satellite;
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => {
