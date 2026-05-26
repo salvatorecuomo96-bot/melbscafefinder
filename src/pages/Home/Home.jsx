@@ -50,7 +50,6 @@ export default function Home() {
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ cafes: rawCafes, userCoords: coords });
   const { isSaved, toggleSave, savedCount, getShareUrl } = useSavedCafes();
-  const matchMap = useCafesMatch(allCafes, api.filters, coords);
 
   const allCafes = useMemo(() =>
     rawCafes.map((cafe) => ({
@@ -59,6 +58,8 @@ export default function Home() {
     })),
     [rawCafes, coords]
   );
+
+  const matchMap = useCafesMatch(allCafes, api.filters, coords);
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
