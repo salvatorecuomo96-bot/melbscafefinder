@@ -12,7 +12,8 @@
     "@vercel/analytics": "^2.0.1",
     "mapbox-gl": "^3.24.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "resend": "^6.12.4"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

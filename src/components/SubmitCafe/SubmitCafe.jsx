@@ -36,7 +36,19 @@ export default function SubmitCafe({ open, onClose }) {
       setStatus('success');
       setForm({ name: '', suburb: '', address: '', instagram: '', website: '', note: '', email: '' });
     } catch {
-      setStatus('error');
+      // Fallback: open email client with pre-filled content
+      const body = [
+        `Cafe: ${form.name}`,
+        `Suburb: ${form.suburb}`,
+        form.address && `Address: ${form.address}`,
+        form.instagram && `Instagram: ${form.instagram}`,
+        form.website && `Website: ${form.website}`,
+        form.note && `Note: ${form.note}`,
+        form.email && `Submitter: ${form.email}`,
+      ].filter(Boolean).join('\n');
+      window.location.href = `mailto:salvatore.cuomo96@gmail.com?subject=${encodeURIComponent(`Cafe submission: ${form.name}`)}&body=${encodeURIComponent(body)}`;
+      setStatus('success');
+      setForm({ name: '', suburb: '', address: '', instagram: '', website: '', note: '', email: '' });
     }
   };
 

@@ -1,3 +1,5 @@
+import { Resend } from 'resend';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -14,6 +16,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Email service not configured' });
   }
 
+  const resend = new Resend(apiKey);
+
   const html = `
     <h2>New cafe submission</h2>
     <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
@@ -27,24 +31,16 @@ export default async function handler(req, res) {
     </table>
   `;
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Melbourne Cafe Finder <onboarding@resend.dev>',
-      to: ['salvatore.cuomo96@gmail.com'],
-      subject: `Cafe submission: ${name} (${suburb})`,
-      html,
-    }),
+  const { error } = await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: ['salvatore.cuomo96@gmail.com'],
+    subject: `Cafe submission: ${name} (${suburb})`,
+    html,
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    console.error('Resend error:', err);
-    return res.status(500).json({ error: 'Failed to send email' });
+  if (error) {
+    console.error('Resend error:', error);
+    return res.status(500).json({ error: error.message });
   }
 
   return res.status(200).json({ ok: true });

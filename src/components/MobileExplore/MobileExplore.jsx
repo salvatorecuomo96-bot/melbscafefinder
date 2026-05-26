@@ -1,10 +1,12 @@
 import SearchBar from '../SearchBar/SearchBar.jsx';
-import ExploreSection from '../ExploreSection/ExploreSection.jsx';
 import EmptyState from '../EmptyState/EmptyState.jsx';
 import SuburbPicker from '../SuburbPicker/SuburbPicker.jsx';
 import AiSearch from '../AiSearch/AiSearch.jsx';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
+import { formatDistance } from '../../utils/distance.js';
 import './MobileExplore.css';
+
+const GRID_CAP = 80;
 
 export default function MobileExplore({
   cafes,
@@ -19,20 +21,17 @@ export default function MobileExplore({
   nearMeActive,
   onNearMe,
 }) {
-  const byRating  = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
-  const byDist    = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
-  const hasCoords = cafes.some((c) => c.distanceKm != null);
-
+  const suburbs = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
   const filtersOrSearch = api.activeCount > 0 || api.filters.query || api.filters.suburb;
 
-  const nearYou      = hasCoords ? [...cafes].sort(byDist).slice(0, 10) : [];
-  const topRated     = [...cafes].sort(byRating).slice(0, 12);
-  const specialty    = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
-  const bestWork     = cafes.filter((c) => c.hasWifi && c.laptopFriendly).sort(byRating).slice(0, 10);
-  const dogFriendly  = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
-  const outdoor      = cafes.filter((c) => c.outdoorSeating).sort(byRating).slice(0, 10);
-  const savedCafes   = cafes.filter((c) => isSaved(c.id));
-  const suburbs      = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
+  const byRating = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
+  const byDist   = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
+
+  const sorted = filtersOrSearch
+    ? [...api.visibleCafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP)
+    : [...cafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP);
+
+  const total = filtersOrSearch ? api.visibleCafes.length : cafes.length;
 
   return (
     <div className={`mobile-explore${hidden ? ' mobile-explore--hidden' : ''}`}>
@@ -92,7 +91,13 @@ export default function MobileExplore({
         <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
       </div>
 
-      <button className="mexplore__submit" onClick={onOpenSubmit}>+ Submit a cafe</button>
+      <div className="mobile-explore__meta">
+        <span className="mobile-explore__count">
+          {total} {total === 1 ? 'cafe' : 'cafes'}
+          {api.filters.suburb ? ` in ${api.filters.suburb}` : ''}
+        </span>
+        <button className="mexplore__submit" onClick={onOpenSubmit}>+ Submit a cafe</button>
+      </div>
 
       <div className="mobile-explore__feed">
         {filtersOrSearch && api.visibleCafes.length === 0 ? (
@@ -102,33 +107,78 @@ export default function MobileExplore({
               activeFilters={getActiveFilterChips(api)}
             />
           </div>
-        ) : filtersOrSearch ? (
-          <ExploreSection
-            title={api.filters.suburb
-              ? `${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} in ${api.filters.suburb}`
-              : `${api.visibleCafes.length} ${api.visibleCafes.length === 1 ? 'cafe' : 'cafes'} found`}
-            cafes={api.visibleCafes.slice(0, 30)}
-            isSaved={isSaved}
-            onToggleSave={onToggleSave}
-            onOpen={onOpen}
-          />
         ) : (
-          <>
-            {nearYou.length > 0 && (
-              <ExploreSection title="Near you" cafes={nearYou} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            )}
-            <ExploreSection title="Top rated" cafes={topRated} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Specialty coffee" cafes={specialty} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-<ExploreSection title="Work-friendly" cafes={bestWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Dog friendly" cafes={dogFriendly} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Outdoor seating" cafes={outdoor} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            {savedCafes.length > 0 && (
-              <ExploreSection title="Your saved spots" cafes={savedCafes} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            )}
-          </>
+          <div className="cafe-grid">
+            {sorted.map((cafe) => (
+              <GridCard
+                key={cafe.id}
+                cafe={cafe}
+                isSaved={isSaved(cafe.id)}
+                onToggleSave={onToggleSave}
+                onOpen={() => onOpen(cafe)}
+                showDist={nearMeActive}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
+  );
+}
+
+function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist }) {
+  return (
+    <article className="grid-card" onClick={onOpen}>
+      <div className="grid-card__photo">
+        {cafe.images?.[0] ? (
+          <img src={cafe.images[0]} alt={cafe.name} loading="lazy" />
+        ) : (
+          <div className="grid-card__placeholder" />
+        )}
+        <div className="grid-card__overlay">
+          <div className="grid-card__info">
+            <span className="grid-card__name">{cafe.name}</span>
+            <span className="grid-card__sub">
+              {showDist && cafe.distanceKm != null
+                ? formatDistance(cafe.distanceKm)
+                : cafe.suburb}
+            </span>
+          </div>
+          {cafe.rating != null && (
+            <span className="grid-card__rating">
+              <StarIcon />
+              {cafe.rating.toFixed(1)}
+            </span>
+          )}
+        </div>
+      </div>
+      <button
+        className={`grid-card__save${isSaved ? ' is-saved' : ''}`}
+        onClick={(e) => { e.stopPropagation(); onToggleSave(cafe.id); }}
+        aria-label={isSaved ? 'Unsave' : 'Save'}
+      >
+        <HeartIcon filled={isSaved} />
+      </button>
+    </article>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
+  );
+}
+
+function HeartIcon({ filled }) {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor" strokeWidth="2.2"
+      strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
   );
 }
 
