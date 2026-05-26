@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { openStatus } from '../utils/format.js';
-import { formatDistance } from '../utils/distance.js';
 
 function matchColor(score) {
   if (score >= 85) return { text: '#2d7a47', bg: 'rgba(45,122,71,0.1)',  border: 'rgba(45,122,71,0.25)'  };
@@ -24,13 +23,11 @@ const BOOL_LABELS = {
 
 function computeMatch(cafe, filters, coords) {
   const activeBooleans = Object.entries(filters.booleans || {}).filter(([, v]) => v);
-  const nearMeActive = filters.nearMe && coords && cafe.distanceKm != null;
   const hasContext =
     filters.openNow ||
     filters.openLate ||
     activeBooleans.length > 0 ||
-    filters.suburb ||
-    nearMeActive;
+    filters.suburb;
 
   if (!hasContext) return null;
 
@@ -58,18 +55,6 @@ function computeMatch(cafe, filters, coords) {
       return hr >= 21 || hr <= 2;
     });
     if (hasLate) { earned += 15; confirmed.push('Open late'); }
-  }
-
-  // Distance — only when Near me is active
-  if (nearMeActive) {
-    totalWeight += 20;
-    const km = cafe.distanceKm;
-    const label = formatDistance(km) + ' away';
-    if (km <= 0.5)      { earned += 20; confirmed.push(label); }
-    else if (km <= 1.5) { earned += 17; confirmed.push(label); }
-    else if (km <= 3)   { earned += 12; confirmed.push(label); }
-    else if (km <= 5)   { earned += 7;  confirmed.push(label); }
-    else                { earned += 2; }
   }
 
   // Suburb

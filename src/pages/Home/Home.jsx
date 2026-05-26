@@ -59,7 +59,10 @@ export default function Home() {
     [rawCafes, coords]
   );
 
-  const matchMap = useCafesMatch(allCafes, { ...api.filters, nearMe: nearMeActive }, coords);
+  const nearMeActive = api.sort === 'distance';
+  const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
+
+  const matchMap = useCafesMatch(allCafes, api.filters, coords);
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
@@ -67,9 +70,6 @@ export default function Home() {
   );
 
   const savedCafes = allCafes.filter((c) => isSaved(c.id));
-
-  const nearMeActive = api.sort === 'distance';
-  const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
 
   // Deep-link: open cafe from ?cafe=<id> on initial load
   const deepLinked = useRef(false);
@@ -276,7 +276,7 @@ export default function Home() {
       )}
 
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
-      <CafeDetail cafe={detailCafe} match={detailCafe ? matchMap.get(detailCafe.id) : null} onClose={() => setDetailCafe(null)} />
+      <CafeDetail cafe={detailCafe} match={detailCafe ? matchMap.get(detailCafe.id) : null} onClose={() => setDetailCafe(null)} isSaved={detailCafe ? isSaved(detailCafe.id) : false} onToggleSave={toggleSave} />
       <SubmitCafe open={submitOpen} onClose={() => setSubmitOpen(false)} />
 
       <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />

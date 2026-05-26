@@ -73,6 +73,25 @@
   margin: 14px auto 0;
 }
 
+.detail__save {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px auto 0;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1.5px solid #e0ddd8;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a3330;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  font-family: inherit;
+}
+.detail__save:hover { background: #f6f4f0; }
+.detail__save.is-saved { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
 /* ── Gallery — bigger, dominant ── */
 .detail__gallery {
   display: flex;
