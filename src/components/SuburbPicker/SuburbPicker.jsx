@@ -1,7 +1,18 @@
 import './SuburbPicker.css';
 
+const INNER_SUBURBS = [
+  'Melbourne',
+  'Southbank', 'Docklands', 'East Melbourne', 'West Melbourne',
+  'Carlton', 'North Melbourne', 'Fitzroy', 'Collingwood', 'Richmond', 'South Melbourne', 'Cremorne',
+  'Brunswick', 'Parkville', 'Fitzroy North', 'Abbotsford', 'Prahran', 'South Yarra', 'Albert Park', 'Port Melbourne', 'Kensington',
+  'St Kilda', 'Windsor', 'Balaclava', 'Flemington', 'Clifton Hill', 'Hawthorn',
+];
+
 export default function SuburbPicker({ active, onSelect, suburbs }) {
-  const sorted = [...suburbs].sort((a, b) => a.localeCompare(b));
+  const prioritySet = new Set(INNER_SUBURBS);
+  const inner = INNER_SUBURBS.filter((s) => suburbs.includes(s));
+  const rest  = [...suburbs].filter((s) => !prioritySet.has(s)).sort((a, b) => a.localeCompare(b));
+  const sorted = [...inner, ...rest];
 
   return (
     <div className="suburb-picker">
