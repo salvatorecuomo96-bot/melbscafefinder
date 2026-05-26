@@ -3,7 +3,7 @@ import './AiSearch.css';
 
 const EXAMPLE = 'somewhere quiet to sit with my laptop and a good flat white';
 
-export default function AiSearch({ onApply }) {
+export default function AiSearch({ onApply, onClear }) {
   const [query, setQuery]     = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
@@ -59,14 +59,14 @@ export default function AiSearch({ onApply }) {
           </button>
         )}
       </div>
-      {!label && !error && !query && (
-        <div className="ai-search__examples">
-          <button className="ai-search__example" onClick={() => submit(EXAMPLE)}>
-            {EXAMPLE}
+      {label && (
+        <div className="ai-search__result">
+          <p className="ai-search__label">✓ {label}</p>
+          <button className="ai-search__clear" onClick={() => { setLabel(null); onClear?.(); }}>
+            ✕ Clear
           </button>
         </div>
       )}
-      {label && <p className="ai-search__label">✓ {label}</p>}
       {error && <p className="ai-search__error">{error}</p>}
     </div>
   );

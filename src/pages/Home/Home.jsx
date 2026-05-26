@@ -222,7 +222,7 @@ export default function Home() {
               <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
             </div>
 
-            <AiSearch onApply={api.applyAiFilters} />
+            <AiSearch onApply={api.applyAiFilters} onClear={api.reset} />
             <button className="layout__submit-btn" onClick={() => setSubmitOpen(true)}>
               + Submit a cafe
             </button>

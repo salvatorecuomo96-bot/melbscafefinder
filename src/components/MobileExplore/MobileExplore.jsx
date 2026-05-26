@@ -57,7 +57,7 @@ export default function MobileExplore({
         />
       </div>
 
-      <AiSearch onApply={api.applyAiFilters} />
+      <AiSearch onApply={api.applyAiFilters} onClear={api.reset} />
 
       <div className="mobile-explore__actions">
         <button
