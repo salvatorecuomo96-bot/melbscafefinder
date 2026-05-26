@@ -24,12 +24,13 @@ const BOOL_LABELS = {
 
 function computeMatch(cafe, filters, coords) {
   const activeBooleans = Object.entries(filters.booleans || {}).filter(([, v]) => v);
+  const nearMeActive = filters.nearMe && coords && cafe.distanceKm != null;
   const hasContext =
     filters.openNow ||
     filters.openLate ||
     activeBooleans.length > 0 ||
     filters.suburb ||
-    (coords && cafe.distanceKm != null);
+    nearMeActive;
 
   if (!hasContext) return null;
 
@@ -59,8 +60,8 @@ function computeMatch(cafe, filters, coords) {
     if (hasLate) { earned += 15; confirmed.push('Open late'); }
   }
 
-  // Distance — sliding scale
-  if (coords && cafe.distanceKm != null) {
+  // Distance — only when Near me is active
+  if (nearMeActive) {
     totalWeight += 20;
     const km = cafe.distanceKm;
     const label = formatDistance(km) + ' away';

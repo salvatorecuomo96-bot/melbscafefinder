@@ -141,6 +141,12 @@ function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist, match }) {
           <div className="grid-card__placeholder" />
         )}
         <div className="grid-card__overlay">
+          {cafe.rating != null && (
+            <span className="grid-card__rating">
+              <StarIcon />
+              {cafe.rating.toFixed(1)}
+            </span>
+          )}
           <div className="grid-card__info">
             <span className="grid-card__name">{cafe.name}</span>
             <span className="grid-card__sub">
@@ -148,16 +154,8 @@ function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist, match }) {
                 ? formatDistance(cafe.distanceKm)
                 : cafe.suburb}
             </span>
+            {match && <MatchBadge match={match} />}
           </div>
-          {match
-            ? <MatchBadge match={match} />
-            : cafe.rating != null && (
-              <span className="grid-card__rating">
-                <StarIcon />
-                {cafe.rating.toFixed(1)}
-              </span>
-            )
-          }
         </div>
       </div>
       <button

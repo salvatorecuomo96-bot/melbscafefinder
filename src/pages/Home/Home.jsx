@@ -59,7 +59,7 @@ export default function Home() {
     [rawCafes, coords]
   );
 
-  const matchMap = useCafesMatch(allCafes, api.filters, coords);
+  const matchMap = useCafesMatch(allCafes, { ...api.filters, nearMe: nearMeActive }, coords);
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],

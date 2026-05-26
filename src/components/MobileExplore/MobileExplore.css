@@ -235,7 +235,7 @@
 .grid-card__rating {
   position: absolute;
   top: 9px;
-  left: 9px;
+  right: 9px;
   display: inline-flex;
   align-items: center;
   gap: 3px;
