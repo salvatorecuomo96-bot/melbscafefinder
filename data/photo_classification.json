@@ -202,9 +202,9 @@
   "vanilla-lounge-and-cakes-oakleigh": {
     "name": "Vanilla Lounge and Cakes",
     "suburb": "Oakleigh",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows a contemporary curved building with clean lines, modern lighting, and minimalist design with tent structures, suggesting a sleek and modern aesthetic.",
     "photoTypes": [
       {
@@ -227,9 +227,9 @@
   "patricia-coffee-brewers-melbourne": {
     "name": "Patricia Coffee Brewers",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows a storefront with dark/black framing, minimalist window display with clean lines, and neutral cream/white interior walls suggesting contemporary, minimalist design aesthetic.",
     "photoTypes": [
       {
@@ -302,9 +302,9 @@
   "seven-seeds-carlton": {
     "name": "Seven Seeds",
     "suburb": "Carlton",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows warm timber countertops, natural wood shelving, and soft interior lighting typical of a cosy neighbourhood cafe aesthetic.",
     "photoTypes": [
       {
@@ -377,9 +377,9 @@
   "hudson-coffee-melbourne": {
     "name": "Hudson Coffee",
     "suburb": "Melbourne",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only one partial interior view visible through storefront window showing warm wooden tones and soft lighting, insufficient clear interior shots for high confidence classification.",
     "photoTypes": [
       {
@@ -427,9 +427,9 @@
   "pellegrinis-melbourne": {
     "name": "Pellegrini's",
     "suburb": "Melbourne",
-    "atmosphere": "classic_cafe",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "No clear interior photos available; classification based on exterior storefront showing traditional neighbourhood cafe aesthetic with vintage signage and timeless charm.",
     "photoTypes": [
       {
@@ -877,9 +877,9 @@
   "nikos-oakleigh": {
     "name": "Nikos",
     "suburb": "Oakleigh",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows a modern, well-lit streetside cafe with bright ambient lighting, light-colored paving, and contemporary design elements suggesting a bright and airy atmosphere.",
     "photoTypes": [
       {
@@ -952,9 +952,9 @@
   "little-rogue-melbourne": {
     "name": "Little Rogue",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The blue door, bright yellow interior walls, minimalist styling, and warm wooden tables suggest a contemporary, clean-lined cafe aesthetic with modern design elements.",
     "photoTypes": [
       {
@@ -1027,9 +1027,9 @@
   "shortstop-coffee-donuts-12-sutherland-street": {
     "name": "Shortstop Coffee & Donuts",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows contemporary minimalist design with clean lines, warm wood tones, and industrial elements (blue framing), suggesting a sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -1277,9 +1277,9 @@
   "left-field-carnegie": {
     "name": "Left Field",
     "suburb": "Carnegie",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through glass shows clean lines, monochrome palette with dark accents, and contemporary minimalist aesthetic typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -1427,9 +1427,9 @@
   "al-alamy-coburg": {
     "name": "Al Alamy",
     "suburb": "Coburg",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Limited interior visibility; warm timber table and espresso machine suggest cosy_warm aesthetic, but classification based primarily on drink/food styling rather than dedicated interior shots.",
     "photoTypes": [
       {
@@ -1452,9 +1452,9 @@
   "st-derby-pascoe-vale": {
     "name": "st. derby",
     "suburb": "Pascoe Vale",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows a contemporary dark facade with modern signage, minimalist design aesthetic, and clean lines typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -1702,9 +1702,9 @@
   "hobba-428-malvern-road": {
     "name": "Hobba",
     "suburb": "Prahran",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront displays a contemporary minimalist aesthetic with dark grey/black facades, clean lines, and industrial elements visible through the interior glimpse.",
     "photoTypes": [
       {
@@ -1802,9 +1802,9 @@
   "the-fitz-fitzroy": {
     "name": "The Fitz",
     "suburb": "Fitzroy",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The interior bar in photo 0 shows contemporary design with warm wood tones, clean lines, and professional lighting typical of a modern establishment.",
     "photoTypes": [
       {
@@ -1902,9 +1902,9 @@
   "south-of-johnston-collingwood": {
     "name": "South of Johnston",
     "suburb": "Collingwood",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior seating area visible in photo 0 shows a light-filled courtyard with natural daylight, white/light-toned tables, and an open, airy aesthetic typical of modern Melbourne cafes.",
     "photoTypes": [
       {
@@ -2177,9 +2177,9 @@
   "roasting-warehouse-airport-west-9-marshall-road": {
     "name": "Roasting Warehouse | Airport West",
     "suburb": "Airport West",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior photo shows a bright, light-filled space with white brick walls, abundant natural light, and climbing ivy creating an airy, contemporary aesthetic.",
     "photoTypes": [
       {
@@ -2377,9 +2377,9 @@
   "tick-tok-williamstown": {
     "name": "Tick Tok",
     "suburb": "Williamstown",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior courtyard shows dark steel/iron framework, minimalist black chairs, exposed brick, and industrial aesthetic with contemporary design elements typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -2502,9 +2502,9 @@
   "sir-duke-moonee-ponds": {
     "name": "Sir Duke",
     "suburb": "Moonee Ponds",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows a contemporary storefront with minimalist design, clean lines, and a modern neon sign against neutral tones, suggesting a sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -2552,9 +2552,9 @@
   "dish-spoon-cafe-122-highfield-road": {
     "name": "Dish & Spoon Cafe",
     "suburb": "Camberwell",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows contemporary minimalist design with clean lines, green subway tile, white frames, and modern pendant lighting characteristic of sleek_modern aesthetic.",
     "photoTypes": [
       {
@@ -2627,9 +2627,9 @@
   "pillar-of-salt-richmond": {
     "name": "Pillar of salt",
     "suburb": "Richmond",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shows a contemporary minimalist design with grey concrete, black striped awnings, and clean modern lines characteristic of a sleek_modern cafe aesthetic.",
     "photoTypes": [
       {
@@ -2702,9 +2702,9 @@
   "calle-bakery-649-rathdowne-street": {
     "name": "Calle Bakery",
     "suburb": "Carlton North",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows clean white framing, modern signage, and industrial corrugated ceiling typical of contemporary Melbourne cafe design.",
     "photoTypes": [
       {
@@ -2727,9 +2727,9 @@
   "279-west-melbourne": {
     "name": "279",
     "suburb": "West Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior glimpse through storefront shows minimalist aesthetic with clean lines, monochrome palette, and contemporary design with dark tones and ornamental trim details.",
     "photoTypes": [
       {
@@ -2827,9 +2827,9 @@
   "stokers-south-melbourne": {
     "name": "Stokers",
     "suburb": "South Melbourne",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior glimpse through storefront shows warm lighting, timber elements, and intimate cafe seating consistent with a cosy neighbourhood establishment.",
     "photoTypes": [
       {
@@ -2852,9 +2852,9 @@
   "brighton-soul-129-church-street": {
     "name": "Brighton Soul",
     "suburb": "Brighton",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through storefront shows industrial corrugated ceiling, concrete elements, and contemporary minimalist design with clean lines and monochrome palette.",
     "photoTypes": [
       {
@@ -3202,9 +3202,9 @@
   "tusk-on-chapel-133-chapel-street": {
     "name": "Tusk On Chapel",
     "suburb": "Windsor",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows warm timber tones, vintage signage, and intimate covered outdoor seating typical of a classic Melbourne laneway cafe with cosy, welcoming character.",
     "photoTypes": [
       {
@@ -3227,9 +3227,9 @@
   "neighbours-cafe-42-chapel-street": {
     "name": "neighbours cafe",
     "suburb": "Saint Kilda East",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows a light-filled garden courtyard with yellow umbrellas, green ivy, and natural daylight creating an airy, welcoming atmosphere despite only one interior-adjacent view.",
     "photoTypes": [
       {
@@ -3252,9 +3252,9 @@
   "union-kiosk-melbourne": {
     "name": "Union Kiosk",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through storefront shows dark/black finishes, minimalist shelving, and contemporary clean-line design with warm accent lighting, despite limited interior visibility.",
     "photoTypes": [
       {
@@ -3527,9 +3527,9 @@
   "saporito-cafe-12-16-kavanagh-street": {
     "name": "Saporito Cafe",
     "suburb": "Southbank",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through large windows shows contemporary minimalist design with clean lines, modern fixtures, and a light neutral palette typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -3777,9 +3777,9 @@
   "oscar-cooper-prahran": {
     "name": "Oscar Cooper",
     "suburb": "Prahran",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior shot shows modern black storefront with contemporary styling and outdoor seating, but no interior photos available for confident atmosphere assessment.",
     "photoTypes": [
       {
@@ -3827,9 +3827,9 @@
   "double-pour-bentleigh": {
     "name": "Double Pour",
     "suburb": "Bentleigh",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows clean lines, white tiled walls, minimal signage, and a contemporary aesthetic typical of modern Melbourne cafes.",
     "photoTypes": [
       {
@@ -3852,9 +3852,9 @@
   "leroys-newport": {
     "name": "Leroys",
     "suburb": "Newport",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Based on the exterior storefront showing clean lines, minimalist white and black design with contemporary timber cladding, suggesting a sleek modern aesthetic, though no interior photos are available to confirm fully.",
     "photoTypes": [
       {
@@ -4127,9 +4127,9 @@
   "cafe-macchiato-templestowe-lower": {
     "name": "Cafe Macchiato",
     "suburb": "Templestowe Lower",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior and food/drink photos available; interior glimpses suggest contemporary minimalist design with marble tables and neutral tones, but insufficient interior detail for high confidence assessment.",
     "photoTypes": [
       {
@@ -4202,9 +4202,9 @@
   "yo-chi-balaclava": {
     "name": "Yo Chi",
     "suburb": "Balaclava",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "high",
+    "confidence": "none",
     "reasoning": "Interior visible through large windows shows bright, light-filled space with white walls, natural light, and minimal furnishings creating an airy, contemporary feel.",
     "photoTypes": [
       {
@@ -4377,9 +4377,9 @@
   "embassy-cafe-west-melbourne": {
     "name": "Embassy Cafe",
     "suburb": "West Melbourne",
-    "atmosphere": "classic_cafe",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows a traditional neighbourhood cafe aesthetic with warm timber accents, casual seating visible through windows, and unpretentious styling typical of a classic Melbourne cafe.",
     "photoTypes": [
       {
@@ -5152,9 +5152,9 @@
   "ticos-coffee-brooklyn": {
     "name": "Tico's Coffee",
     "suburb": "Brooklyn",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "No clear interior photos available; exterior storefront shows sleek modern design with dark facade, contemporary signage, and industrial aesthetic, but confidence is low due to lack of interior views.",
     "photoTypes": [
       {
@@ -5277,9 +5277,9 @@
   "darling-street-espresso-moonee-ponds": {
     "name": "Darling Street Espresso",
     "suburb": "Moonee Ponds",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior and drink photos available; exterior shows contemporary minimalist design with clean lines, monochrome palette, and modern architectural elements suggesting a sleek_modern interior aesthetic.",
     "photoTypes": [
       {
@@ -5352,9 +5352,9 @@
   "kanteen-south-yarra": {
     "name": "Kanteen",
     "suburb": "South Yarra",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through large windows in exterior shots shows dark/monochrome tones, clean lines, and industrial timber cladding consistent with sleek_modern aesthetic.",
     "photoTypes": [
       {
@@ -5377,9 +5377,9 @@
   "wolf-cafe-and-eatery-altona-north": {
     "name": "Wolf Cafe and Eatery",
     "suburb": "Altona North",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Based on the exterior architecture showing contemporary minimalist design with clean lines and monochrome palette, though no interior photos are available to confirm.",
     "photoTypes": [
       {
@@ -5552,9 +5552,9 @@
   "alfa-seddon-97-victoria-street": {
     "name": "Alfa. Seddon",
     "suburb": "Seddon",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows a contemporary black facade with industrial corrugated metal, minimalist signage, and clean lines characteristic of sleek modern design, though interior details are limited by reflection and distance.",
     "photoTypes": [
       {
@@ -5777,9 +5777,9 @@
   "cartel-coffee-roasters-melbourne-melbourne": {
     "name": "Cartel Coffee Roasters Melbourne",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through storefront shows dark/charcoal walls with industrial aesthetic, black awning, and contemporary minimalist design elements typical of modern specialty coffee roasters.",
     "photoTypes": [
       {
@@ -5877,9 +5877,9 @@
   "urban-provedore-231-toorak-rd": {
     "name": "Urban Provedore",
     "suburb": "South Yarra",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows bright natural light, light-toned stone facade, and large windows suggesting an airy, contemporary space; outdoor seating visible with green lawn area in background.",
     "photoTypes": [
       {
@@ -5952,9 +5952,9 @@
   "the-bond-store-southbank": {
     "name": "The Bond Store",
     "suburb": "Southbank",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior glimpse shows dark wood tables, minimalist plating, and contemporary aesthetic with clean lines and monochrome palette.",
     "photoTypes": [
       {
@@ -6152,9 +6152,9 @@
   "cafe-court-536-lonsdale-st": {
     "name": "Cafe Court",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows a modern interior with dark wood beams, golden accent lighting, minimalist aesthetic, and contemporary glass elements creating a sleek, upscale atmosphere.",
     "photoTypes": [
       {
@@ -6252,9 +6252,9 @@
   "northside-cafe-reservoir": {
     "name": "Northside Cafe",
     "suburb": "Reservoir",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows a contemporary cafe exterior with clean lines, minimalist signage, and neutral tones suggesting a sleek modern aesthetic, with visible outdoor seating area.",
     "photoTypes": [
       {
@@ -6277,9 +6277,9 @@
   "bulldozer-cafe-south-melbourne": {
     "name": "Bulldozer Cafe",
     "suburb": "South Melbourne",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 1 shows warm timber tones, patterned upholstery, and intimate booth seating that suggests a cosy_warm atmosphere, though limited interior visibility prevents higher confidence.",
     "photoTypes": [
       {
@@ -6452,9 +6452,9 @@
   "le-cafe-flo-thornbury": {
     "name": "Le Cafe Flo",
     "suburb": "Thornbury",
-    "atmosphere": "classic_cafe",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows a traditional neighbourhood cafe with French theming, red and white accents, timber elements, and casual signage typical of a timeless classic café aesthetic.",
     "photoTypes": [
       {
@@ -6627,9 +6627,9 @@
   "daniel-son-murrumbeena": {
     "name": "Daniel Son",
     "suburb": "Murrumbeena",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only one interior photo available shows minimalist aesthetic with white embossed walls, gray plate, and clean contemporary styling, but limited interior shots reduce confidence.",
     "photoTypes": [
       {
@@ -6727,9 +6727,9 @@
   "cuff-melbourne": {
     "name": "Cuff",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows a contemporary black storefront with clean lines, minimalist aesthetic, and modern design elements consistent with a sleek_modern atmosphere.",
     "photoTypes": [
       {
@@ -6927,9 +6927,9 @@
   "bay-101-7101-bay-st": {
     "name": "Bay 101",
     "suburb": "Port Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows contemporary minimalist design with black framing, white panels, and clean lines, suggesting a sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -7002,9 +7002,9 @@
   "middlesoutheast-670-chapel-street": {
     "name": "MiddleSouthEast",
     "suburb": "South Yarra",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront displays contemporary minimalist design with dark blue framing, clean lines, and industrial-style fencing, creating a sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -7277,9 +7277,9 @@
   "jolly-miller-cafe-balwyn-north": {
     "name": "Jolly Miller Cafe",
     "suburb": "Balwyn North",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "The exterior shows a modern, minimalist black storefront with clean lines, but interior photos are insufficient to confidently classify atmosphere.",
     "photoTypes": [
       {
@@ -7327,9 +7327,9 @@
   "crowded-house-williamstown": {
     "name": "Crowded House",
     "suburb": "Williamstown",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Based on limited interior visibility, the wooden counter and warm-toned pastry display suggest a cosy_warm aesthetic, though no dedicated interior shots are available for confident assessment.",
     "photoTypes": [
       {
@@ -7352,9 +7352,9 @@
   "baba-sus-15-bardolph-street": {
     "name": "Baba Sus",
     "suburb": "Glen Iris",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through large windows shows white subway tile, minimalist shelving, and clean contemporary design with industrial-style framing and pendant lighting.",
     "photoTypes": [
       {
@@ -7777,9 +7777,9 @@
   "soul-soul-cafe-shop-1158-victoria-st": {
     "name": "Soul Soul Cafe",
     "suburb": "shop 1/158 Victoria St",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shows a contemporary minimalist design with clean lines, industrial corrugated metal cladding, floor-to-ceiling glass, and monochrome palette typical of modern cafe aesthetics.",
     "photoTypes": [
       {
@@ -7827,9 +7827,9 @@
   "crme-port-melbourne": {
     "name": "crème",
     "suburb": "Port Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "The storefront signage suggests a contemporary, minimalist aesthetic with yellow and white striped branding and clean typography, but interior details are limited.",
     "photoTypes": [
       {
@@ -8206,9 +8206,9 @@
   "liar-liar-90-kinkora-road": {
     "name": "Liar Liar",
     "suburb": "Hawthorn",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows dark tones, modern pendant lighting, and minimalist neon signage suggesting a contemporary sleek aesthetic, though limited interior visibility makes this assessment moderate confidence.",
     "photoTypes": [
       {
@@ -8256,9 +8256,9 @@
   "lady-bower-reservoir": {
     "name": "Lady Bower",
     "suburb": "Reservoir",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows a modern open kitchen with clean lines, white subway tile backsplash, minimalist pendant lights, and contemporary stainless steel counters, establishing a sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -8681,9 +8681,9 @@
   "bloomwood-melbourne": {
     "name": "Bloomwood",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront and glimpsed interior show clean lines, white subway tiling, minimalist aesthetic, and contemporary design with natural light filtering through large glass windows.",
     "photoTypes": [
       {
@@ -8906,9 +8906,9 @@
   "hoshino-balwyn-143-whitehorse-road": {
     "name": "Hoshino - Balwyn",
     "suburb": "Deepdene",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through storefront windows shows light-filled space with warm cream/beige tones, natural lighting, and minimalist aesthetic suggesting a bright, contemporary cafe environment.",
     "photoTypes": [
       {
@@ -9131,9 +9131,9 @@
   "pausa-pranzo-166168-high-street": {
     "name": "Pausa Pranzo",
     "suburb": "Preston",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The dark grey/charcoal exterior with clean lines and minimalist storefront design suggests a contemporary, sleek aesthetic typical of modern urban cafes.",
     "photoTypes": [
       {
@@ -9231,9 +9231,9 @@
   "millstone-10a-claremont-avenue": {
     "name": "Millstone",
     "suburb": "Malvern",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior seating visible with monochromatic black and white rattan chairs; no interior shots available to confirm atmosphere, but exterior styling suggests sleek modern aesthetic.",
     "photoTypes": [
       {
@@ -9406,9 +9406,9 @@
   "primes-hai-tea-melbourne": {
     "name": "Prime's Hai Tea",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront shows a minimalist black signage with clean lines and modern aesthetic, combined with dark interior visible through glass, suggesting a sleek contemporary design sensibility.",
     "photoTypes": [
       {
@@ -9806,9 +9806,9 @@
   "one-for-the-crow-9-commercial-street": {
     "name": "One for the Crow",
     "suburb": "Maidstone",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through windows shows dark grey/charcoal framing, contemporary styling with industrial elements, and minimalist aesthetic typical of modern Melbourne cafes.",
     "photoTypes": [
       {
@@ -9956,9 +9956,9 @@
   "molly-tea-melbourne": {
     "name": "Molly Tea",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The storefront exterior (photo 0) shows clean lines, modern signage with minimalist design, and contemporary lighting fixtures creating a sleek, upscale aesthetic with monochromatic tones.",
     "photoTypes": [
       {
@@ -9981,9 +9981,9 @@
   "project-zero-coffee-melbourne": {
     "name": "Project Zero Coffee",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "high",
+    "confidence": "none",
     "reasoning": "The storefront and interior reveal a contemporary minimalist design with clean lines, monochrome black/timber palette, geometric lighting panels, and industrial materials creating a sleek, modern atmosphere.",
     "photoTypes": [
       {
@@ -10206,9 +10206,9 @@
   "niche-on-bridge-571-bridge-road": {
     "name": "Niche On Bridge",
     "suburb": "Richmond",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows a modern, light-filled space with large windows, clean lines, and natural daylight suggesting a bright, airy aesthetic typical of contemporary cafes.",
     "photoTypes": [
       {
@@ -10431,9 +10431,9 @@
   "house-of-lulu-white-4-yarra-street": {
     "name": "House of Lulu White",
     "suburb": "South Yarra",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior and food photos available; inferred sleek_modern from the minimalist plating, monochrome striped umbrellas, and contemporary outdoor setting visible in photo 0.",
     "photoTypes": [
       {
@@ -10506,9 +10506,9 @@
   "oko-cafe-melbourne": {
     "name": "Oko Cafe",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows industrial concrete/metal framing, green accents, and minimalist aesthetic with clean lines suggesting a contemporary sleek_modern design, though limited interior visibility reduces confidence.",
     "photoTypes": [
       {
@@ -10556,9 +10556,9 @@
   "norman-south-yarra-shop-2300-toorak-rd": {
     "name": "Norman South Yarra",
     "suburb": "Shop 2/300 Toorak Rd",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through storefront window shows warm timber cabinetry and wood tones creating an inviting, warm aesthetic despite limited interior visibility.",
     "photoTypes": [
       {
@@ -10631,9 +10631,9 @@
   "95-espresso-bar-st-kilda": {
     "name": "95 Espresso Bar",
     "suburb": "St Kilda",
-    "atmosphere": "moody_intimate",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The interior visible in photo 0 shows dark wood cabinetry, warm amber lighting, and bottles on shelves creating a moody, intimate atmosphere despite limited interior visibility.",
     "photoTypes": [
       {
@@ -10856,9 +10856,9 @@
   "lenny-albert-park": {
     "name": "lenny",
     "suburb": "Albert Park",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows clean lines, minimalist design, monochrome/neutral palette with red checkered accents, and contemporary aesthetic typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -10906,9 +10906,9 @@
   "mister-hoffman-85a-hoffmans-road": {
     "name": "Mister Hoffman",
     "suburb": "Niddrie",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "No interior photos available; exterior shots suggest bright, airy aesthetic with white furniture and natural light, but atmosphere classification based on exteriors only.",
     "photoTypes": [
       {
@@ -10956,9 +10956,9 @@
   "merrymen-hampton": {
     "name": "Merrymen",
     "suburb": "Hampton",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior photo shows light-filled spaces with white walls, turquoise shade sails, natural daylight, and an airy modern cafe aesthetic with clear contemporary design elements.",
     "photoTypes": [
       {
@@ -10981,9 +10981,9 @@
   "two-birds-cafe-collingwood": {
     "name": "Two Birds Cafe",
     "suburb": "Collingwood",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shot shows clean lines, white and grey color palette, contemporary storefront design, and modern minimalist aesthetic with visible interior seating area.",
     "photoTypes": [
       {
@@ -11306,9 +11306,9 @@
   "blood-orange-cafe-hawthorn-east": {
     "name": "Blood Orange Cafe",
     "suburb": "Hawthorn East",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Interior visible through glass doors shows light-filled space with natural light and neutral tones, combined with the bright outdoor seating area featuring light-colored umbrellas and green astroturf.",
     "photoTypes": [
       {
@@ -11331,9 +11331,9 @@
   "blonde-food-and-drink-fitzroy": {
     "name": "Blonde Food and Drink",
     "suburb": "Fitzroy",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior shows a minimalist storefront with clean lines, light blue modern seating, and contemporary aesthetic typical of sleek modern cafes.",
     "photoTypes": [
       {
@@ -11481,9 +11481,9 @@
   "little-gordon-melbourne": {
     "name": "Little Gordon",
     "suburb": "Melbourne",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Limited interior visibility, but warm wood tones, dark plates, and minimalist plating suggest a sleek modern aesthetic with contemporary design sensibilities.",
     "photoTypes": [
       {
@@ -11531,9 +11531,9 @@
   "wee-jeanie-yarraville": {
     "name": "Wee Jeanie",
     "suburb": "Yarraville",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The interior glimpse in photo 0 shows warm timber tones and natural wood elements typical of a cosy cafe aesthetic, though limited interior visibility reduces confidence.",
     "photoTypes": [
       {
@@ -11731,9 +11731,9 @@
   "rathdowne-reeves-cafe-497-rathdowne-street": {
     "name": "Rathdowne & Reeves Cafe",
     "suburb": "Carlton",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only exterior and food photos available; exterior shows minimalist white facade with black doors suggesting contemporary aesthetic, but insufficient interior shots for high confidence.",
     "photoTypes": [
       {
@@ -11831,9 +11831,9 @@
   "brother-brew-cafe-763-hawthorn-road": {
     "name": "Brother Brew Cafe",
     "suburb": "Brighton East",
-    "atmosphere": "cosy_warm",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The single interior shot (photo 1) shows warm timber tables, soft ambient lighting, and an intimate dining space with orange/warm-toned furnishings creating a cosy atmosphere.",
     "photoTypes": [
       {
@@ -12056,9 +12056,9 @@
   "la-calline-melbourne": {
     "name": "La Calline",
     "suburb": "Melbourne",
-    "atmosphere": "classic_cafe",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "low",
+    "confidence": "none",
     "reasoning": "Only one interior shot available showing a black cup with minimalist styling, but limited interior context; outdoor seating and overall aesthetic suggest a classic neighbourhood cafe style.",
     "photoTypes": [
       {
@@ -12256,9 +12256,9 @@
   "cafe-sapore-12-caulfield-boulevard": {
     "name": "Cafe Sapore",
     "suburb": "Caulfield North",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "Photo 0 shows a modern, minimalist cafe interior with clean lines, neutral tones, geometric ceiling design, and industrial-style architecture visible through the storefront.",
     "photoTypes": [
       {
@@ -12281,9 +12281,9 @@
   "prologue-cafe-melbourne": {
     "name": "Prologue Cafe",
     "suburb": "Melbourne",
-    "atmosphere": "bright_airy",
+    "atmosphere": "unknown",
     "outdoorVisible": true,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior photo shows bright natural light from a skylight, light brick walls, white framing, and an open, airy aesthetic with artificial grass seating area.",
     "photoTypes": [
       {
@@ -12356,9 +12356,9 @@
   "old-faithful-cafe-65-coonans-road": {
     "name": "Old Faithful Cafe",
     "suburb": "Pascoe Vale South",
-    "atmosphere": "sleek_modern",
+    "atmosphere": "unknown",
     "outdoorVisible": false,
-    "confidence": "medium",
+    "confidence": "none",
     "reasoning": "The exterior storefront shows clean lines, minimalist design with white frames, and a contemporary industrial aesthetic typical of modern Melbourne cafes.",
     "photoTypes": [
       {
