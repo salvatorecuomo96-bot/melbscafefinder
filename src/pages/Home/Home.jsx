@@ -15,6 +15,7 @@ import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
 import LoadingState from '../../components/LoadingState/LoadingState.jsx';
 import SuburbPicker from '../../components/SuburbPicker/SuburbPicker.jsx';
 import AiSearch from '../../components/AiSearch/AiSearch.jsx';
+import SubmitCafe from '../../components/SubmitCafe/SubmitCafe.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
@@ -27,6 +28,7 @@ export default function Home() {
   const [previewCafe, setPreviewCafe]   = useState(null);
   const [detailCafe, setDetailCafe]     = useState(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
+  const [submitOpen, setSubmitOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
   const handleSheetSnap = (snap) => {
@@ -127,6 +129,7 @@ export default function Home() {
         onToggleSave={toggleSave}
         onOpen={(cafe) => setDetailCafe(cafe)}
         onOpenFilters={() => setDrawerOpen(true)}
+        onOpenSubmit={() => setSubmitOpen(true)}
         api={api}
         hidden={activeTab !== 'explore'}
         geoStatus={geoStatus}
@@ -236,6 +239,9 @@ export default function Home() {
             </div>
 
             <AiSearch onApply={api.applyAiFilters} />
+            <button className="layout__submit-btn" onClick={() => setSubmitOpen(true)}>
+              + Submit a cafe
+            </button>
           </>
         )}
 
@@ -287,6 +293,7 @@ export default function Home() {
 
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
       <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
+      <SubmitCafe open={submitOpen} onClose={() => setSubmitOpen(false)} />
 
       <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />
     </div>

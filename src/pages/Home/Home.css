@@ -195,6 +195,17 @@
 /* Desktop-only suburb picker */
 .layout__desktop-suburb { display: none; }
 
+/* Submit a cafe link */
+.layout__submit-btn {
+  display: none;
+  font-size: 12px;
+  color: var(--color-ink-mute);
+  padding: 4px 0 12px;
+  text-align: left;
+  transition: color 120ms ease;
+}
+.layout__submit-btn:hover { color: var(--color-ink); }
+
 
 /* ===== Saved tab (brand row — desktop only) ===== */
 .layout__saved-tab {
@@ -292,6 +303,7 @@
   .layout__actions { display: none; }
   .layout__fab--filters { display: none; }
   .layout__desktop-suburb { display: block; }
+  .layout__submit-btn { display: block; }
 
   .layout__fab {
     bottom: auto;

@@ -1,18 +1,31 @@
 # Melbourne Cafe Finder — Roadmap
 
-## Quick wins (< 1 day)
+## Done
 
-- [ ] **Analytics** — Add Vercel Analytics or Plausible. One import in `main.jsx`, free tier, see what people actually filter by.
-- [ ] **PWA manifest** — `manifest.json` + service worker so users can "Add to Home Screen" on iOS/Android.
-- [ ] **Suburb filter dropdown** — Add a suburb picker (dropdown or pill list) so users can browse by neighbourhood without typing. Populate from the unique suburb values already in cafes.json.
+- [x] **PWA manifest** — `manifest.json` + service worker, "Add to Home Screen" on iOS/Android
+- [x] **Suburb filter** — Dropdown with all 324 suburbs, populated from cafes.json
+- [x] **Analytics** — Vercel Analytics wired up
+- [x] **Saved cafes sharing** — Encode saved IDs in URL (`?saved=id1,id2`)
+- [x] **AI natural language search** — `/api/filter` Vercel function, maps free-text to filters via Claude Haiku
+- [x] **Photo hosting** — All 9921 photos migrated to Cloudinary (permanent URLs)
+- [x] **Google Maps links** — Every cafe has a proper `place_id`-based Maps URL
+- [x] **Submit a cafe** — Modal form + `/api/submit-cafe` Vercel function, emails submissions via Resend
+- [x] **Data cleaning** — Removed 300 non-cafes: chains, distant suburbs, late-opening, low-review count venues
+
+## Short-term
+
+- [ ] **Branding** — Name finalisation (leaning Filtrd). New wordmark + logo.
+- [ ] **Homepage UI redesign** — User not happy with current layout/feel. Rethink from scratch.
+- [ ] **Interior photo sorting** — AI classification pass to reorder images (interior first). ~$3-5 cost.
+- [ ] **Resend setup** — Add `RESEND_API_KEY` to Vercel env vars so submit-cafe emails actually send.
 
 ## Data & content
 
-- [ ] **Brunch filter** — Single-field AI enrichment pass (~$2) to get a reliable `servesBrunch` boolean. Current `brunchQuality` data is too noisy to use.
-- [ ] **Photo URL expiry** — Google Places photo URLs expire. Re-fetch with existing Places key, or mirror on Cloudflare R2 / Cloudinary for permanent URLs.
-- [ ] **Menu scraping (CBD + 5km)** — Scrape cafe websites for menu text. ~$3.80 in API costs but only ~200-250 usable results (PDFs, Instagram links, etc.). Worth doing once brunch filter is sorted.
+- [ ] **Brunch filter** — Needs menu text to be reliable. `servesBrunch` field exists in data but not exposed in UI. Revisit once menu scraping is done.
+- [ ] **Menu scraping** — Scrape cafe websites for menu text. ~$3.80 in API costs, ~200-250 usable results. Enables brunch + dietary filters.
 
-## Features
+## Future
 
-- [ ] **AI natural language search** — User types e.g. "quiet cafe to work with specialty coffee near the city" and Claude maps it to the right filters automatically. Needs a serverless function (Vercel `/api/filter`) to proxy Anthropic API calls so the key isn't exposed client-side.
-- [ ] **Saved cafes persistence** — Encode saved IDs in the URL so bookmarks and share links work without a backend.
+- [ ] **Ratings freshness** — Re-scrape Google ratings periodically so data doesn't go stale.
+- [ ] **Neighbourhood pages** — Static pages per suburb for SEO (e.g. "Best cafes in Fitzroy").
+- [ ] **User reviews / tips** — Short crowd-sourced notes on each cafe.

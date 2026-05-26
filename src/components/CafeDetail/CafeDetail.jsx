@@ -158,7 +158,7 @@ export default function CafeDetail({ cafe, onClose }) {
                 className="detail__btn detail__btn--primary"
                 target="_blank"
                 rel="noreferrer"
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`}
+                href={cafe.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`}
               >
                 Maps
               </a>

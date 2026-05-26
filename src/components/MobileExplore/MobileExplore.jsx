@@ -12,6 +12,7 @@ export default function MobileExplore({
   onToggleSave,
   onOpen,
   onOpenFilters,
+  onOpenSubmit,
   api,
   hidden,
   geoStatus,
@@ -29,7 +30,6 @@ export default function MobileExplore({
   const specialty    = cafes.filter((c) => c.specialtyCoffee).sort(byRating).slice(0, 10);
   const bestWork     = cafes.filter((c) => c.hasWifi && c.laptopFriendly).sort(byRating).slice(0, 10);
   const dogFriendly  = cafes.filter((c) => c.dogFriendly).sort(byRating).slice(0, 10);
-const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).slice(0, 10);
   const outdoor      = cafes.filter((c) => c.outdoorSeating).sort(byRating).slice(0, 10);
   const savedCafes   = cafes.filter((c) => isSaved(c.id));
   const suburbs      = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
@@ -92,6 +92,8 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
         <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
       </div>
 
+      <button className="mexplore__submit" onClick={onOpenSubmit}>+ Submit a cafe</button>
+
       <div className="mobile-explore__feed">
         {filtersOrSearch && api.visibleCafes.length === 0 ? (
           <div style={{ padding: '0 14px' }}>
@@ -119,7 +121,6 @@ const matchaPastry = cafes.filter((c) => c.matcha && c.pastries).sort(byRating).
             <ExploreSection title="Specialty coffee" cafes={specialty} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
 <ExploreSection title="Work-friendly" cafes={bestWork} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Dog friendly" cafes={dogFriendly} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
-            <ExploreSection title="Matcha + pastry" cafes={matchaPastry} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             <ExploreSection title="Outdoor seating" cafes={outdoor} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
             {savedCafes.length > 0 && (
               <ExploreSection title="Your saved spots" cafes={savedCafes} isSaved={isSaved} onToggleSave={onToggleSave} onOpen={onOpen} />
