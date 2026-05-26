@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { priceLabel, openStatus, plantMilkLabel } from '../../utils/format.js';
+import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
-import { MatchPanel } from '../MatchBadge/MatchBadge.jsx';
 import './CafeDetail.css';
 
 function bestForTags(cafe) {
@@ -33,7 +32,7 @@ function knownDetails(cafe) {
   ].filter(Boolean);
 }
 
-export default function CafeDetail({ cafe, match, onClose, isSaved, onToggleSave }) {
+export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
   const [hoursOpen, setHoursOpen]     = useState(false);
@@ -133,9 +132,6 @@ export default function CafeDetail({ cafe, match, onClose, isSaved, onToggleSave
           )}
 
           <div className="detail__body">
-            {/* ── Match panel ── */}
-            <MatchPanel match={match} />
-
             {/* ── Header ── */}
             <header className="detail__head">
               <div className="detail__head-info">
@@ -184,9 +180,6 @@ export default function CafeDetail({ cafe, match, onClose, isSaved, onToggleSave
                         <span className="detail__chip">
                           {cafe.noiseLevel.charAt(0).toUpperCase() + cafe.noiseLevel.slice(1)} noise
                         </span>
-                      )}
-                      {cafe.plantMilk?.length > 0 && (
-                        <span className="detail__chip">{plantMilkLabel(cafe.plantMilk)} milk</span>
                       )}
                       {cafe.chaiType && (
                         <span className="detail__chip">

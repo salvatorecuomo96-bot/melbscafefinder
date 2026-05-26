@@ -20,7 +20,6 @@ import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
 import { useCafes } from '../../hooks/useCafes.js';
-import { useCafesMatch } from '../../hooks/useCafeMatch.js';
 import { haversineKm } from '../../utils/distance.js';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './Home.css';
@@ -61,8 +60,6 @@ export default function Home() {
 
   const nearMeActive = api.sort === 'distance';
   const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
-
-  const matchMap = useCafesMatch(allCafes, api.filters, coords);
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
@@ -134,7 +131,6 @@ export default function Home() {
         onOpenFilters={() => setDrawerOpen(true)}
         onOpenSubmit={() => setSubmitOpen(true)}
         api={api}
-        matchMap={matchMap}
         hidden={activeTab !== 'explore'}
         geoStatus={geoStatus}
         nearMeActive={nearMeActive}
@@ -276,7 +272,7 @@ export default function Home() {
       )}
 
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
-      <CafeDetail cafe={detailCafe} match={detailCafe ? matchMap.get(detailCafe.id) : null} onClose={() => setDetailCafe(null)} isSaved={detailCafe ? isSaved(detailCafe.id) : false} onToggleSave={toggleSave} />
+      <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} isSaved={detailCafe ? isSaved(detailCafe.id) : false} onToggleSave={toggleSave} />
       <SubmitCafe open={submitOpen} onClose={() => setSubmitOpen(false)} />
 
       <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />

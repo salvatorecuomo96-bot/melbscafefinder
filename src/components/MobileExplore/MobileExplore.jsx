@@ -2,7 +2,6 @@ import SearchBar from '../SearchBar/SearchBar.jsx';
 import EmptyState from '../EmptyState/EmptyState.jsx';
 import SuburbPicker from '../SuburbPicker/SuburbPicker.jsx';
 import AiSearch from '../AiSearch/AiSearch.jsx';
-import { MatchBadge } from '../MatchBadge/MatchBadge.jsx';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import { formatDistance } from '../../utils/distance.js';
 import './MobileExplore.css';
@@ -17,7 +16,6 @@ export default function MobileExplore({
   onOpenFilters,
   onOpenSubmit,
   api,
-  matchMap,
   hidden,
   geoStatus,
   nearMeActive,
@@ -26,13 +24,11 @@ export default function MobileExplore({
   const suburbs = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
   const filtersOrSearch = api.activeCount > 0 || api.filters.query || api.filters.suburb;
 
-  const byMatch  = (a, b) => ((matchMap?.get(b.id)?.score ?? -1) - (matchMap?.get(a.id)?.score ?? -1));
   const byRating = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
   const byDist   = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
 
-  const hasMatch = matchMap && matchMap.size > 0;
   const sorted = filtersOrSearch
-    ? [...api.visibleCafes].sort(hasMatch ? byMatch : nearMeActive ? byDist : byRating).slice(0, GRID_CAP)
+    ? [...api.visibleCafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP)
     : [...cafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP);
 
   const total = filtersOrSearch ? api.visibleCafes.length : cafes.length;
@@ -121,7 +117,6 @@ export default function MobileExplore({
                 onToggleSave={onToggleSave}
                 onOpen={() => onOpen(cafe)}
                 showDist={nearMeActive}
-                match={matchMap?.get(cafe.id)}
               />
             ))}
           </div>
@@ -131,7 +126,7 @@ export default function MobileExplore({
   );
 }
 
-function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist, match }) {
+function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist }) {
   return (
     <article className="grid-card" onClick={onOpen}>
       <div className="grid-card__photo">
@@ -154,7 +149,6 @@ function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist, match }) {
                 ? formatDistance(cafe.distanceKm)
                 : cafe.suburb}
             </span>
-            {match && <MatchBadge match={match} />}
           </div>
         </div>
       </div>
