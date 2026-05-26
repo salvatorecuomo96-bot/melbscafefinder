@@ -5,6 +5,15 @@
   margin: 0 14px 14px;
 }
 
+/* Inside desktop sidebar — no side margin needed */
+.layout__desktop-suburb .suburb-picker {
+  margin: 0;
+  width: 100%;
+}
+.layout__desktop-suburb .suburb-picker__select {
+  width: 100%;
+}
+
 .suburb-picker__select {
   appearance: none;
   -webkit-appearance: none;

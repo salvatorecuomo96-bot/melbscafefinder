@@ -192,6 +192,9 @@
 /* FilterChips wrapper — hidden on mobile */
 .layout__chips-wrap { display: none; }
 
+/* Desktop-only suburb picker */
+.layout__desktop-suburb { display: none; }
+
 
 /* ===== Saved tab (brand row — desktop only) ===== */
 .layout__saved-tab {
@@ -285,9 +288,10 @@
   /* Restore elements hidden on mobile */
   .layout__saved-tab { display: inline-flex; }
   .layout__chips-wrap { display: none; }
-  .layout__near-me { display: flex; }
+  .layout__near-me { display: flex; flex-wrap: wrap; gap: 8px; }
   .layout__actions { display: none; }
-  .layout__fab--filters { display: inline-flex; }
+  .layout__fab--filters { display: none; }
+  .layout__desktop-suburb { display: block; }
 
   .layout__fab {
     bottom: auto;

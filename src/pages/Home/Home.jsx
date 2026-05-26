@@ -13,6 +13,8 @@ import BottomNav from '../../components/BottomNav/BottomNav.jsx';
 import MobileExplore from '../../components/MobileExplore/MobileExplore.jsx';
 import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
 import LoadingState from '../../components/LoadingState/LoadingState.jsx';
+import SuburbPicker from '../../components/SuburbPicker/SuburbPicker.jsx';
+import AiSearch from '../../components/AiSearch/AiSearch.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
@@ -52,6 +54,11 @@ export default function Home() {
       distanceKm: coords ? haversineKm(coords, cafe) : null,
     })),
     [rawCafes, coords]
+  );
+
+  const suburbs = useMemo(() =>
+    [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
+    [rawCafes]
   );
 
   const savedCafes = allCafes.filter((c) => isSaved(c.id));
@@ -205,11 +212,30 @@ export default function Home() {
                 disabled={geoStatus === 'asking'}
               >
                 <LocIcon />
+                {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
                 {geoStatus === 'denied' && !nearMeActive && (
-                  <span className="near-me-note">Location blocked — enable in browser settings</span>
+                  <span className="near-me-note">Location blocked</span>
                 )}
               </button>
+              <button
+                className={`near-me-btn${api.filters.openNow ? ' is-active' : ''}`}
+                onClick={api.toggleOpenNow}
+              >
+                Open now
+              </button>
+              <button
+                className={`near-me-btn${api.filters.openLate ? ' is-active' : ''}`}
+                onClick={api.toggleOpenLate}
+              >
+                Open late
+              </button>
             </div>
+
+            <div className="layout__desktop-suburb">
+              <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
+            </div>
+
+            <AiSearch onApply={api.applyAiFilters} />
           </>
         )}
 
