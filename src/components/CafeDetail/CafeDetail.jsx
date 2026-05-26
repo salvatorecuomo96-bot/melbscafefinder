@@ -4,19 +4,14 @@ import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
 import './CafeDetail.css';
 
+const VEGAN_LABEL = { excellent: 'Excellent vegan options', good: 'Good vegan options', limited: 'Some vegan options' };
+
 function knownDetails(cafe) {
   return [
-    cafe.specialtyCoffee  && 'Specialty coffee',
-    cafe.filterCoffee     && 'Filter coffee',
-    cafe.matcha           && 'Matcha',
-    cafe.hasDecaf         && 'Decaf',
-    cafe.pastries         && 'Pastries',
-    cafe.breakfastAllDay  && 'All-day brekkie',
-    cafe.hasWifi          && 'Wi-Fi',
-    cafe.hasPowerOutlets  && 'Power outlets',
-    cafe.laptopFriendly   && 'Laptop friendly',
-    cafe.outdoorSeating   && 'Outdoor seating',
-    cafe.dogFriendly      && 'Dog friendly',
+    cafe.matcha          && 'Matcha',
+    cafe.outdoorSeating  && 'Outdoor seating',
+    cafe.dogFriendly     && 'Dog friendly',
+    cafe.veganOptions    && VEGAN_LABEL[cafe.veganOptions],
   ].filter(Boolean);
 }
 
@@ -142,11 +137,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
                 {cafe.noiseLevel && (
                   <span className="detail__chip">
                     {cafe.noiseLevel.charAt(0).toUpperCase() + cafe.noiseLevel.slice(1)} noise
-                  </span>
-                )}
-                {cafe.chaiType && (
-                  <span className="detail__chip">
-                    {cafe.chaiType === 'leaf' ? 'Loose-leaf chai' : 'Powder chai'}
                   </span>
                 )}
               </div>

@@ -3,20 +3,22 @@ export const FILTER_SECTIONS = [
     id: 'coffee',
     label: 'Coffee',
     booleans: [
-      { key: 'specialtyCoffee', label: 'Specialty coffee' },  // 73%
-      { key: 'matcha',          label: 'Matcha' },            // 19%
+      { key: 'matcha', label: 'Matcha' },
     ],
+    enums: [],
+    brands: true,
+  },
+  {
+    id: 'atmosphere',
+    label: 'Atmosphere',
+    booleans: [],
     enums: [
       {
-        key: 'chaiType',
-        label: 'Chai type',
-        options: [
-          { value: 'leaf',   label: 'Leaf chai' },
-          { value: 'powder', label: 'Powder chai' },
-        ],
+        key: 'noiseLevel',
+        label: 'Noise level',
+        options: ['quiet', 'moderate', 'lively', 'loud'],
       },
     ],
-    brands: true,
   },
   {
     id: 'food',
@@ -33,26 +35,13 @@ export const FILTER_SECTIONS = [
         ],
       },
     ],
-    plantMilk: true,
-  },
-  {
-    id: 'atmosphere',
-    label: 'Atmosphere',
-    booleans: [],
-    enums: [
-      {
-        key: 'noiseLevel',
-        label: 'Noise level',
-        options: ['quiet', 'moderate', 'lively', 'loud'],
-      },
-    ],
   },
   {
     id: 'practical',
     label: 'Practical',
     booleans: [
-      { key: 'outdoorSeating', label: 'Outdoor seating' }, // 40%
-      { key: 'dogFriendly',    label: 'Dog friendly' },    // 12%
+      { key: 'outdoorSeating', label: 'Outdoor seating' },
+      { key: 'dogFriendly',    label: 'Dog friendly' },
     ],
     enums: [],
     price: true,

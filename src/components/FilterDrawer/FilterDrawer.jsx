@@ -26,14 +26,13 @@ export default function FilterDrawer({ open, onClose, api }) {
   const {
     filters, filterCounts,
     toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePlantMilk, togglePriceLevel, setMinRating,
+    togglePriceLevel, setMinRating,
     toggleOpenNow, toggleOpenLate, reset, activeCount, visibleCafes,
   } = api;
 
   const boolCount = (key) => filterCounts.booleans[key] || 0;
   const enumCount = (key, val) => filterCounts.enums?.[key]?.[val] || 0;
   const brandCount = (brand) => filterCounts.brands[brand] || 0;
-  const milkCount = (milk) => filterCounts.plantMilk[milk] || 0;
 
   return (
     <div className="drawer" onClick={onClose} role="dialog" aria-modal="true" aria-label="Filters">
