@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import './AiSearch.css';
 
-const EXAMPLES = [
-  'quiet cafe to work with good wifi',
-  'dog friendly outdoor specialty coffee',
-  'cheap matcha in Fitzroy',
-  'open late with oat milk',
-];
+const EXAMPLE = 'somewhere quiet to sit with my laptop and a good flat white';
 
 export default function AiSearch({ onApply }) {
   const [query, setQuery]     = useState('');
@@ -66,11 +61,9 @@ export default function AiSearch({ onApply }) {
       </div>
       {!label && !error && !query && (
         <div className="ai-search__examples">
-          {EXAMPLES.map((ex) => (
-            <button key={ex} className="ai-search__example" onClick={() => submit(ex)}>
-              {ex}
-            </button>
-          ))}
+          <button className="ai-search__example" onClick={() => submit(EXAMPLE)}>
+            {EXAMPLE}
+          </button>
         </div>
       )}
       {label && <p className="ai-search__label">✓ {label}</p>}

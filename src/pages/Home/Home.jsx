@@ -20,6 +20,7 @@ import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
 import { useSavedCafes } from '../../hooks/useSavedCafes.js';
 import { useCafes } from '../../hooks/useCafes.js';
+import { useCafesMatch } from '../../hooks/useCafeMatch.js';
 import { haversineKm } from '../../utils/distance.js';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './Home.css';
@@ -49,6 +50,7 @@ export default function Home() {
   const { coords, status: geoStatus } = useGeolocation();
   const api = useCafeFilters({ cafes: rawCafes, userCoords: coords });
   const { isSaved, toggleSave, savedCount, getShareUrl } = useSavedCafes();
+  const matchMap = useCafesMatch(allCafes, api.filters, coords);
 
   const allCafes = useMemo(() =>
     rawCafes.map((cafe) => ({
@@ -131,6 +133,7 @@ export default function Home() {
         onOpenFilters={() => setDrawerOpen(true)}
         onOpenSubmit={() => setSubmitOpen(true)}
         api={api}
+        matchMap={matchMap}
         hidden={activeTab !== 'explore'}
         geoStatus={geoStatus}
         nearMeActive={nearMeActive}
@@ -226,12 +229,6 @@ export default function Home() {
               >
                 Open now
               </button>
-              <button
-                className={`near-me-btn${api.filters.openLate ? ' is-active' : ''}`}
-                onClick={api.toggleOpenLate}
-              >
-                Open late
-              </button>
             </div>
 
             <div className="layout__desktop-suburb">
@@ -292,7 +289,7 @@ export default function Home() {
       )}
 
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
-      <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} />
+      <CafeDetail cafe={detailCafe} match={detailCafe ? matchMap.get(detailCafe.id) : null} onClose={() => setDetailCafe(null)} />
       <SubmitCafe open={submitOpen} onClose={() => setSubmitOpen(false)} />
 
       <BottomNav activeTab={activeTab} onChange={handleTabChange} savedCount={savedCount} />

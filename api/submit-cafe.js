@@ -31,9 +31,10 @@ export default async function handler(req, res) {
     </table>
   `;
 
+  const toEmail = process.env.RESEND_TO_EMAIL || 'salvatore.cuomo96@gmail.com';
   const { error } = await resend.emails.send({
     from: 'onboarding@resend.dev',
-    to: ['salvatore.cuomo96@gmail.com'],
+    to: [toEmail],
     subject: `Cafe submission: ${name} (${suburb})`,
     html,
   });

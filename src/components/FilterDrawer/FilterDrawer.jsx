@@ -147,28 +147,6 @@ export default function FilterDrawer({ open, onClose, api }) {
                 </div>
               )}
 
-              {section.plantMilk && (
-                <div className="drawer__enum">
-                  <span className="drawer__enum-label">Plant milk</span>
-                  <div className="drawer__pills">
-                    {PLANT_MILK_OPTIONS.map((m) => {
-                      const count = milkCount(m);
-                      const sparse = count < SPARSE_THRESHOLD;
-                      return (
-                        <button
-                          key={m}
-                          className={`drawer__pill ${filters.plantMilk.includes(m) ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
-                          onClick={() => togglePlantMilk(m)}
-                          aria-pressed={filters.plantMilk.includes(m)}
-                        >
-                          {m[0].toUpperCase() + m.slice(1)}
-                          <span className="drawer__pill-count">{count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {section.price && (
                 <div className="drawer__enum">
