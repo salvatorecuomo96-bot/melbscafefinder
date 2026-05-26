@@ -6,12 +6,9 @@ import './CafeDetail.css';
 
 function bestForTags(cafe) {
   const tags = [];
-  if (cafe.laptopFriendly || (cafe.hasWifi && cafe.hasPowerOutlets)) tags.push('Working');
+  if (cafe.laptopFriendly) tags.push('Working');
   if (cafe.outdoorSeating && cafe.dogFriendly) tags.push('Dogs outside');
   else if (cafe.dogFriendly) tags.push('Dog friendly');
-  if (cafe.specialtyCoffee) tags.push('Specialty coffee');
-  if (cafe.filterCoffee) tags.push('Filter coffee');
-  if (cafe.matcha) tags.push('Matcha');
   if (cafe.breakfastAllDay) tags.push('All-day brekkie');
   if (cafe.outdoorSeating && !cafe.dogFriendly) tags.push('Outdoor seating');
   if (cafe.noiseLevel === 'quiet') tags.push('Quiet');

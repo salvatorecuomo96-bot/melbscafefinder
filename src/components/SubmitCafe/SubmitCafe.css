@@ -130,7 +130,7 @@
 
 .submit-error {
   font-size: 13px;
-  color: #c0392b;
+  color: var(--color-danger);
   margin: 0;
 }
 

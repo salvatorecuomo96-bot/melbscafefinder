@@ -185,7 +185,7 @@
   font-size: 15px;
   color: #0a0804;
 }
-.detail__rating svg { color: #c0392b; }
+.detail__rating svg { color: var(--color-gold); }
 
 .detail__status {
   display: inline-flex;
@@ -195,7 +195,7 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #c0392b;
+  color: var(--color-danger);
 }
 .detail__status.is-open { color: #2d7a47; }
 .detail__statusDot {
@@ -256,9 +256,9 @@
 }
 
 .detail__chip--best {
-  background: #0a0804;
+  background: var(--color-accent);
   color: #fff;
-  border-color: #0a0804;
+  border-color: var(--color-accent);
 }
 
 /* ── Description ── */

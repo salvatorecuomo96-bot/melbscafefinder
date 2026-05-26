@@ -105,5 +105,5 @@
 .ai-search__error {
   margin: 8px 0 0;
   font-size: 13px;
-  color: #c0392b;
+  color: var(--color-danger);
 }

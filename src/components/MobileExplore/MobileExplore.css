@@ -269,6 +269,6 @@
 }
 .grid-card__save:active { transform: scale(0.85); }
 .grid-card__save.is-saved {
-  color: #e85d4a;
+  color: #5e8a6a;
   background: rgba(232, 93, 74, 0.2);
 }

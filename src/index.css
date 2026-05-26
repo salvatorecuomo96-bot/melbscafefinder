@@ -5,18 +5,18 @@
    ============================================ */
 
 :root {
-  /* Warm Melbourne-ish palette */
-  --color-bg: #faf7f2;
+  /* Sage + warm tan palette */
+  --color-bg: #f7f4ee;
   --color-surface: #ffffff;
-  --color-surface-2: #f3ede4;
+  --color-surface-2: #eee8db;
   --color-ink: #1a1a1a;
   --color-ink-soft: #4a4a48;
   --color-ink-mute: #8a857c;
-  --color-border: #e8e2d6;
-  --color-accent: #c2410c;       /* burnt orange */
-  --color-accent-soft: #fde6d3;
-  --color-accent-ink: #7c2d12;
-  --color-gold: #b8854a;
+  --color-border: #d8d0be;
+  --color-accent: #5e8a6a;       /* sage green */
+  --color-accent-soft: #ecfad2;  /* light sage */
+  --color-accent-ink: #2d5a3d;
+  --color-gold: #c7bb9d;         /* warm tan */
   --color-success: #2e7d32;
   --color-danger: #b91c1c;
 

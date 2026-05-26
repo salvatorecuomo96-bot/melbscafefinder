@@ -35,8 +35,8 @@
   border: none;
   transition: color 150ms ease, transform 150ms ease;
 }
-.preview__save:hover { color: #e85d4a; transform: scale(1.1); }
-.preview__save.is-saved { color: #e85d4a; }
+.preview__save:hover { color: #5e8a6a; transform: scale(1.1); }
+.preview__save.is-saved { color: #5e8a6a; }
 
 .preview__close {
   position: absolute;
