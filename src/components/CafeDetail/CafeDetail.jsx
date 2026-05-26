@@ -35,7 +35,6 @@ function knownDetails(cafe) {
 export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
-  const [hoursOpen, setHoursOpen]     = useState(false);
   const [reportState, setReportState] = useState('idle'); // idle | sending | done
 
   const handleReportClosed = async () => {
@@ -65,7 +64,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
   useEffect(() => {
     if (!cafe) return;
-    setHoursOpen(false);
     const onKey = (e) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -199,25 +197,17 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
             {/* ── Hours ── */}
             <section className="detail__section">
-              <button
-                className="detail__hours-toggle"
-                onClick={() => setHoursOpen(o => !o)}
-              >
-                <span>Hours</span>
-                <ChevronIcon open={hoursOpen} />
-              </button>
-              {hoursOpen && (
-                <table className="detail__hours">
-                  <tbody>
-                    {days.map(([k, label]) => (
-                      <tr key={k}>
-                        <th>{label}</th>
-                        <td>{cafe.openingHours?.[k] || 'Closed'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+              <span className="detail__hours-label">Hours</span>
+              <table className="detail__hours">
+                <tbody>
+                  {days.map(([k, label]) => (
+                    <tr key={k}>
+                      <th>{label}</th>
+                      <td>{cafe.openingHours?.[k] || 'Closed'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </section>
 
             {/* ── Actions ── */}
@@ -290,15 +280,6 @@ function ExpandIcon() {
   );
 }
 
-function ChevronIcon({ open }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-      style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }}
-      aria-hidden="true">
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  );
-}
 
 function MapPinIcon() {
   return (

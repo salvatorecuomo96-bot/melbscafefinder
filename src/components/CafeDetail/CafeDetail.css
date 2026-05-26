@@ -276,20 +276,14 @@
   padding-top: 18px;
 }
 
-/* ── Hours toggle ── */
-.detail__hours-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ── Hours label ── */
+.detail__hours-label {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 15px;
   color: #0a0804;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  display: block;
 }
-.detail__hours-toggle:hover { opacity: 0.75; }
 
 .detail__hours {
   width: 100%;
