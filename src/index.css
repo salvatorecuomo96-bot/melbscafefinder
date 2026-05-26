@@ -5,18 +5,18 @@
    ============================================ */
 
 :root {
-  /* Sage + warm tan palette */
-  --color-bg: #f7f4ee;
+  /* Espresso + warm cream palette */
+  --color-bg: #f7f3ee;
   --color-surface: #ffffff;
-  --color-surface-2: #eee8db;
+  --color-surface-2: #ede8e0;
   --color-ink: #1a1a1a;
-  --color-ink-soft: #4a4a48;
+  --color-ink-soft: #4a4540;
   --color-ink-mute: #8a857c;
-  --color-border: #d8d0be;
-  --color-accent: #5e8a6a;       /* sage green */
-  --color-accent-soft: #ecfad2;  /* light sage */
-  --color-accent-ink: #2d5a3d;
-  --color-gold: #c7bb9d;         /* warm tan */
+  --color-border: #ddd5c8;
+  --color-accent: #6b3a2a;       /* deep espresso */
+  --color-accent-soft: #fdf0e8;  /* warm cream */
+  --color-accent-ink: #3a1a10;
+  --color-gold: #c7a96a;         /* warm gold */
   --color-success: #2e7d32;
   --color-danger: #b91c1c;
 

@@ -79,7 +79,7 @@
   border-color: var(--color-accent);
   color: var(--color-accent-ink);
 }
-.detail__btn--save:hover { background: #d8f5b8; border-color: var(--color-accent); }
+.detail__btn--save:hover { background: var(--color-accent-soft); border-color: var(--color-accent); }
 .detail__btn--save.is-saved {
   background: var(--color-accent);
   color: #fff;

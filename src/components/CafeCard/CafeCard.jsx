@@ -8,7 +8,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
 
   const badges = [
-    cafe.coffeeBrand && !cafe.name.toLowerCase().includes(cafe.coffeeBrand.toLowerCase()) && { label: cafe.coffeeBrand, type: 'brand' },
     cafe.noiseLevel === 'quiet' && { label: 'Quiet',              type: 'attr' },
     cafe.dogFriendly     && { label: 'Dog friendly',              type: 'attr' },
     cafe.outdoorSeating  && { label: 'Outdoor',                   type: 'attr' },

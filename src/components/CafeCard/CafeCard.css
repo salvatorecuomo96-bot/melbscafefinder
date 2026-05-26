@@ -159,10 +159,10 @@
   box-shadow: var(--shadow-sm);
 }
 .card__save:hover {
-  color: #5e8a6a;
+  color: var(--color-accent);
   transform: scale(1.1);
 }
 .card__save.is-saved {
-  color: #5e8a6a;
+  color: var(--color-accent);
   background: rgba(255, 255, 255, 0.97);
 }
