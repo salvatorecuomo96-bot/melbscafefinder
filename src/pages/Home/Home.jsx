@@ -193,6 +193,12 @@ export default function Home() {
                 )}
               </button>
               <button
+                className={`layout__action-btn${api.filters.openNow ? ' is-active' : ''}`}
+                onClick={api.toggleOpenNow}
+              >
+                Open now
+              </button>
+              <button
                 className={`layout__action-btn${nearMeActive ? ' is-active' : ''}`}
                 onClick={handleNearMe}
                 disabled={geoStatus === 'asking'}
@@ -209,26 +215,6 @@ export default function Home() {
                 onOpenAll={() => setDrawerOpen(true)}
                 activeCount={api.activeCount}
               />
-            </div>
-
-            <div className="layout__near-me">
-              <button
-                className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
-                onClick={handleNearMe}
-                disabled={geoStatus === 'asking'}
-              >
-                <LocIcon />
-                {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
-                {geoStatus === 'denied' && !nearMeActive && (
-                  <span className="near-me-note">Location blocked</span>
-                )}
-              </button>
-              <button
-                className={`near-me-btn${api.filters.openNow ? ' is-active' : ''}`}
-                onClick={api.toggleOpenNow}
-              >
-                Open now
-              </button>
             </div>
 
             <div className="layout__desktop-suburb">
