@@ -4,28 +4,19 @@ import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
 import './CafeDetail.css';
 
-function bestForTags(cafe) {
-  const tags = [];
-  if (cafe.laptopFriendly) tags.push('Working');
-  if (cafe.outdoorSeating && cafe.dogFriendly) tags.push('Dogs outside');
-  else if (cafe.dogFriendly) tags.push('Dog friendly');
-  if (cafe.breakfastAllDay) tags.push('All-day brekkie');
-  if (cafe.outdoorSeating && !cafe.dogFriendly) tags.push('Outdoor seating');
-  if (cafe.noiseLevel === 'quiet') tags.push('Quiet');
-  if (cafe.noiseLevel === 'lively' || cafe.noiseLevel === 'loud') tags.push('Lively');
-  return tags.slice(0, 5);
-}
-
 function knownDetails(cafe) {
   return [
+    cafe.specialtyCoffee  && 'Specialty coffee',
+    cafe.filterCoffee     && 'Filter coffee',
+    cafe.matcha           && 'Matcha',
+    cafe.hasDecaf         && 'Decaf',
+    cafe.pastries         && 'Pastries',
+    cafe.breakfastAllDay  && 'All-day brekkie',
     cafe.hasWifi          && 'Wi-Fi',
     cafe.hasPowerOutlets  && 'Power outlets',
     cafe.laptopFriendly   && 'Laptop friendly',
     cafe.outdoorSeating   && 'Outdoor seating',
     cafe.dogFriendly      && 'Dog friendly',
-    cafe.hasDecaf         && 'Decaf',
-    cafe.pastries         && 'Pastries',
-    cafe.filterCoffee     && 'Filter coffee',
   ].filter(Boolean);
 }
 
@@ -73,9 +64,8 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   if (!cafe) return null;
 
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
-  const images   = cafe.images || [];
-  const bestFor  = bestForTags(cafe);
-  const details  = knownDetails(cafe);
+  const images  = cafe.images || [];
+  const details = knownDetails(cafe);
 
   const days = [
     ['mon','Mon'],['tue','Tue'],['wed','Wed'],
@@ -99,16 +89,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
         <div className="detail__sheet" onClick={(e) => e.stopPropagation()}>
           <div className="detail__handle" aria-hidden="true" />
-          {onToggleSave && (
-            <button
-              className={`detail__save${isSaved ? ' is-saved' : ''}`}
-              onClick={() => onToggleSave(cafe.id)}
-              aria-label={isSaved ? 'Unsave' : 'Save'}
-            >
-              <HeartIcon filled={isSaved} />
-              {isSaved ? 'Saved' : 'Save'}
-            </button>
-          )}
 
           {/* ── Photos ── */}
           {images.length > 0 && (
@@ -155,36 +135,21 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               </div>
             </header>
 
-            {/* ── Decision summary ── */}
-            {(bestFor.length > 0 || details.length > 0) && (
-              <section className="detail__summary">
-                {bestFor.length > 0 && (
-                  <div className="detail__summary-row">
-                    <span className="detail__summary-label">Best for</span>
-                    <div className="detail__chips detail__chips--best">
-                      {bestFor.map(t => <span key={t} className="detail__chip detail__chip--best">{t}</span>)}
-                    </div>
-                  </div>
+            {/* ── Details ── */}
+            {(details.length > 0 || cafe.noiseLevel || cafe.chaiType) && (
+              <div className="detail__chips detail__chips--wrap">
+                {details.map(t => <span key={t} className="detail__chip">{t}</span>)}
+                {cafe.noiseLevel && (
+                  <span className="detail__chip">
+                    {cafe.noiseLevel.charAt(0).toUpperCase() + cafe.noiseLevel.slice(1)} noise
+                  </span>
                 )}
-                {details.length > 0 && (
-                  <div className="detail__summary-row">
-                    <span className="detail__summary-label">Details</span>
-                    <div className="detail__chips">
-                      {details.map(t => <span key={t} className="detail__chip">{t}</span>)}
-                      {cafe.noiseLevel && (
-                        <span className="detail__chip">
-                          {cafe.noiseLevel.charAt(0).toUpperCase() + cafe.noiseLevel.slice(1)} noise
-                        </span>
-                      )}
-                      {cafe.chaiType && (
-                        <span className="detail__chip">
-                          {cafe.chaiType === 'leaf' ? 'Loose-leaf chai' : 'Powder chai'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                {cafe.chaiType && (
+                  <span className="detail__chip">
+                    {cafe.chaiType === 'leaf' ? 'Loose-leaf chai' : 'Powder chai'}
+                  </span>
                 )}
-              </section>
+              </div>
             )}
 
             {/* ── Description ── */}
@@ -209,6 +174,16 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
             {/* ── Actions ── */}
             <div className="detail__actions">
+              {onToggleSave && (
+                <button
+                  className={`detail__btn detail__btn--save${isSaved ? ' is-saved' : ''}`}
+                  onClick={() => onToggleSave(cafe.id)}
+                  aria-label={isSaved ? 'Unsave' : 'Save'}
+                >
+                  <HeartIcon filled={isSaved} />
+                  {isSaved ? 'Saved' : 'Save'}
+                </button>
+              )}
               <a
                 className="detail__btn detail__btn--primary"
                 target="_blank"

@@ -29,7 +29,7 @@
 }
 
 .bottom-nav__tab.is-active {
-  color: var(--color-ink);
+  color: var(--color-accent);
   font-weight: 700;
 }
 
