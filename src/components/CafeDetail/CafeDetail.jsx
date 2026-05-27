@@ -4,17 +4,6 @@ import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
 import './CafeDetail.css';
 
-const VEGAN_LABEL = { excellent: 'Excellent vegan options', good: 'Good vegan options', limited: 'Some vegan options' };
-
-function knownDetails(cafe) {
-  return [
-    cafe.matcha          && 'Matcha',
-    cafe.outdoorSeating  && 'Outdoor seating',
-    cafe.dogFriendly     && 'Dog friendly',
-    cafe.veganOptions    && VEGAN_LABEL[cafe.veganOptions],
-  ].filter(Boolean);
-}
-
 export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
@@ -47,8 +36,7 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   if (!cafe) return null;
 
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
-  const images  = cafe.images || [];
-  const details = knownDetails(cafe);
+  const images = cafe.images || [];
 
   const days = [
     ['mon','Mon'],['tue','Tue'],['wed','Wed'],
