@@ -101,8 +101,6 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('load', () => {
-      addLayers(map, cafesRef.current);
-
       map.on('click', 'clusters', (e) => {
         const [feature] = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
         map.getSource('cafes').getClusterExpansionZoom(feature.properties.cluster_id, (err, zoom) => {
@@ -149,22 +147,26 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     return () => map.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Toggle satellite style — only fires when user changes the toggle, not on initial mount
-  const prevSatellite = useRef(null);
+  // Toggle satellite style — satellite is the only real trigger; ready guard handles early renders
   useEffect(() => {
-    if (!ready || prevSatellite.current === satellite) return;
-    prevSatellite.current = satellite;
+    if (!ready) return;
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => {
       addLayers(map, cafesRef.current);
     });
-  }, [satellite, ready]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [satellite]);
 
-  // Update GeoJSON when cafes change
+  // Add layers on first cafes load, then update data on subsequent changes
   useEffect(() => {
     if (!ready) return;
-    mapRef.current.getSource('cafes')?.setData(buildGeoJSON(cafes));
+    const map = mapRef.current;
+    if (map.getSource('cafes')) {
+      map.getSource('cafes').setData(buildGeoJSON(cafes));
+    } else if (cafes.length > 0) {
+      addLayers(map, cafes);
+    }
   }, [cafes, ready]);
 
   // Fly to selected cafe
