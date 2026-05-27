@@ -3,14 +3,6 @@ import { priceLabel } from '../../utils/format.js';
 import './ExploreCard.css';
 
 export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
-  const tags = [
-    cafe.noiseLevel === 'quiet' && 'Quiet',
-    cafe.specialtyCoffee && 'Specialty coffee',
-    cafe.outdoorSeating && 'Outdoor',
-    cafe.matcha && 'Matcha',
-    cafe.laptopFriendly && 'Laptop friendly',
-    cafe.dogFriendly && 'Dog friendly',
-  ].filter(Boolean).slice(0, 2);
 
   return (
     <article className="explore-card" onClick={onOpen}>
@@ -45,11 +37,7 @@ export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
           )}
         </div>
 
-        {tags.length > 0 && (
-          <div className="explore-card__tags">
-            {tags.map((t) => <span key={t} className="explore-card__tag">{t}</span>)}
-          </div>
-        )}
+
       </div>
     </article>
   );
