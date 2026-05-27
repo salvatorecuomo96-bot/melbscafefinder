@@ -105,27 +105,29 @@ export default function FilterDrawer({ open, onClose, api }) {
             />
           </section>
 
-          {/* ── Clues ── */}
+          {/* ── People mention ── */}
           <div className="drawer__group-header drawer__group-header--clues">
-            <span className="drawer__group-label">Clues</span>
-            <span className="drawer__group-sub">Mentioned on websites — not guaranteed</span>
+            <span className="drawer__group-label">People mention</span>
+            <span className="drawer__group-sub">From websites — not guaranteed</span>
           </div>
 
-          {CLUE_SECTIONS.map((section) => (
-            <SectionBody
-              key={section.id}
-              section={section}
-              filters={filters}
-              filterCounts={filterCounts}
-              toggleBoolean={toggleBoolean}
-              toggleEnum={toggleEnum}
-              toggleCoffeeBrand={toggleCoffeeBrand}
-              togglePriceLevel={togglePriceLevel}
-              boolCount={boolCount}
-              enumCount={enumCount}
-              brandCount={brandCount}
-            />
-          ))}
+          <div className="drawer__clue-sections">
+            {CLUE_SECTIONS.map((section) => (
+              <SectionBody
+                key={section.id}
+                section={section}
+                filters={filters}
+                filterCounts={filterCounts}
+                toggleBoolean={toggleBoolean}
+                toggleEnum={toggleEnum}
+                toggleCoffeeBrand={toggleCoffeeBrand}
+                togglePriceLevel={togglePriceLevel}
+                boolCount={boolCount}
+                enumCount={enumCount}
+                brandCount={brandCount}
+              />
+            ))}
+          </div>
         </div>
 
         <footer className="drawer__foot">

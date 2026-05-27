@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import './CafeCard.css';
@@ -13,10 +14,23 @@ function reviewBucket(n) {
 export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }) {
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
   const bucket = reviewBucket(cafe.reviewCount);
-
+  const [copied, setCopied] = useState(false);
 
   const mapsUrl = cafe.googleMapsUrl
     || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`;
+
+  const handleShare = (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
+    if (navigator.share) {
+      navigator.share({ title: cafe.name, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  };
 
   return (
     <article className="card" onClick={onOpen}>
@@ -32,15 +46,20 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
           <div className="card__distance">{formatDistance(cafe.distanceKm)}</div>
         )}
 
-        {onToggleSave && (
-          <button
-            className={`card__save${isSaved ? ' is-saved' : ''}`}
-            onClick={(e) => { e.stopPropagation(); onToggleSave(cafe.id); }}
-            aria-label={isSaved ? 'Unsave cafe' : 'Save cafe'}
-          >
-            <HeartIcon filled={isSaved} />
+        <div className="card__image-btns">
+          {onToggleSave && (
+            <button
+              className={`card__save${isSaved ? ' is-saved' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onToggleSave(cafe.id); }}
+              aria-label={isSaved ? 'Unsave cafe' : 'Save cafe'}
+            >
+              <HeartIcon filled={isSaved} />
+            </button>
+          )}
+          <button className="card__share-btn" onClick={handleShare} aria-label="Share">
+            {copied ? <CheckIcon /> : <ShareIcon />}
           </button>
-        )}
+        </div>
       </div>
 
       <div className="card__body">
@@ -100,6 +119,24 @@ function MapPinIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+      <polyline points="16 6 12 2 8 6"/>
+      <line x1="12" y1="2" x2="12" y2="15"/>
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12"/>
     </svg>
   );
 }

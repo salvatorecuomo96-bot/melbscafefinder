@@ -204,6 +204,30 @@ export default function Home() {
               </button>
             </div>
 
+            <div className="layout__near-me">
+              <button className="near-me-btn" onClick={() => setDrawerOpen(true)}>
+                <FilterIcon />
+                Filters
+                {api.activeCount > 0 && (
+                  <span className="layout__action-badge">{api.activeCount}</span>
+                )}
+              </button>
+              <button
+                className={`near-me-btn${api.filters.openNow ? ' is-active' : ''}`}
+                onClick={api.toggleOpenNow}
+              >
+                Open now
+              </button>
+              <button
+                className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
+                onClick={handleNearMe}
+                disabled={geoStatus === 'asking'}
+              >
+                <LocIcon />
+                {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
+              </button>
+            </div>
+
             <div className="layout__chips-wrap">
               <FilterChips
                 activeBooleans={api.filters.booleans}

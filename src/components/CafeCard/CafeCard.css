@@ -108,9 +108,9 @@
 .card__rating svg { color: var(--color-gold); }
 
 .card__reviews {
-  font-size: 11px;
-  color: var(--color-ink-mute);
-  font-weight: 500;
+  font-size: 12px;
+  color: var(--color-ink-soft);
+  font-weight: 600;
 }
 
 .card__meta {
@@ -156,11 +156,18 @@
   color: var(--color-accent);
 }
 
-/* ===== Save button ===== */
-.card__save {
+/* ===== Image action buttons (save + share) ===== */
+.card__image-btns {
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card__save,
+.card__share-btn {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -176,11 +183,12 @@
   transition: color 150ms ease, transform 150ms ease, background 150ms ease;
   box-shadow: var(--shadow-sm);
 }
-.card__save:hover {
-  color: var(--color-accent);
+.card__save:hover,
+.card__share-btn:hover {
+  color: var(--color-ink);
   transform: scale(1.1);
 }
 .card__save.is-saved {
-  color: var(--color-accent);
+  color: #e11d48;
   background: rgba(255, 255, 255, 0.97);
 }

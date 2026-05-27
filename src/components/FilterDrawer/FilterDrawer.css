@@ -139,6 +139,13 @@
   letter-spacing: 0.03em;
 }
 
+.drawer__clue-sections {
+  opacity: 0.55;
+}
+.drawer__clue-sections .drawer__pill.is-on {
+  opacity: 1;
+}
+
 .drawer__group--open {
   padding: 12px 0 14px;
 }

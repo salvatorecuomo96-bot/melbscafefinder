@@ -22,7 +22,7 @@ function buildGeoJSON(cafes) {
 }
 
 const CUP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 34" width="40" height="34">
-  <path d="M6 11 Q5 5 9 4 L29 4 Q33 5 32 11 L30 28 Q29.5 31 26 31 L12 31 Q8.5 31 8 28 Z" fill="#ede8df"/>
+  <path d="M6 11 Q5 5 9 4 L29 4 Q33 5 32 11 L30 28 Q29.5 31 26 31 L12 31 Q8.5 31 8 28 Z" fill="#ede8df" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
   <ellipse cx="19" cy="10" rx="12" ry="6" fill="#6b3a2a"/>
   <ellipse cx="17" cy="9" rx="7" ry="3.5" fill="#4a2218" opacity="0.45"/>
   <path d="M32 13 Q41 13 41 20 Q41 27 32 27" fill="none" stroke="#ddd5c5" stroke-width="4" stroke-linecap="round"/>
