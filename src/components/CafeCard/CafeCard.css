@@ -90,6 +90,13 @@
   line-height: 1.15;
 }
 
+.card__rating-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .card__rating {
   display: inline-flex;
   align-items: center;
@@ -99,6 +106,12 @@
   color: var(--color-ink);
 }
 .card__rating svg { color: var(--color-gold); }
+
+.card__reviews {
+  font-size: 11px;
+  color: var(--color-ink-mute);
+  font-weight: 500;
+}
 
 .card__meta {
   color: var(--color-ink-soft);
@@ -133,9 +146,30 @@
   border-radius: var(--radius-pill);
   color: var(--color-ink-soft);
 }
-.card__badges li[data-type="brand"] {
-  background: #1a1a1a;
-  color: #fff;
+.card__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.card__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-ink-soft);
+  text-decoration: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+.card__action-btn:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
 }
 
 /* ===== Save button ===== */

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
@@ -18,20 +18,8 @@ function knownDetails(cafe) {
 export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
-  const [reportState, setReportState] = useState('idle'); // idle | sending | done
-
-  const handleReportClosed = async () => {
-    if (reportState !== 'idle') return;
-    setReportState('sending');
-    try {
-      await fetch('/api/report-closed', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cafeId: cafe.id, cafeName: cafe.name, suburb: cafe.suburb }),
-      });
-    } catch {}
-    setReportState('done');
-  };
+  const [menuOpen, setMenuOpen]       = useState(false);
+  const menuRef                       = useRef(null);
 
   const handleShare = () => {
     const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
@@ -66,8 +54,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
     ['mon','Mon'],['tue','Tue'],['wed','Wed'],
     ['thu','Thu'],['fri','Fri'],['sat','Sat'],['sun','Sun'],
   ];
-
-  const suggestEditUrl = `mailto:salvatore.cuomo96@gmail.com?subject=${encodeURIComponent(`Edit suggestion: ${cafe.name}`)}&body=${encodeURIComponent(`Hi,\n\nI'd like to suggest a correction for ${cafe.name} (${cafe.suburb}):\n\n`)}`;
 
   return (
     <>
@@ -195,21 +181,26 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               <button className="detail__btn" onClick={handleShare}>
                 <ShareIcon /> {copied ? 'Copied!' : 'Share'}
               </button>
+              {cafe.menuText && (
+                <button
+                  className={`detail__btn${menuOpen ? ' is-active' : ''}`}
+                  onClick={() => {
+                    setMenuOpen((o) => !o);
+                    if (!menuOpen) setTimeout(() => menuRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+                  }}
+                >
+                  <MenuIcon /> Menu
+                </button>
+              )}
             </div>
 
-            {/* ── Suggest edit / report closed ── */}
-            <div className="detail__footer">
-              <a href={suggestEditUrl} className="detail__suggest">
-                Something wrong? Suggest an edit
-              </a>
-              <button
-                className="detail__suggest detail__suggest--closed"
-                onClick={handleReportClosed}
-                disabled={reportState !== 'idle'}
-              >
-                {reportState === 'done' ? 'Thanks, we\'ll check it out' : 'Is this place closed?'}
-              </button>
-            </div>
+            {/* ── Menu text ── */}
+            {cafe.menuText && menuOpen && (
+              <section className="detail__section detail__menu" ref={menuRef}>
+                <span className="detail__hours-label">Menu</span>
+                <p className="detail__menu-text">{cafe.menuText}</p>
+              </section>
+            )}
           </div>
         </div>
       </div>
@@ -273,6 +264,14 @@ function ShareIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
       <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/>
     </svg>
   );
 }

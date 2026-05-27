@@ -2,23 +2,27 @@ import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import './CafeCard.css';
 
-const CHAI_LABEL = { leaf: 'Leaf chai', powder: 'Powder chai' };
+function reviewBucket(n) {
+  if (!n || n < 50) return null;
+  if (n >= 1000) return '1000+';
+  if (n >= 500) return '500+';
+  if (n >= 100) return '100+';
+  return '50+';
+}
 
 export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }) {
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
+  const bucket = reviewBucket(cafe.reviewCount);
 
   const badges = [
-    cafe.noiseLevel === 'quiet' && { label: 'Quiet',              type: 'attr' },
-    cafe.dogFriendly     && { label: 'Dog friendly',              type: 'attr' },
-    cafe.outdoorSeating  && { label: 'Outdoor',                   type: 'attr' },
-    cafe.chaiType        && { label: CHAI_LABEL[cafe.chaiType],   type: 'attr' },
-    cafe.specialtyCoffee && { label: 'Specialty coffee',          type: 'attr' },
-    cafe.hasWifi         && { label: 'WiFi',                      type: 'attr' },
-    cafe.laptopFriendly  && { label: 'Laptop friendly',           type: 'attr' },
-    cafe.matcha          && { label: 'Matcha',                    type: 'attr' },
-    cafe.breakfastAllDay && { label: 'All-day brekky',            type: 'attr' },
-    cafe.hasDecaf        && { label: 'Decaf',                     type: 'attr' },
-  ].filter(Boolean).slice(0, 4);
+    cafe.matcha         && { label: 'Matcha' },
+    cafe.outdoorSeating && { label: 'Outdoor' },
+    cafe.dogFriendly    && { label: 'Dog friendly' },
+    cafe.noiseLevel === 'quiet' && { label: 'Quiet' },
+  ].filter(Boolean).slice(0, 3);
+
+  const mapsUrl = cafe.googleMapsUrl
+    || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`;
 
   return (
     <article className="card" onClick={onOpen}>
@@ -48,18 +52,20 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
       <div className="card__body">
         <div className="card__head">
           <h3 className="card__name">{cafe.name}</h3>
-          {cafe.rating != null && (
-            <div className="card__rating" aria-label={`Rating ${cafe.rating}`}>
-              <Star />
-              {cafe.rating.toFixed(1)}
-            </div>
-          )}
+          <div className="card__rating-wrap">
+            {cafe.rating != null && (
+              <div className="card__rating" aria-label={`Rating ${cafe.rating}`}>
+                <Star />
+                {cafe.rating.toFixed(1)}
+              </div>
+            )}
+            {bucket && <span className="card__reviews">{bucket}</span>}
+          </div>
         </div>
 
         <p className="card__meta">
           {cafe.suburb}
           {priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
-          {cafe.vibe ? ` · ${cafe.vibe}` : ''}
         </p>
 
         <p className="card__desc">{cafe.shortDescription}</p>
@@ -67,10 +73,23 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
         {badges.length > 0 && (
           <ul className="card__badges">
             {badges.map((b) => (
-              <li key={b.label} data-type={b.type}>{b.label}</li>
+              <li key={b.label}>{b.label}</li>
             ))}
           </ul>
         )}
+
+        <div className="card__actions">
+          <a
+            className="card__action-btn"
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            aria-label="Open in Google Maps"
+          >
+            <MapPinIcon /> Maps
+          </a>
+        </div>
       </div>
     </article>
   );
@@ -88,6 +107,14 @@ function Star() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
     </svg>
   );
 }

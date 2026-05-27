@@ -1,4 +1,14 @@
-export const FILTER_SECTIONS = [
+export const RELIABLE_SECTIONS = [
+  {
+    id: 'practical',
+    label: 'Practical',
+    booleans: [],
+    enums: [],
+    price: true,
+  },
+];
+
+export const CLUE_SECTIONS = [
   {
     id: 'coffee',
     label: 'Coffee',
@@ -37,16 +47,17 @@ export const FILTER_SECTIONS = [
     ],
   },
   {
-    id: 'practical',
-    label: 'Practical',
+    id: 'vibes',
+    label: 'Vibes',
     booleans: [
       { key: 'outdoorSeating', label: 'Outdoor seating' },
       { key: 'dogFriendly',    label: 'Dog friendly' },
     ],
     enums: [],
-    price: true,
   },
 ];
+
+export const FILTER_SECTIONS = [...RELIABLE_SECTIONS, ...CLUE_SECTIONS];
 
 export const PLANT_MILK_OPTIONS = ['oat', 'soy', 'almond', 'macadamia', 'coconut'];
 
