@@ -21,7 +21,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
 
   // Count how many cafes match each filter option (for display in drawer)
   const filterCounts = useMemo(() => {
-    const booleans = {}, enums = {}, brands = {}, plantMilk = {};
+    const booleans = {}, enums = {}, brands = {};
     let openNow = 0, openLate = 0;
     for (const cafe of cafes) {
       for (const key of BOOL_KEYS) {
@@ -34,13 +34,10 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         }
       }
       if (cafe.coffeeBrand) brands[cafe.coffeeBrand] = (brands[cafe.coffeeBrand] || 0) + 1;
-      for (const milk of (cafe.plantMilk || [])) {
-        plantMilk[milk] = (plantMilk[milk] || 0) + 1;
-      }
       if (openStatus(cafe.openingHours).isOpen) openNow++;
       if (isOpenLate(cafe.openingHours)) openLate++;
     }
-    return { booleans, enums, brands, plantMilk, openNow, openLate };
+    return { booleans, enums, brands, openNow, openLate };
   }, [cafes]);
 
   const visibleCafes = useMemo(() => {
@@ -68,12 +65,6 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
       // Coffee brands: hard match
       if (filters.coffeeBrands.length) {
         if (!filters.coffeeBrands.includes(cafe.coffeeBrand)) return false;
-      }
-
-      // Plant milk: must offer ALL selected milks
-      if (filters.plantMilk.length) {
-        const offered = new Set(cafe.plantMilk || []);
-        if (!filters.plantMilk.every((m) => offered.has(m))) return false;
       }
 
       if (filters.priceLevels.length && !filters.priceLevels.includes(cafe.priceLevel)) {
@@ -153,14 +144,6 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         : [...f.coffeeBrands, brand],
     }));
 
-  const togglePlantMilk = (milk) =>
-    setFilters((f) => ({
-      ...f,
-      plantMilk: f.plantMilk.includes(milk)
-        ? f.plantMilk.filter((m) => m !== milk)
-        : [...f.plantMilk, milk],
-    }));
-
   const togglePriceLevel = (level) =>
     setFilters((f) => ({
       ...f,
@@ -177,24 +160,10 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   const reset = () => setFilters(DEFAULT_FILTERS);
   const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
 
-  const applyAiFilters = (ai) => setFilters((f) => ({
-    ...f,
-    booleans:     { ...f.booleans,     ...(ai.booleans     || {}) },
-    enums:        { ...f.enums,        ...(ai.enums        || {}) },
-    coffeeBrands: ai.coffeeBrands?.length ? ai.coffeeBrands : f.coffeeBrands,
-    plantMilk:    ai.plantMilk?.length    ? ai.plantMilk    : f.plantMilk,
-    priceLevels:  ai.priceLevels?.length  ? ai.priceLevels  : f.priceLevels,
-    minRating:    ai.minRating            ?? f.minRating,
-    openNow:      ai.openNow              ?? f.openNow,
-    openLate:     ai.openLate             ?? f.openLate,
-    suburb:       ai.suburb               ?? f.suburb,
-  }));
-
   const activeCount =
     Object.values(filters.booleans).filter(Boolean).length +
     Object.values(filters.enums).filter(Boolean).length +
     filters.coffeeBrands.length +
-    filters.plantMilk.length +
     filters.priceLevels.length +
     (filters.minRating ? 1 : 0) +
     (filters.openNow   ? 1 : 0) +
@@ -203,8 +172,8 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
-    setQuery, setSuburb, applyAiFilters, toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePlantMilk, togglePriceLevel, setBooleans, setMinRating,
+    setQuery, setSuburb, toggleBoolean, toggleEnum, toggleCoffeeBrand,
+    togglePriceLevel, setBooleans, setMinRating,
     toggleOpenNow, toggleOpenLate, reset,
   };
 }

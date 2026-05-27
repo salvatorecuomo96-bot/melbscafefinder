@@ -59,8 +59,6 @@ export const CLUE_SECTIONS = [
 
 export const FILTER_SECTIONS = [...RELIABLE_SECTIONS, ...CLUE_SECTIONS];
 
-export const PLANT_MILK_OPTIONS = ['oat', 'soy', 'almond', 'macadamia', 'coconut'];
-
 export const COFFEE_BRANDS = [
   'Single O', 'Code Black', 'Five Senses', 'Allpress', 'St Ali',
   'Industry Beans', 'Axil', 'Seven Seeds', 'Market Lane', 'Veneziano',
@@ -84,7 +82,6 @@ export const DEFAULT_FILTERS = {
   booleans:     {},
   enums:        {},
   coffeeBrands: [],
-  plantMilk:    [],
   priceLevels:  [],
   minRating:    0,
   openNow:      false,
