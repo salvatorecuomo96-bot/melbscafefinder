@@ -14,12 +14,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
   const bucket = reviewBucket(cafe.reviewCount);
 
-  const badges = [
-    cafe.matcha         && { label: 'Matcha' },
-    cafe.outdoorSeating && { label: 'Outdoor' },
-    cafe.dogFriendly    && { label: 'Dog friendly' },
-    cafe.noiseLevel === 'quiet' && { label: 'Quiet' },
-  ].filter(Boolean).slice(0, 3);
 
   const mapsUrl = cafe.googleMapsUrl
     || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`;
@@ -69,14 +63,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
         </p>
 
         <p className="card__desc">{cafe.shortDescription}</p>
-
-        {badges.length > 0 && (
-          <ul className="card__badges">
-            {badges.map((b) => (
-              <li key={b.label}>{b.label}</li>
-            ))}
-          </ul>
-        )}
 
         <div className="card__actions">
           <a

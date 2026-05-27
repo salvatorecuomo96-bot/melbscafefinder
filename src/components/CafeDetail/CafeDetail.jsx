@@ -116,18 +116,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               </div>
             </header>
 
-            {/* ── Details ── */}
-            {(details.length > 0 || cafe.noiseLevel || cafe.chaiType) && (
-              <div className="detail__chips detail__chips--wrap">
-                {details.map(t => <span key={t} className="detail__chip">{t}</span>)}
-                {cafe.noiseLevel && (
-                  <span className="detail__chip">
-                    {cafe.noiseLevel.charAt(0).toUpperCase() + cafe.noiseLevel.slice(1)} noise
-                  </span>
-                )}
-              </div>
-            )}
-
             {/* ── Description ── */}
             {cafe.shortDescription && (
               <p className="detail__desc">{cafe.shortDescription}</p>

@@ -21,8 +21,25 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function addLayers(map, cafes) {
+const CUP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 34" width="40" height="34">
+  <path d="M6 11 Q5 5 9 4 L29 4 Q33 5 32 11 L30 28 Q29.5 31 26 31 L12 31 Q8.5 31 8 28 Z" fill="#ede8df"/>
+  <ellipse cx="19" cy="10" rx="12" ry="6" fill="#6b3a2a"/>
+  <ellipse cx="17" cy="9" rx="7" ry="3.5" fill="#4a2218" opacity="0.45"/>
+  <path d="M32 13 Q41 13 41 20 Q41 27 32 27" fill="none" stroke="#ddd5c5" stroke-width="4" stroke-linecap="round"/>
+</svg>`;
+
+function loadCupImage(map) {
+  return new Promise((resolve) => {
+    const img = new Image(40, 34);
+    img.onload = () => { map.addImage('coffee-cup', img); resolve(); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(CUP_SVG);
+  });
+}
+
+async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
+
+  if (!map.hasImage('coffee-cup')) await loadCupImage(map);
 
   map.addSource('cafes', {
     type: 'geojson',
@@ -60,14 +77,14 @@ function addLayers(map, cafes) {
 
   map.addLayer({
     id: 'pins',
-    type: 'circle',
+    type: 'symbol',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
-    paint: {
-      'circle-color': ['case', ['==', ['get', 'id'], ''], '#e8c39e', '#fff'],
-      'circle-radius': 10,
-      'circle-stroke-width': 2,
-      'circle-stroke-color': '#1a1a1a',
+    layout: {
+      'icon-image': 'coffee-cup',
+      'icon-size': 0.7,
+      'icon-allow-overlap': true,
+      'icon-anchor': 'bottom',
     },
   });
 }
@@ -153,7 +170,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => {
-      addLayers(map, cafesRef.current);
+      addLayers(map, cafesRef.current).catch(() => {});
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
@@ -165,7 +182,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     if (map.getSource('cafes')) {
       map.getSource('cafes').setData(buildGeoJSON(cafes));
     } else if (cafes.length > 0) {
-      addLayers(map, cafes);
+      addLayers(map, cafes).catch(() => {});
     }
   }, [cafes, ready]);
 
