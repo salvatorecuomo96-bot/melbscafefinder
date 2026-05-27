@@ -1,7 +1,6 @@
 import SearchBar from '../SearchBar/SearchBar.jsx';
 import EmptyState from '../EmptyState/EmptyState.jsx';
 import SuburbPicker from '../SuburbPicker/SuburbPicker.jsx';
-import AiSearch from '../AiSearch/AiSearch.jsx';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import { formatDistance } from '../../utils/distance.js';
 import './MobileExplore.css';
@@ -52,8 +51,6 @@ export default function MobileExplore({
           placeholder="Search cafe, suburb..."
         />
       </div>
-
-      <AiSearch onApply={api.applyAiFilters} onClear={api.reset} />
 
       <div className="mobile-explore__actions">
         <button

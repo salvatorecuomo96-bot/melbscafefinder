@@ -14,7 +14,6 @@ import MobileExplore from '../../components/MobileExplore/MobileExplore.jsx';
 import MobileSaved from '../../components/MobileSaved/MobileSaved.jsx';
 import LoadingState from '../../components/LoadingState/LoadingState.jsx';
 import SuburbPicker from '../../components/SuburbPicker/SuburbPicker.jsx';
-import AiSearch from '../../components/AiSearch/AiSearch.jsx';
 import SubmitCafe from '../../components/SubmitCafe/SubmitCafe.jsx';
 import { useCafeFilters } from '../../hooks/useCafeFilters.js';
 import { useGeolocation } from '../../hooks/useGeolocation.js';
@@ -218,7 +217,6 @@ export default function Home() {
               <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
             </div>
 
-            <AiSearch onApply={api.applyAiFilters} onClear={api.reset} />
             <button className="layout__submit-btn" onClick={() => setSubmitOpen(true)}>
               + Submit a cafe
             </button>
