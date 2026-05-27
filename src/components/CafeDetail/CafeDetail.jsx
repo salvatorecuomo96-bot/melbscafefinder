@@ -111,7 +111,23 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
             {/* ── Hours ── */}
             <section className="detail__section">
-              <span className="detail__hours-label">Hours</span>
+              <div className="detail__hours-row">
+                <span className="detail__hours-label">Hours</span>
+                <div className="detail__hours-actions">
+                  {onToggleSave && (
+                    <button
+                      className={`detail__icon-btn${isSaved ? ' is-saved' : ''}`}
+                      onClick={() => onToggleSave(cafe.id)}
+                      aria-label={isSaved ? 'Unsave' : 'Save'}
+                    >
+                      <HeartIcon filled={isSaved} />
+                    </button>
+                  )}
+                  <button className="detail__icon-btn" onClick={handleShare} aria-label="Share">
+                    {copied ? <CheckIcon /> : <DotsIcon />}
+                  </button>
+                </div>
+              </div>
               <table className="detail__hours">
                 <tbody>
                   {days.map(([k, label]) => (
@@ -126,16 +142,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
             {/* ── Actions ── */}
             <div className="detail__actions">
-              {onToggleSave && (
-                <button
-                  className={`detail__btn detail__btn--save${isSaved ? ' is-saved' : ''}`}
-                  onClick={() => onToggleSave(cafe.id)}
-                  aria-label={isSaved ? 'Unsave' : 'Save'}
-                >
-                  <HeartIcon filled={isSaved} />
-                  {isSaved ? 'Saved' : 'Save'}
-                </button>
-              )}
               <a
                 className="detail__btn detail__btn--primary"
                 target="_blank"
@@ -154,9 +160,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
                   <PhoneIcon /> Call
                 </a>
               )}
-              <button className="detail__btn" onClick={handleShare}>
-                <ShareIcon /> {copied ? 'Copied!' : 'Share'}
-              </button>
               {cafe.menuText && (
                 <button
                   className={`detail__btn${menuOpen ? ' is-active' : ''}`}
@@ -235,11 +238,18 @@ function PhoneIcon() {
   );
 }
 
-function ShareIcon() {
+function DotsIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12"/>
     </svg>
   );
 }

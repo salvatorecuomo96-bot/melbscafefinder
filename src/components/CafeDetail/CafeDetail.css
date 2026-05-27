@@ -221,19 +221,51 @@
   padding-top: 18px;
 }
 
+/* ── Hours row ── */
+.detail__hours-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.detail__hours-actions {
+  display: flex;
+  gap: 6px;
+}
+.detail__icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.detail__icon-btn:hover {
+  background: #eceae4;
+  border-color: #ccc7be;
+}
+.detail__icon-btn.is-saved {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
 /* ── Hours label ── */
 .detail__hours-label {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 15px;
   color: #0a0804;
-  display: block;
 }
 
 .detail__hours {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 14px;
 }
 .detail__hours th,
 .detail__hours td {
