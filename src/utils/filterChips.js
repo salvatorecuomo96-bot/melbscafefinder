@@ -20,7 +20,7 @@ export function getActiveFilterChips(api) {
   const {
     filters,
     toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePlantMilk, togglePriceLevel, toggleOpenNow, toggleOpenLate, setMinRating,
+    togglePriceLevel, toggleOpenNow, toggleOpenLate, setMinRating,
   } = api;
 
   const chips = [];
@@ -41,13 +41,6 @@ export function getActiveFilterChips(api) {
 
   for (const brand of filters.coffeeBrands) {
     chips.push({ label: brand, onRemove: () => toggleCoffeeBrand(brand) });
-  }
-
-  for (const milk of filters.plantMilk) {
-    chips.push({
-      label: milk[0].toUpperCase() + milk.slice(1) + ' milk',
-      onRemove: () => togglePlantMilk(milk),
-    });
   }
 
   for (const level of filters.priceLevels) {
