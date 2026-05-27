@@ -6,7 +6,7 @@ import { openStatus, isOpenLate } from '../utils/format.js';
 const BOOL_KEYS = FILTER_SECTIONS.flatMap((s) => (s.booleans || []).map((b) => b.key));
 const ENUM_KEYS = FILTER_SECTIONS.flatMap((s) => (s.enums || []).map((e) => e.key));
 
-export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
+export function useCafeFilters({ cafes = [], userCoords } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
 
@@ -91,21 +91,6 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
         return a.distanceKm - b.distanceKm;
       }
 
-      if (activePreset) {
-        const prefScore = (cafe) =>
-          Object.entries(activePreset.preferred || {}).reduce((n, [k, v]) => {
-            if (v === false) return cafe[k] === false ? n + 1 : n;
-            return cafe[k] === v ? n + 1 : n;
-          }, 0);
-        const scoreDiff = prefScore(b) - prefScore(a);
-        if (scoreDiff !== 0) return scoreDiff;
-        for (const field of (activePreset.rankBy || [])) {
-          const diff = (b[field] ?? 0) - (a[field] ?? 0);
-          if (diff !== 0) return diff;
-        }
-        return 0;
-      }
-
       if (sort === 'rating') {
         const C = 4.2, m = 150;
         const CBD_LAT = -37.8136, CBD_LNG = 144.9631;
@@ -125,7 +110,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
     });
 
     return list;
-  }, [cafes, filters, debouncedQuery, sort, userCoords, activePreset]);
+  }, [cafes, filters, debouncedQuery, sort, userCoords]);
 
   const toggleBoolean = (key) =>
     setFilters((f) => ({ ...f, booleans: { ...f.booleans, [key]: !f.booleans[key] } }));
@@ -158,7 +143,6 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   const toggleOpenNow  = () => setFilters((f) => ({ ...f, openNow:  !f.openNow  }));
   const toggleOpenLate = () => setFilters((f) => ({ ...f, openLate: !f.openLate }));
   const reset = () => setFilters(DEFAULT_FILTERS);
-  const setBooleans = (booleans) => setFilters((f) => ({ ...f, booleans }));
 
   const activeCount =
     Object.values(filters.booleans).filter(Boolean).length +
@@ -173,7 +157,7 @@ export function useCafeFilters({ cafes = [], userCoords, activePreset } = {}) {
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
     setQuery, setSuburb, toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePriceLevel, setBooleans, setMinRating,
+    togglePriceLevel, setMinRating,
     toggleOpenNow, toggleOpenLate, reset,
   };
 }
