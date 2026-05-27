@@ -58,8 +58,7 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
         </div>
 
         <p className="card__meta">
-          {cafe.suburb}
-          {priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
+          {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
         </p>
 
         <p className="card__desc">{cafe.shortDescription}</p>

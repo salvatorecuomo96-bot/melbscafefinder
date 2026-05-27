@@ -43,7 +43,7 @@ export default function CafePreviewCard({ cafe, onOpen, onClose, isSaved = false
           </div>
 
           <p className="preview__meta">
-            {cafe.suburb} · {priceLabel(cafe.priceLevel)} · {cafe.vibe}
+            {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
           </p>
 
           <div className="preview__row">

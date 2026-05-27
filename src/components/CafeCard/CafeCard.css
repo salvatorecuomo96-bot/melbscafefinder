@@ -130,22 +130,6 @@
   margin: 8px 0 12px;
 }
 
-.card__badges {
-  list-style: none;
-  padding: 0;
-  margin: auto 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.card__badges li {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 9px;
-  background: var(--color-surface-2);
-  border-radius: var(--radius-pill);
-  color: var(--color-ink-soft);
-}
 .card__actions {
   display: flex;
   gap: 6px;
