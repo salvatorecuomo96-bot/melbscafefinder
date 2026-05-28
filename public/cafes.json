@@ -84486,7 +84486,7 @@
   {
     "id": "good-bean-cnr-tooronga-and-toorak-roads",
     "name": "Good Bean",
-    "suburb": "Cnr Tooronga and Toorak Roads",
+    "suburb": "Glen Iris",
     "address": "Tooronga Village Shopping Centre, K01, Cnr Tooronga and Toorak Roads, Glen Iris",
     "latitude": -37.84593349999999,
     "longitude": 145.0458437,
@@ -97774,7 +97774,7 @@
   {
     "id": "little-bliss-coffee-bar-shop-351-the-mall",
     "name": "Little Bliss Coffee Bar",
-    "suburb": "Shop 3/51 The Mall",
+    "suburb": "Heidelberg West",
     "address": "Shop 3/51 The Mall, Heidelberg West",
     "latitude": -37.7484457,
     "longitude": 145.0423229,
@@ -97995,7 +97995,7 @@
   {
     "id": "espresso-lane-cafe-shop70-the-mall",
     "name": "ESPRESSO LANE CAFE",
-    "suburb": "shop/70 The Mall",
+    "suburb": "Heidelberg West",
     "address": "shop/70 The Mall, Heidelberg West",
     "latitude": -37.74807,
     "longitude": 145.042873,
@@ -101623,7 +101623,7 @@
   {
     "id": "scale-coffee-shop-3435-centre-rd",
     "name": "Scale Coffee",
-    "suburb": "Shop 3/435 Centre Rd",
+    "suburb": "Bentleigh",
     "address": "Shop 3/435 Centre Rd, Bentleigh",
     "latitude": -37.918355,
     "longitude": 145.039847,
@@ -102934,7 +102934,7 @@
   {
     "id": "pound-cafe-south-yarra-unit-5566-chapel-st",
     "name": "Pound Cafe South Yarra",
-    "suburb": "Unit 5/566 Chapel St",
+    "suburb": "South Yarra",
     "address": "Unit 5/566 Chapel St, South Yarra",
     "latitude": -37.8405393,
     "longitude": 144.995893,
@@ -103315,7 +103315,7 @@
   {
     "id": "the-foodstore-cafe-unit-122-bills-st",
     "name": "The Foodstore Cafe",
-    "suburb": "Unit 1/22 Bills St",
+    "suburb": "Hawthorn East",
     "address": "Unit 1/22 Bills St, Hawthorn East",
     "latitude": -37.83871850000001,
     "longitude": 145.0418699,
@@ -103425,7 +103425,7 @@
   {
     "id": "cherry-mouth-roasters-unit-1319-export-dr",
     "name": "Cherry Mouth Roasters",
-    "suburb": "Unit 13/19 Export Dr",
+    "suburb": "Brooklyn",
     "address": "Unit 13/19 Export Dr, Brooklyn",
     "latitude": -37.8204099,
     "longitude": 144.8553859,
@@ -103585,7 +103585,7 @@
   {
     "id": "the-simple-foodie-g03591-flinders-st",
     "name": "The Simple Foodie",
-    "suburb": "G03/591 Flinders St",
+    "suburb": "Docklands",
     "address": "Corner of Flinders and Spencer, G03/591 Flinders St, Docklands",
     "latitude": -37.8214435,
     "longitude": 144.9549017,
@@ -103970,7 +103970,7 @@
   {
     "id": "norman-south-yarra-shop-2300-toorak-rd",
     "name": "Norman South Yarra",
-    "suburb": "Shop 2/300 Toorak Rd",
+    "suburb": "South Yarra",
     "address": "Shop 2/300 Toorak Rd, South Yarra",
     "latitude": -37.8397569,
     "longitude": 144.997109,
@@ -104245,7 +104245,7 @@
   {
     "id": "kijo-cafe-next-to-nhu-ngoc-bakery",
     "name": "KIJO CAFE",
-    "suburb": "Next to Nhu Ngoc Bakery",
+    "suburb": "Footscray",
     "address": "228 irving st Shop 228 , Footscray Market, Next to Nhu Ngoc Bakery, Footscray",
     "latitude": -37.8008422,
     "longitude": 144.9023829,
@@ -104568,7 +104568,7 @@
   {
     "id": "calre-coffee-unit-1166-gertrude-st",
     "name": "Calēre Coffee",
-    "suburb": "Unit 1/166 Gertrude St",
+    "suburb": "Fitzroy",
     "address": "Unit 1/166 Gertrude St, Fitzroy",
     "latitude": -37.8061231,
     "longitude": 144.9801805,
@@ -105224,7 +105224,7 @@
   {
     "id": "the-loft-level-7305-grattan-st",
     "name": "The Loft",
-    "suburb": "Level 7/305 Grattan St",
+    "suburb": "Melbourne",
     "address": "Level 7/305 Grattan St, Melbourne",
     "latitude": -37.7998834,
     "longitude": 144.9565369,
@@ -106819,7 +106819,7 @@
   {
     "id": "soul-soul-cafe-shop-1158-victoria-st",
     "name": "Soul Soul Cafe",
-    "suburb": "shop 1/158 Victoria St",
+    "suburb": "Carlton",
     "address": "shop 1/158 Victoria St, Carlton",
     "latitude": -37.8063351,
     "longitude": 144.9619078,
