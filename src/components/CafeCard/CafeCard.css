@@ -130,31 +130,6 @@
   margin: 8px 0 12px;
 }
 
-.card__actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-border);
-}
-
-.card__action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  color: var(--color-ink-soft);
-  text-decoration: none;
-  transition: background 140ms ease, color 140ms ease;
-}
-.card__action-btn:hover {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-}
 
 /* ===== Image action buttons (save + share) ===== */
 .card__image-btns {

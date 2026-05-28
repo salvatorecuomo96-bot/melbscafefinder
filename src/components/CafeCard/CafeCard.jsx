@@ -16,9 +16,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
   const bucket = reviewBucket(cafe.reviewCount);
   const [copied, setCopied] = useState(false);
 
-  const mapsUrl = cafe.googleMapsUrl
-    || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`;
-
   const handleShare = (e) => {
     e.stopPropagation();
     const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
@@ -82,18 +79,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
 
         <p className="card__desc">{cafe.shortDescription}</p>
 
-        <div className="card__actions">
-          <a
-            className="card__action-btn"
-            href={mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            aria-label="Open in Google Maps"
-          >
-            <MapPinIcon /> Maps
-          </a>
-        </div>
       </div>
     </article>
   );
@@ -111,14 +96,6 @@ function Star() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
-    </svg>
-  );
-}
-
-function MapPinIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
     </svg>
   );
 }
