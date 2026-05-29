@@ -1,7 +1,7 @@
 """
 Scrapes opening hours for cafes that have empty/all-Closed hours.
-Source 1: Cafe website (schema.org JSON-LD, text patterns)
-Source 2: Today's Google Maps hours (day + time, then fills remaining days)
+Source 1: Google Maps (full week, requires google_auth.json — run setup_google_auth.py first)
+Source 2: Cafe website (schema.org JSON-LD, text patterns) — fallback
 Progress saved to data/hours_progress.json (resumable).
 Live log: data/hours_live.log — watch with: Get-Content data\hours_live.log -Wait
 Updates public/cafes.json when done.
@@ -18,6 +18,8 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 from playwright.async_api import async_playwright
+
+AUTH_FILE = Path(__file__).parent / "google_auth.json"
 
 ROOT       = Path(__file__).parent.parent
 CAFES_FILE = ROOT / "public" / "cafes.json"
@@ -218,42 +220,45 @@ async def get_website_hours(page, website):
     return None
 
 
-# ── Google Maps (today's hours only — fills what we can) ──────────────────────
+# ── Google Maps full hours (requires login session) ───────────────────────────
 
-async def get_gmaps_today(page, cafe):
-    """Get today's hours from Google Maps as a fallback clue (limited view)."""
-    lat, lng = cafe.get("latitude", 0), cafe.get("longitude", 0)
-    if lat and lat != 0:
-        url = f"https://www.google.com/maps/search/?api=1&query={lat},{lng}"
-    else:
-        q = f"{cafe['name']} {cafe['suburb']} Melbourne".replace(" ", "+")
-        url = f"https://www.google.com/maps/search/{q}"
+async def get_gmaps_hours(page, cafe):
+    """Navigate to cafe's Google Maps page and extract full weekly hours."""
+    q = f"{cafe['name']} {cafe['suburb']} Melbourne".replace(" ", "+")
+    url = f"https://www.google.com/maps/search/{q}"
 
     try:
-        await page.goto(url, wait_until="domcontentloaded", timeout=12000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=15000)
         await page.wait_for_timeout(3000)
     except Exception:
         return None
 
-    # Click first result if on search page
+    # If still on search results, click first result
     if "@" not in page.url:
         try:
-            await page.locator('a[href*="/maps/place/"]').first.click(timeout=4000)
-            await page.wait_for_timeout(2500)
+            await page.locator('a[href*="/maps/place/"]').first.click(timeout=5000)
+            await page.wait_for_timeout(3000)
         except Exception:
             return None
 
-    # Get today's hours from data-value button
+    # Expand the hours dropdown
     try:
-        vals = await page.evaluate("""() => {
-            const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-            return Array.from(document.querySelectorAll('[data-value]'))
-                .map(el => el.getAttribute('data-value'))
-                .filter(v => v && days.some(d => v.includes(d)));
-        }""")
-        if vals:
-            # vals[0] = e.g. "Friday, 8 am–1 am"
-            return vals[0]
+        btn = page.locator('div[jsaction*="openhours"][jsaction*="dropdown"]').first
+        await btn.scroll_into_view_if_needed(timeout=3000)
+        await btn.click(timeout=3000)
+        await page.wait_for_timeout(1500)
+    except Exception:
+        pass
+
+    # Extract hours from the expanded panel
+    try:
+        text = await page.locator('[role="main"]').first.inner_text(timeout=5000)
+        # Check we have the full week (not limited view)
+        if "limited view" in text.lower():
+            return None
+        h = parse_hours_text(text)
+        if hours_known(h):
+            return h
     except Exception:
         pass
 
@@ -276,10 +281,17 @@ async def main():
 
     log(f"Total needing hours: {len(todo_all)} | Done: {len(done)} | To do: {len(todo)} | Found so far: {found}")
 
+    use_gmaps = AUTH_FILE.exists()
+    if use_gmaps:
+        log(f"Google auth found — will use Google Maps for full hours")
+    else:
+        log(f"No google_auth.json — run setup_google_auth.py first for better results")
+        log(f"Falling back to website scraping only")
+
     if todo:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
+            ctx_kwargs = dict(
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
@@ -287,6 +299,9 @@ async def main():
                 viewport={"width": 1280, "height": 900},
                 locale="en-AU",
             )
+            if use_gmaps:
+                ctx_kwargs["storage_state"] = str(AUTH_FILE)
+            context = await browser.new_context(**ctx_kwargs)
             page = await context.new_page()
 
             for cafe in todo:
@@ -295,8 +310,15 @@ async def main():
 
                 hours = None
 
-                # 1. Website (best source)
-                if cafe.get("website"):
+                # 1. Google Maps (full week, logged-in session)
+                if use_gmaps:
+                    hours = await get_gmaps_hours(page, cafe)
+                    if hours and hours_known(hours):
+                        log(f"  [maps] {hours}")
+                        found += 1
+
+                # 2. Website fallback
+                if not hours and cafe.get("website"):
                     hours = await get_website_hours(page, cafe["website"])
                     if hours and hours_known(hours):
                         log(f"  [web] {hours}")
