@@ -155,7 +155,7 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <MapPinIcon /> Directions
+                <MapPinIcon /> Maps
               </a>
             </div>
 
