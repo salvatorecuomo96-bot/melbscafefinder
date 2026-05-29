@@ -10,8 +10,8 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// cup.png is 1254×1254px; display at 144px logical (1254/144 ≈ 9 pixelRatio)
-const CUP_DISPLAY_PX = 144;
+// cup.png is 1254×1254px; display at 72px logical (1254/72 ≈ 17 pixelRatio)
+const CUP_DISPLAY_PX = 72;
 
 function buildGeoJSON(cafes) {
   return {
