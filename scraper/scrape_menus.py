@@ -21,8 +21,8 @@ from playwright.async_api import async_playwright
 
 ROOT        = Path(__file__).parent.parent
 CAFES_FILE  = ROOT / "public" / "cafes.json"
-PROGRESS    = ROOT / "data" / "menu_progress2.json"
-RESULTS     = ROOT / "data" / "menu_results2.json"
+PROGRESS    = ROOT / "data" / "menu_progress3.json"
+RESULTS     = ROOT / "data" / "menu_results3.json"
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -79,8 +79,8 @@ async def scrape_gmaps_menu(page, cafe):
         f"{cafe['name'].replace(' ', '+')}+{cafe['suburb'].replace(' ', '+')}+Melbourne"
     )
     try:
-        await page.goto(url, wait_until="domcontentloaded", timeout=20000)
-        await page.wait_for_timeout(2500)
+        await page.goto(url, wait_until="domcontentloaded", timeout=10000)
+        await page.wait_for_timeout(1500)
     except Exception:
         return None
 
@@ -88,8 +88,8 @@ async def scrape_gmaps_menu(page, cafe):
     if "@" not in page.url:
         try:
             first = page.locator('a[href*="/maps/place/"]').first
-            await first.click(timeout=4000)
-            await page.wait_for_timeout(2000)
+            await first.click(timeout=3000)
+            await page.wait_for_timeout(1500)
         except Exception:
             return None
 
@@ -129,8 +129,8 @@ MENU_PATH_KEYWORDS = [
 async def scrape_website_menu(page, website):
     base = website.rstrip("/")
     try:
-        await page.goto(base, wait_until="domcontentloaded", timeout=15000)
-        await page.wait_for_timeout(1500)
+        await page.goto(base, wait_until="domcontentloaded", timeout=10000)
+        await page.wait_for_timeout(800)
     except Exception:
         return None
 
@@ -163,8 +163,8 @@ async def scrape_website_menu(page, website):
     for url in [base] + to_try:
         try:
             if url != base:
-                await page.goto(url, wait_until="domcontentloaded", timeout=12000)
-                await page.wait_for_timeout(1000)
+                await page.goto(url, wait_until="domcontentloaded", timeout=8000)
+                await page.wait_for_timeout(500)
 
             # Skip if PDF or binary (check content type via URL)
             if re.search(r"\.(pdf|jpg|jpeg|png|gif|webp|svg)$", url, re.I):
@@ -227,19 +227,20 @@ async def main():
 
                 menu = None
 
-                # 1. Try Google Maps first
-                menu = await scrape_gmaps_menu(page, cafe)
-                if menu:
-                    print(f"  [gmaps] {len(menu)} chars")
-
-                # 2. Try website if no menu from Maps
-                if not menu and cafe.get("website"):
+                # 1. Try website first (fast) — skip Google Maps for cafes with websites
+                if cafe.get("website"):
                     menu = await scrape_website_menu(page, cafe["website"])
                     if menu:
                         print(f"  [web]   {len(menu)} chars")
 
+                # 2. Only try Google Maps for cafes with NO website
+                if not menu and not cafe.get("website"):
+                    menu = await scrape_gmaps_menu(page, cafe)
+                    if menu:
+                        print(f"  [gmaps] {len(menu)} chars")
+
                 if not menu:
-                    print(f"  no menu found")
+                    print(f"  no menu")
 
                 prog[cafe["id"]] = menu
                 done.add(cafe["id"])
@@ -252,7 +253,7 @@ async def main():
                     )
                     print(f"  [saved — {found} menus so far]")
 
-                await asyncio.sleep(1.5)
+                await asyncio.sleep(0.5)
 
             await browser.close()
 
