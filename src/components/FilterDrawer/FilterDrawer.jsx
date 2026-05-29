@@ -10,6 +10,8 @@ import './FilterDrawer.css';
 const SPARSE_THRESHOLD = 40;
 
 export default function FilterDrawer({ open, onClose, api }) {
+  const [cluesOpen, setCluesOpen] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -22,8 +24,6 @@ export default function FilterDrawer({ open, onClose, api }) {
   }, [open, onClose]);
 
   if (!open) return null;
-
-  const [cluesOpen, setCluesOpen] = useState(false);
 
   const {
     filters, filterCounts,
