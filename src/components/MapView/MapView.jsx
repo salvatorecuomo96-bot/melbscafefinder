@@ -21,25 +21,24 @@ function buildGeoJSON(cafes) {
   };
 }
 
-const CUP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 34" width="40" height="34">
-  <path d="M6 11 Q5 5 9 4 L29 4 Q33 5 32 11 L30 28 Q29.5 31 26 31 L12 31 Q8.5 31 8 28 Z" fill="#ede8df" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
-  <ellipse cx="19" cy="10" rx="12" ry="6" fill="#6b3a2a"/>
-  <ellipse cx="17" cy="9" rx="7" ry="3.5" fill="#4a2218" opacity="0.45"/>
-  <path d="M32 13 Q41 13 41 20 Q41 27 32 27" fill="none" stroke="#ddd5c5" stroke-width="4" stroke-linecap="round"/>
-</svg>`;
-
-function loadCupImage(map) {
-  return new Promise((resolve) => {
-    const img = new Image(40, 34);
-    img.onload = () => { map.addImage('coffee-cup', img); resolve(); };
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(CUP_SVG);
+// cup.png and cluster.png are 1254×1254px — loaded from /public
+function loadImages(map) {
+  const load = (name, src) => new Promise((resolve) => {
+    map.loadImage(src, (err, img) => {
+      if (!err && !map.hasImage(name)) map.addImage(name, img);
+      resolve();
+    });
   });
+  return Promise.all([
+    load('cup-marker', '/cup.png'),
+    load('cluster-marker', '/cluster.png'),
+  ]);
 }
 
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
 
-  if (!map.hasImage('coffee-cup')) await loadCupImage(map);
+  await loadImages(map);
 
   map.addSource('cafes', {
     type: 'geojson',
@@ -49,40 +48,38 @@ async function addLayers(map, cafes) {
     clusterRadius: 40,
   });
 
+  // Cluster: mokapot icon + count badge at bottom-right
   map.addLayer({
     id: 'clusters',
-    type: 'circle',
-    source: 'cafes',
-    filter: ['has', 'point_count'],
-    paint: {
-      'circle-color': '#1a1a1a',
-      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
-      'circle-stroke-width': 2,
-      'circle-stroke-color': '#fff',
-    },
-  });
-
-  map.addLayer({
-    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
+      'icon-image': 'cluster-marker',
+      'icon-size': 0.044,   // renders ~55px from 1254px source
+      'icon-allow-overlap': true,
+      'icon-anchor': 'center',
       'text-field': '{point_count_abbreviated}',
-      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      'text-size': 12,
+      'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
+      'text-size': 11,
+      'text-anchor': 'center',
+      'text-offset': [1.3, 1.3], // positions count in bottom-right badge circle
+      'text-allow-overlap': true,
     },
-    paint: { 'text-color': '#fff' },
+    paint: {
+      'text-color': '#ffffff',
+    },
   });
 
+  // Individual cafe pins
   map.addLayer({
     id: 'pins',
     type: 'symbol',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
     layout: {
-      'icon-image': 'coffee-cup',
-      'icon-size': 0.7,
+      'icon-image': 'cup-marker',
+      'icon-size': 0.032,   // renders ~40px from 1254px source
       'icon-allow-overlap': true,
       'icon-anchor': 'bottom',
     },

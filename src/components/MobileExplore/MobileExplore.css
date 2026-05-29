@@ -201,13 +201,12 @@
   flex-direction: column;
   justify-content: flex-end;
   padding: 10px 10px 12px;
-  gap: 2px;
 }
 
 .grid-card__info {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -223,26 +222,37 @@
   overflow: hidden;
 }
 
+.grid-card__bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
 .grid-card__sub {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.7);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .grid-card__rating {
-  position: absolute;
-  top: 9px;
-  right: 9px;
   display: inline-flex;
   align-items: center;
   gap: 3px;
   font-size: 11.5px;
   font-weight: 700;
   color: #fff;
-  background: rgba(10, 8, 4, 0.5);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  padding: 3px 7px;
-  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.grid-card__rcount {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
 }
 
 .grid-card__save {
@@ -252,19 +262,20 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(10, 8, 4, 0.4);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-ink-mute, #aaa);
   transition: color 140ms ease, background 140ms ease, transform 120ms ease;
   border: none;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
 }
 .grid-card__save:active { transform: scale(0.85); }
 .grid-card__save.is-saved {
-  color: var(--color-accent);
-  background: rgba(107, 58, 42, 0.2);
+  color: #e11d48;
+  background: rgba(255, 255, 255, 0.92);
 }

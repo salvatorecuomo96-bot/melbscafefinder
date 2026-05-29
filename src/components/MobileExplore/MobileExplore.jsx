@@ -7,6 +7,14 @@ import './MobileExplore.css';
 
 const GRID_CAP = 80;
 
+function reviewBucket(n) {
+  if (!n || n < 50) return null;
+  if (n >= 1000) return '1000+';
+  if (n >= 500) return '500+';
+  if (n >= 100) return '100+';
+  return '50+';
+}
+
 export default function MobileExplore({
   cafes,
   isSaved,
@@ -124,6 +132,7 @@ export default function MobileExplore({
 }
 
 function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist }) {
+  const bucket = reviewBucket(cafe.userRatingsTotal ?? cafe.reviewCount);
   return (
     <article className="grid-card" onClick={onOpen}>
       <div className="grid-card__photo">
@@ -133,19 +142,22 @@ function GridCard({ cafe, isSaved, onToggleSave, onOpen, showDist }) {
           <div className="grid-card__placeholder" />
         )}
         <div className="grid-card__overlay">
-          {cafe.rating != null && (
-            <span className="grid-card__rating">
-              <StarIcon />
-              {cafe.rating.toFixed(1)}
-            </span>
-          )}
           <div className="grid-card__info">
             <span className="grid-card__name">{cafe.name}</span>
-            <span className="grid-card__sub">
-              {showDist && cafe.distanceKm != null
-                ? formatDistance(cafe.distanceKm)
-                : cafe.suburb}
-            </span>
+            <div className="grid-card__bottom-row">
+              <span className="grid-card__sub">
+                {showDist && cafe.distanceKm != null
+                  ? formatDistance(cafe.distanceKm)
+                  : cafe.suburb}
+              </span>
+              {cafe.rating != null && (
+                <span className="grid-card__rating">
+                  <StarIcon />
+                  {cafe.rating.toFixed(1)}
+                  {bucket && <span className="grid-card__rcount">{bucket}</span>}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
