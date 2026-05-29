@@ -149,11 +149,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
             {/* ── Actions ── */}
             <div className="detail__actions">
-              {cafe.instagram && (
-                <a className="detail__btn" href={cafe.instagram} target="_blank" rel="noreferrer">
-                  <InstagramIcon /> Instagram
-                </a>
-              )}
               <a
                 className="detail__btn detail__btn--primary"
                 href={cafe.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`}
