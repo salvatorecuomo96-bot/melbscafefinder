@@ -161,11 +161,7 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               )}
               <a
                 className="detail__btn detail__btn--primary"
-                href={
-                  cafe.latitude && cafe.latitude !== 0
-                    ? `https://maps.google.com/?q=${cafe.latitude},${cafe.longitude}`
-                    : `https://maps.google.com/?q=${encodeURIComponent(cafe.name + ' ' + cafe.suburb + ' Melbourne')}`
-                }
+                href={cafe.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${cafe.name} ${cafe.address}`)}`}
                 target="_blank"
                 rel="noreferrer"
               >
