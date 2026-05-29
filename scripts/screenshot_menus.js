@@ -77,7 +77,9 @@ async function findMenuPage(page, baseUrl) {
 }
 
 async function screenshotPage(page, url) {
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: NAV_TIMEOUT });
+  // Use domcontentloaded + short wait instead of networkidle2 (which hangs on analytics/ads forever)
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+  await new Promise(r => setTimeout(r, 1500));
 
   // Dismiss cookie banners and popups
   await page.evaluate(() => {
@@ -123,6 +125,22 @@ async function processOne(browser, cafe, progress) {
   const id = cafe.id;
   if (progress[id] !== undefined) return; // already done (even if null = no menu found)
 
+  // Hard 30s timeout per cafe — prevents one slow site freezing the whole run
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('cafe timeout')), 30000));
+
+  let page;
+  try {
+    await Promise.race([_processOneCafe(browser, cafe, progress), timeout]);
+    return;
+  } catch (err) {
+    progress[id] = null;
+    console.log(`✗ ${cafe.name}: ${err.message?.substring(0, 60)}`);
+    return;
+  }
+}
+
+async function _processOneCafe(browser, cafe, progress) {
+  const id = cafe.id;
   let page;
   try {
     page = await browser.newPage();
