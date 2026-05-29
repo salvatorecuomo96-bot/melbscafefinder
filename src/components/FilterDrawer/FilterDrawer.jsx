@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   RELIABLE_SECTIONS,
   CLUE_SECTIONS,
@@ -22,6 +22,8 @@ export default function FilterDrawer({ open, onClose, api }) {
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const [cluesOpen, setCluesOpen] = useState(false);
 
   const {
     filters, filterCounts,
@@ -105,29 +107,38 @@ export default function FilterDrawer({ open, onClose, api }) {
             />
           </section>
 
-          {/* ── People mention ── */}
-          <div className="drawer__group-header drawer__group-header--clues">
-            <span className="drawer__group-label">People mention</span>
-            <span className="drawer__group-sub">From websites — not guaranteed</span>
-          </div>
+          {/* ── People mention (collapsible) ── */}
+          <button
+            className={`drawer__clues-toggle${cluesOpen ? ' is-open' : ''}`}
+            onClick={() => setCluesOpen((o) => !o)}
+            aria-expanded={cluesOpen}
+          >
+            <span className="drawer__clues-toggle-label">
+              <span className="drawer__clues-toggle-title">Mentioned in reviews</span>
+              <span className="drawer__clues-toggle-sub">Vibes, food, coffee, atmosphere</span>
+            </span>
+            <ChevronIcon />
+          </button>
 
-          <div className="drawer__clue-sections">
-            {CLUE_SECTIONS.map((section) => (
-              <SectionBody
-                key={section.id}
-                section={section}
-                filters={filters}
-                filterCounts={filterCounts}
-                toggleBoolean={toggleBoolean}
-                toggleEnum={toggleEnum}
-                toggleCoffeeBrand={toggleCoffeeBrand}
-                togglePriceLevel={togglePriceLevel}
-                boolCount={boolCount}
-                enumCount={enumCount}
-                brandCount={brandCount}
-              />
-            ))}
-          </div>
+          {cluesOpen && (
+            <div className="drawer__clue-sections">
+              {CLUE_SECTIONS.map((section) => (
+                <SectionBody
+                  key={section.id}
+                  section={section}
+                  filters={filters}
+                  filterCounts={filterCounts}
+                  toggleBoolean={toggleBoolean}
+                  toggleEnum={toggleEnum}
+                  toggleCoffeeBrand={toggleCoffeeBrand}
+                  togglePriceLevel={togglePriceLevel}
+                  boolCount={boolCount}
+                  enumCount={enumCount}
+                  brandCount={brandCount}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <footer className="drawer__foot">
@@ -235,6 +246,14 @@ function SectionBody({ section, filters, filterCounts, toggleBoolean, toggleEnum
         </div>
       )}
     </section>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   );
 }
 
