@@ -67,6 +67,24 @@ async def check_cafe(page, cafe: dict) -> str:
         return f"error:{str(e)[:60]}"
 
 
+def remove_from_cafes(cafe_id: str, name: str, reason: str):
+    """Remove a cafe from cafes.json immediately and save."""
+    try:
+        cafes_list = json.loads(CAFES_FILE.read_text(encoding="utf-8"))
+        before = len(cafes_list)
+        cafes_list = [c for c in cafes_list if c["id"] != cafe_id]
+        if len(cafes_list) < before:
+            CAFES_FILE.write_text(
+                json.dumps(cafes_list, ensure_ascii=False, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            print(f"  -> REMOVED from cafes.json: {name} ({reason})", flush=True)
+        else:
+            print(f"  -> Already removed: {name}", flush=True)
+    except Exception as e:
+        print(f"  -> ERROR removing {name}: {e}", flush=True)
+
+
 async def main():
     cafes = json.loads(CAFES_FILE.read_text(encoding="utf-8"))
 
@@ -108,8 +126,10 @@ async def main():
             flag = ""
             if status == "permanently_closed":
                 flag = " *** PERMANENTLY CLOSED ***"
+                remove_from_cafes(cafe["id"], cafe["name"], "permanently closed")
             elif status == "temporarily_closed":
                 flag = " ** TEMPORARILY CLOSED **"
+                remove_from_cafes(cafe["id"], cafe["name"], "temporarily closed")
             elif status.startswith("error"):
                 flag = f" [ERR]"
 
@@ -140,6 +160,9 @@ async def main():
     # Final save
     PROGRESS_FILE.write_text(json.dumps(progress, indent=2), encoding="utf-8")
 
+    # Reload cafes after all removals
+    cafes = json.loads(CAFES_FILE.read_text(encoding="utf-8"))
+
     # Write clean results summary
     permanently = [{"id": k, "name": next((c["name"] for c in cafes if c["id"] == k), k), "suburb": next((c["suburb"] for c in cafes if c["id"] == k), "")} for k, v in progress.items() if v == "permanently_closed"]
     temporarily = [{"id": k, "name": next((c["name"] for c in cafes if c["id"] == k), k), "suburb": next((c["suburb"] for c in cafes if c["id"] == k), "")} for k, v in progress.items() if v == "temporarily_closed"]
@@ -151,7 +174,7 @@ async def main():
         "errors": errors,
         "summary": {
             "total": total,
-            "operational": total - len(permanently) - len(temporarily),
+            "operational": len(cafes),
             "permanently_closed": len(permanently),
             "temporarily_closed": len(temporarily),
             "errors": len(errors),
@@ -160,8 +183,8 @@ async def main():
     RESULTS_FILE.write_text(json.dumps(results, indent=2), encoding="utf-8")
 
     print("\n=== DONE ===")
-    print(f"Permanently closed: {len(permanently)}")
-    print(f"Temporarily closed: {len(temporarily)}")
+    print(f"Permanently closed (removed): {len(permanently)}")
+    print(f"Temporarily closed (removed): {len(temporarily)}")
     print(f"Errors: {len(errors)}")
     print(f"Results saved to {RESULTS_FILE}")
 
