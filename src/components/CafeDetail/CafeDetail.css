@@ -321,22 +321,6 @@
   color: var(--color-accent);
 }
 
-/* ── Menu text ── */
-.detail__menu {
-  margin-top: 20px;
-}
-.detail__menu-text {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-ink-soft);
-  white-space: pre-wrap;
-  max-height: 280px;
-  overflow-y: auto;
-  background: var(--color-surface-2);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  margin: 10px 0 0;
-}
 
 /* ── Desktop ── */
 @media (min-width: 720px) {

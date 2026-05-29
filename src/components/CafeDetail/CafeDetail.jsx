@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { priceLabel, openStatus } from '../../utils/format.js';
 import { formatDistance } from '../../utils/distance.js';
 import Lightbox from '../Lightbox/Lightbox.jsx';
@@ -7,8 +7,6 @@ import './CafeDetail.css';
 export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const [copied, setCopied]           = useState(false);
-  const [menuOpen, setMenuOpen]       = useState(false);
-  const menuRef                       = useRef(null);
 
   const handleShare = () => {
     const url = `${window.location.origin}${window.location.pathname}?cafe=${cafe.id}`;
@@ -152,26 +150,8 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
                   <PhoneIcon /> Call
                 </a>
               )}
-              {cafe.menuText && (
-                <button
-                  className={`detail__btn${menuOpen ? ' is-active' : ''}`}
-                  onClick={() => {
-                    setMenuOpen((o) => !o);
-                    if (!menuOpen) setTimeout(() => menuRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
-                  }}
-                >
-                  <MenuIcon /> Menu
-                </button>
-              )}
             </div>
 
-            {/* ── Menu text ── */}
-            {cafe.menuText && menuOpen && (
-              <section className="detail__section detail__menu" ref={menuRef}>
-                <span className="detail__hours-label">Menu</span>
-                <p className="detail__menu-text">{cafe.menuText}</p>
-              </section>
-            )}
           </div>
         </div>
       </div>
@@ -240,13 +220,6 @@ function CheckIcon() {
   );
 }
 
-function MenuIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/>
-    </svg>
-  );
-}
 
 function HeartIcon({ filled }) {
   return (
