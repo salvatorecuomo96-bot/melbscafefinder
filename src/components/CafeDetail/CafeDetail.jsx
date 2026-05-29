@@ -35,6 +35,7 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
 
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
   const images = cafe.images || [];
+  const menuImages = cafe.menuImages || [];
 
   const days = [
     ['mon','Mon'],['tue','Tue'],['wed','Wed'],
@@ -110,6 +111,18 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
             {/* ── Description ── */}
             {cafe.shortDescription && (
               <p className="detail__desc">{cafe.shortDescription}</p>
+            )}
+
+            {/* ── Menu ── */}
+            {menuImages.length > 0 && (
+              <section className="detail__menu">
+                <span className="detail__menu-label">Menu</span>
+                <div className="detail__menu-scroll">
+                  {menuImages.map((src, i) => (
+                    <img key={i} src={src} alt={`${cafe.name} menu ${i + 1}`} loading="lazy" />
+                  ))}
+                </div>
+              </section>
             )}
 
             {/* ── Hours ── */}
