@@ -14,29 +14,35 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
-.simple-pin {
-  width: 26px;
-  height: 26px;
-  background: white;
-  border: 2px solid #111;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.18);
+/* ── Cluster HTML markers (cluster.png + overlaid count) ── */
+.cluster-marker {
+  position: relative;
+  width: 60px;
+  height: 60px;
   cursor: pointer;
 }
-
-.simple-pin__inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.cluster-marker img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-
-.simple-pin__rating {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #111;
+/* Count number — positioned over the circular boiler body of the mokapot */
+.cluster-count {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1;
+  font-family: system-ui, -apple-system, sans-serif;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
 }
 
 .simple-user-dot {
