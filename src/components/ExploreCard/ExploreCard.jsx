@@ -2,12 +2,17 @@ import { formatDistance } from '../../utils/distance.js';
 import { priceLabel } from '../../utils/format.js';
 import './ExploreCard.css';
 
+function cloudinaryImprove(url) {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  return url.replace('/upload/', '/upload/e_improve,q_auto,f_auto/');
+}
+
 export default function ExploreCard({ cafe, isSaved, onToggleSave, onOpen }) {
 
   return (
     <article className="explore-card" onClick={onOpen}>
       <div className="explore-card__photo">
-        <img src={cafe.images?.[0]} alt={cafe.name} loading="lazy" />
+        <img src={cloudinaryImprove(cafe.images?.[0])} alt={cafe.name} loading="lazy" />
       </div>
 
       <div className="explore-card__body">

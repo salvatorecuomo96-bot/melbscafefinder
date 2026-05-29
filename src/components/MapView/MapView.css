@@ -14,28 +14,31 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
-/* ── Cluster HTML markers (cluster.png as background-image + count overlay) ── */
+/* ── Cluster HTML markers ── */
 .cluster-marker {
   position: relative;
-  width: 84px;
-  height: 84px;
-  background-image: url('/cluster.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  width: 54px;
+  height: 54px;
+  background: transparent;
   cursor: pointer;
 }
-/* Count number — measured at 54% x, 40% y (upper clean collector area) */
+.cluster-marker img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
 .cluster-count {
   position: absolute;
-  left: 54%;
-  top: 40%;
+  left: 50%;
+  top: 43%;
   transform: translate(-50%, -50%);
   color: #111111;
   font-weight: 900;
   line-height: 1;
   text-align: center;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: Arial, system-ui, sans-serif;
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
