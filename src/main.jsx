@@ -6,10 +6,13 @@ import './index.css';
 
 inject();
 
-// Reload page whenever a new service worker takes over — ensures fresh assets
-// are served immediately instead of waiting for the user to manually refresh.
+// Reload once when a new service worker takes over. Guard prevents cascade
+// if multiple SW versions are queued (would otherwise loop).
 if ('serviceWorker' in navigator) {
+  let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
     window.location.reload();
   });
 }

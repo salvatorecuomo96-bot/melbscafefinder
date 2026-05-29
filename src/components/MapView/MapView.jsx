@@ -10,8 +10,8 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// cup.png is 1254×1254px; display at 36px logical (1254/36 ≈ 35 pixelRatio)
-const CUP_DISPLAY_PX = 36;
+// cup.png is 1254×1254px; display at 144px logical (1254/144 ≈ 9 pixelRatio)
+const CUP_DISPLAY_PX = 144;
 
 function buildGeoJSON(cafes) {
   return {
@@ -32,7 +32,7 @@ function loadMapboxImage(map, url) {
 
 function makeClusterEl(clusterId, count) {
   const label = count > 999 ? '999+' : String(count);
-  const fontSize = label.length === 1 ? 15 : label.length === 2 ? 14 : label.length === 3 ? 12 : 10;
+  const fontSize = label.length === 1 ? 20 : label.length === 2 ? 18 : label.length === 3 ? 15 : 12;
   const el = document.createElement('div');
   el.className = 'cluster-marker';
   el.dataset.clusterId = String(clusterId);
@@ -64,7 +64,7 @@ function updateClusterMarkers(map, clusterMarkersRef) {
       if (countEl) {
         const label = count > 999 ? '999+' : String(count);
         countEl.textContent = label;
-        countEl.style.fontSize = (label.length === 1 ? 15 : label.length === 2 ? 14 : label.length === 3 ? 12 : 10) + 'px';
+        countEl.style.fontSize = (label.length === 1 ? 20 : label.length === 2 ? 18 : label.length === 3 ? 15 : 12) + 'px';
       }
     } else {
       const el = makeClusterEl(id, count);
