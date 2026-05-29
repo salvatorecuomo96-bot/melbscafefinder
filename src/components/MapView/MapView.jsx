@@ -21,24 +21,8 @@ function buildGeoJSON(cafes) {
   };
 }
 
-// cup.png and cluster.png are 1254×1254px — loaded from /public
-function loadImages(map) {
-  const load = (name, src) => new Promise((resolve) => {
-    map.loadImage(src, (err, img) => {
-      if (!err && !map.hasImage(name)) map.addImage(name, img);
-      resolve();
-    });
-  });
-  return Promise.all([
-    load('cup-marker', '/cup.png'),
-    load('cluster-marker', '/cluster.png'),
-  ]);
-}
-
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
-
-  await loadImages(map);
 
   map.addSource('cafes', {
     type: 'geojson',
@@ -48,40 +32,42 @@ async function addLayers(map, cafes) {
     clusterRadius: 40,
   });
 
-  // Cluster: mokapot icon + count badge at bottom-right
   map.addLayer({
     id: 'clusters',
+    type: 'circle',
+    source: 'cafes',
+    filter: ['has', 'point_count'],
+    paint: {
+      'circle-color': '#1a1a1a',
+      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#fff',
+    },
+  });
+
+  map.addLayer({
+    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
-      'icon-image': 'cluster-marker',
-      'icon-size': 0.044,   // renders ~55px from 1254px source
-      'icon-allow-overlap': true,
-      'icon-anchor': 'center',
       'text-field': '{point_count_abbreviated}',
-      'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
-      'text-size': 11,
-      'text-anchor': 'center',
-      'text-offset': [1.3, 1.3], // positions count in bottom-right badge circle
-      'text-allow-overlap': true,
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12,
     },
-    paint: {
-      'text-color': '#ffffff',
-    },
+    paint: { 'text-color': '#fff' },
   });
 
-  // Individual cafe pins
   map.addLayer({
     id: 'pins',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
-    layout: {
-      'icon-image': 'cup-marker',
-      'icon-size': 0.032,   // renders ~40px from 1254px source
-      'icon-allow-overlap': true,
-      'icon-anchor': 'bottom',
+    paint: {
+      'circle-color': '#6b3a2a',
+      'circle-radius': 7,
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#fff',
     },
   });
 }
