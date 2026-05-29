@@ -263,6 +263,12 @@
   color: #0a0804;
 }
 
+.detail__hours-unavailable {
+  font-size: 13px;
+  color: var(--color-ink-mute, #aaa);
+  margin: 8px 0 0;
+}
+
 .detail__hours {
   width: 100%;
   border-collapse: collapse;

@@ -41,6 +41,11 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
     ['thu','Thu'],['fri','Fri'],['sat','Sat'],['sun','Sun'],
   ];
 
+  const hoursKnown = days.some(([k]) => {
+    const v = cafe.openingHours?.[k];
+    return v && v.toLowerCase() !== 'closed';
+  });
+
   return (
     <>
       <div className="detail" onClick={onClose} role="dialog" aria-modal="true" aria-label={cafe.name}>
@@ -126,16 +131,20 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
                   </button>
                 </div>
               </div>
-              <table className="detail__hours">
-                <tbody>
-                  {days.map(([k, label]) => (
-                    <tr key={k}>
-                      <th>{label}</th>
-                      <td>{cafe.openingHours?.[k] || 'Closed'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {hoursKnown ? (
+                <table className="detail__hours">
+                  <tbody>
+                    {days.map(([k, label]) => (
+                      <tr key={k}>
+                        <th>{label}</th>
+                        <td>{cafe.openingHours?.[k] || 'Closed'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="detail__hours-unavailable">Hours not available</p>
+              )}
             </section>
 
             {/* ── Actions ── */}
