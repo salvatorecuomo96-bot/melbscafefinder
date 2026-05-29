@@ -153,26 +153,23 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px 10px;
+  padding: 7px 10px;
   border-radius: var(--radius-pill);
   font-size: 13px;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  background: var(--color-surface-2, #f3f0ea);
+  border: 1.5px solid transparent;
+  box-shadow: none;
   color: var(--color-ink-soft);
   transition: all 120ms ease;
   white-space: nowrap;
 }
-.layout__action-btn:hover:not(:disabled) { color: var(--color-ink); border-color: #b8b0a0; }
+.layout__action-btn:hover:not(:disabled) { color: var(--color-ink); }
 .layout__action-btn:disabled { opacity: 0.6; cursor: default; }
 .layout__action-btn.is-active {
   background: var(--color-accent);
   color: #fff;
   border-color: var(--color-accent);
-  backdrop-filter: none;
 }
 
 .layout__action-badge {

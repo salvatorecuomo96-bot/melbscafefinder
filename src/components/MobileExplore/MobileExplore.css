@@ -63,30 +63,26 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 9px 16px;
+  padding: 7px 14px;
   border-radius: var(--radius-pill);
-  font-size: 13.5px;
-  font-weight: 600;
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-surface-2, #f3f0ea);
+  border: 1.5px solid transparent;
   color: var(--color-ink-soft);
   transition: all 120ms ease;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
 }
-.mexplore__btn:hover:not(:disabled) {
-  color: var(--color-ink);
-  border-color: #b8b0a0;
-}
+.mexplore__btn:hover:not(:disabled) { color: var(--color-ink); }
 .mexplore__btn:disabled { opacity: 0.6; cursor: default; }
 .mexplore__btn.is-active {
   background: var(--color-accent);
   color: #fff;
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 .mexplore__badge {
