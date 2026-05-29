@@ -52,14 +52,17 @@ def classify(text: str) -> str:
 
 
 async def check_cafe(page, cafe: dict) -> str:
-    place_id = extract_place_id(cafe.get("googleMapsUrl", ""))
-    if not place_id:
-        return "no_place_id"
+    maps_url = cafe.get("googleMapsUrl", "")
+    if not maps_url:
+        name = cafe.get("name", "")
+        suburb = cafe.get("suburb", "")
+        maps_url = f"https://www.google.com/maps/search/?api=1&query={name}+{suburb}+Melbourne"
 
-    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}"
+    place_id = extract_place_id(maps_url)
+    url = f"https://www.google.com/maps/place/?q=place_id:{place_id}" if place_id else maps_url
+
     try:
         await page.goto(url, wait_until="domcontentloaded", timeout=20000)
-        # Wait for main content to render
         await page.wait_for_timeout(2500)
         text = await page.evaluate("document.body.innerText")
         return classify(text)
