@@ -17,8 +17,8 @@
 /* ── Cluster HTML markers (cluster.png as background-image + count overlay) ── */
 .cluster-marker {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   background-image: url('/cluster.png');
   background-size: contain;
   background-repeat: no-repeat;
