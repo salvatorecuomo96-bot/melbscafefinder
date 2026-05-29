@@ -25,11 +25,11 @@
   background-position: center;
   cursor: pointer;
 }
-/* Count number — measured at 51.3% x, 57.3% y (boiler circle centroid) */
+/* Count number — measured at 54% x, 40% y (upper clean collector area) */
 .cluster-count {
   position: absolute;
-  left: 51%;
-  top: 57%;
+  left: 54%;
+  top: 40%;
   transform: translate(-50%, -50%);
   color: #111111;
   font-weight: 900;

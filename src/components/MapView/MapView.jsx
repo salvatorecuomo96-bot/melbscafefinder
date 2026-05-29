@@ -92,10 +92,16 @@ function updateClusterMarkers(map, clusterMarkersRef) {
 }
 
 async function addLayers(map, cafes, clusterMarkersRef) {
-  // Register render listener once — persists across style reloads
-  if (!map._clusterRenderListenerAdded) {
-    map.on('render', () => updateClusterMarkers(map, clusterMarkersRef));
-    map._clusterRenderListenerAdded = true;
+  // Register cluster update listeners once — use moveend/zoomend/sourcedata
+  // instead of render to avoid fighting Mapbox's own per-frame positioning
+  if (!map._clusterListenersAdded) {
+    const update = () => updateClusterMarkers(map, clusterMarkersRef);
+    map.on('moveend',  update);
+    map.on('zoomend',  update);
+    map.on('sourcedata', (e) => {
+      if (e.sourceId === 'cafes' && e.isSourceLoaded) update();
+    });
+    map._clusterListenersAdded = true;
   }
 
   if (map.getSource('cafes')) return;
