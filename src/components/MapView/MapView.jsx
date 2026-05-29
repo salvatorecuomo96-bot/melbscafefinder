@@ -10,6 +10,73 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
+// Module-level image cache — loaded once, reused across style reloads
+let _cupImg     = null;
+let _clusterImg = null;
+
+function loadHTMLImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function ensureImagesLoaded() {
+  if (_cupImg && _clusterImg) return;
+  [_cupImg, _clusterImg] = await Promise.all([
+    loadHTMLImage('/cup.png'),
+    loadHTMLImage('/cluster.png'),
+  ]);
+}
+
+// Cup pin icon — map-pin shape with coffee cup
+function makeCupIconData() {
+  const S = 80; // 80px canvas @pixelRatio:2 → 40px logical
+  const canvas = document.createElement('canvas');
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(_cupImg, 0, 0, S, S);
+  return ctx.getImageData(0, 0, S, S);
+}
+
+// Cluster icon — mokapot with count number drawn into the badge circle
+function makeClusterIconData(count) {
+  const S = 140; // 140px canvas @pixelRatio:2 → 70px logical
+  const canvas = document.createElement('canvas');
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext('2d');
+
+  // Draw base mokapot image
+  ctx.drawImage(_clusterImg, 0, 0, S, S);
+
+  // Badge circle position — bottom-right of mokapot in cluster.png
+  // Measured at ~75% from left, ~82% from top, radius ~10.5% of image
+  const bx = Math.round(S * 0.75);
+  const by = Math.round(S * 0.82);
+  const br = Math.round(S * 0.105) + 1; // +1 to fully cover the decorative circle
+
+  // Fill badge with white
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(bx, by, br, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Count label
+  const label = count > 999 ? '999+' : String(count);
+  const fs = label.length > 2
+    ? Math.round(br * 0.75)
+    : Math.round(br * 1.0);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = `800 ${fs}px system-ui, -apple-system, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, bx, by);
+
+  return ctx.getImageData(0, 0, S, S);
+}
+
 function buildGeoJSON(cafes) {
   return {
     type: 'FeatureCollection',
@@ -24,6 +91,24 @@ function buildGeoJSON(cafes) {
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
 
+  await ensureImagesLoaded();
+
+  // Register cup icon
+  if (!map.hasImage('pin-cup')) {
+    map.addImage('pin-cup', makeCupIconData(), { pixelRatio: 2 });
+  }
+
+  // Dynamic cluster icons: generated on demand via styleimagemissing
+  if (!map._clusterIconListenerAdded) {
+    map.on('styleimagemissing', (e) => {
+      if (!e.id.startsWith('cluster-n-')) return;
+      const count = parseInt(e.id.replace('cluster-n-', ''), 10);
+      if (isNaN(count) || map.hasImage(e.id)) return;
+      map.addImage(e.id, makeClusterIconData(count), { pixelRatio: 2 });
+    });
+    map._clusterIconListenerAdded = true;
+  }
+
   map.addSource('cafes', {
     type: 'geojson',
     data: buildGeoJSON(cafes),
@@ -32,42 +117,31 @@ async function addLayers(map, cafes) {
     clusterRadius: 40,
   });
 
+  // Cluster layer — mokapot icon with count in badge
   map.addLayer({
     id: 'clusters',
-    type: 'circle',
-    source: 'cafes',
-    filter: ['has', 'point_count'],
-    paint: {
-      'circle-color': '#1a1a1a',
-      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
-      'circle-stroke-width': 2,
-      'circle-stroke-color': '#fff',
-    },
-  });
-
-  map.addLayer({
-    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
-      'text-field': '{point_count_abbreviated}',
-      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      'text-size': 12,
+      'icon-image': ['concat', 'cluster-n-', ['to-string', ['get', 'point_count']]],
+      'icon-size': 1.0,
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
     },
-    paint: { 'text-color': '#fff' },
   });
 
+  // Individual cafe pin — cup icon
   map.addLayer({
     id: 'pins',
-    type: 'circle',
+    type: 'symbol',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
-    paint: {
-      'circle-color': '#6b3a2a',
-      'circle-radius': 7,
-      'circle-stroke-width': 1.5,
-      'circle-stroke-color': '#fff',
+    layout: {
+      'icon-image': 'pin-cup',
+      'icon-size': 1.0,
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
     },
   });
 }
@@ -77,8 +151,8 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   const mapRef        = useRef(null);
   const cafesRef      = useRef(cafes);
   const userMarkerRef = useRef(null);
-  const [ready, setReady]           = useState(false);
-  const [satellite, setSatellite]   = useState(false);
+  const [ready, setReady]         = useState(false);
+  const [satellite, setSatellite] = useState(false);
 
   useEffect(() => { cafesRef.current = cafes; }, [cafes]);
 
@@ -127,7 +201,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         hoverPopup = new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
-          offset: 14,
+          offset: 20,
           className: 'map-pin-tooltip',
         })
           .setLngLat(e.features[0].geometry.coordinates)
@@ -147,18 +221,22 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     return () => map.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Toggle satellite style — satellite is the only real trigger; ready guard handles early renders
+  // Toggle satellite
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => {
+      // Re-add cup image after style reload (custom images are cleared)
+      if (_cupImg && !map.hasImage('pin-cup')) {
+        map.addImage('pin-cup', makeCupIconData(), { pixelRatio: 2 });
+      }
       addLayers(map, cafesRef.current).catch(() => {});
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
 
-  // Add layers on first cafes load, then update data on subsequent changes
+  // Add/update layers when cafes change
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
@@ -203,17 +281,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         onClick={() => setSatellite((s) => !s)}
         aria-label={satellite ? 'Switch to map view' : 'Switch to satellite view'}
       >
-        {satellite ? (
-          <>
-            <MapIcon />
-            Map
-          </>
-        ) : (
-          <>
-            <SatelliteIcon />
-            Satellite
-          </>
-        )}
+        {satellite ? (<><MapIcon />Map</>) : (<><SatelliteIcon />Satellite</>)}
       </button>
     </div>
   );
