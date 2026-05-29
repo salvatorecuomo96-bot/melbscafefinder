@@ -280,3 +280,12 @@
   font-weight: 700;
   font-size: 14px;
 }
+
+@media (min-width: 640px) {
+  .drawer { align-items: center; }
+  .drawer__sheet {
+    border-radius: var(--radius-lg);
+    max-height: 82dvh;
+  }
+  .drawer__handle { display: none; }
+}
