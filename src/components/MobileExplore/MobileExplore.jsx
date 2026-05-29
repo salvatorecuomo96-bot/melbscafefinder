@@ -8,11 +8,12 @@ import './MobileExplore.css';
 const GRID_CAP = 80;
 
 function reviewBucket(n) {
-  if (!n || n < 50) return null;
+  if (!n || n < 10) return null;
   if (n >= 1000) return '1000+';
   if (n >= 500) return '500+';
   if (n >= 100) return '100+';
-  return '50+';
+  if (n >= 50) return '50+';
+  return '10+';
 }
 
 export default function MobileExplore({
