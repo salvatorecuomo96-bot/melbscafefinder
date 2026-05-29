@@ -31,6 +31,26 @@ CAFES_FILE = ROOT / "public" / "cafes.json"
 PROGRESS   = ROOT / "data"   / "menu_images_progress.json"
 LOG_FILE   = ROOT / "data"   / "menu_images_live.log"
 
+CBD_LAT, CBD_LNG = -37.8136, 144.9631
+MAX_KM = 10
+
+
+def _dist_km(lat1, lon1, lat2, lon2):
+    import math
+    R = 6371
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+    return R * 2 * math.asin(math.sqrt(a))
+
+
+def within_cbd(cafe):
+    lat = cafe.get("latitude") or 0
+    lng = cafe.get("longitude") or 0
+    if not lat or not lng:
+        return False
+    return _dist_km(CBD_LAT, CBD_LNG, lat, lng) <= MAX_KM
+
 # Load Cloudinary creds from .env
 def load_env():
     env_path = ROOT / "scraper" / ".env"
@@ -253,8 +273,8 @@ async def main():
 
     cafes = json.loads(CAFES_FILE.read_text(encoding="utf-8"))
 
-    # Only process cafes that don't already have menuImages
-    todo_all = [c for c in cafes if not c.get("menuImages")]
+    # Only process cafes within 10km of CBD that don't already have menuImages
+    todo_all = [c for c in cafes if within_cbd(c) and not c.get("menuImages")]
     prog = json.loads(PROGRESS.read_text(encoding="utf-8")) if PROGRESS.exists() else {}
     done = set(prog.keys())
     todo = [c for c in todo_all if c["id"] not in done]
