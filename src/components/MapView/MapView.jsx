@@ -10,9 +10,9 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-const PIN_DISPLAY_PX = 36;
-const CLUSTER_DISPLAY_PX = 58;
-const ICON_CANVAS_PX = 220;
+// Target on-map display sizes. The PNGs can be high-res; pixelRatio makes them render crisp.
+const CUP_DISPLAY_PX = 38;
+const CLUSTER_DISPLAY_PX = 62;
 
 function buildGeoJSON(cafes) {
   return {
@@ -25,241 +25,33 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function roundedRect(ctx, x, y, w, h, r) {
-  const radius = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + w, y, x + w, y + h, radius);
-  ctx.arcTo(x + w, y + h, x, y + h, radius);
-  ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
-  ctx.closePath();
+function loadMapboxImage(map, url) {
+  return new Promise((resolve, reject) => {
+    map.loadImage(url, (err, img) => {
+      if (err) reject(err);
+      else resolve(img);
+    });
+  });
 }
 
-function makeCanvasImage(draw) {
-  const canvas = document.createElement('canvas');
-  canvas.width = ICON_CANVAS_PX;
-  canvas.height = ICON_CANVAS_PX;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, ICON_CANVAS_PX, ICON_CANVAS_PX);
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-  draw(ctx);
-  return ctx.getImageData(0, 0, ICON_CANVAS_PX, ICON_CANVAS_PX);
-}
-
-function drawCafePin(ctx) {
-  const charcoal = '#202529';
-  const cream = '#fff6e4';
-  const coffee = '#8b4a17';
-
-  ctx.save();
-  ctx.translate(10, -2);
-
-  // Pin body. Drawn at high resolution on a transparent canvas, so no PNG square.
-  ctx.beginPath();
-  ctx.moveTo(100, 210);
-  ctx.bezierCurveTo(86, 190, 50, 146, 50, 88);
-  ctx.bezierCurveTo(50, 43, 78, 22, 110, 22);
-  ctx.bezierCurveTo(142, 22, 170, 43, 170, 88);
-  ctx.bezierCurveTo(170, 146, 134, 190, 100, 210);
-  ctx.closePath();
-  ctx.fillStyle = cream;
-  ctx.fill();
-  ctx.lineWidth = 12;
-  ctx.strokeStyle = charcoal;
-  ctx.stroke();
-
-  // Cup body.
-  ctx.beginPath();
-  ctx.moveTo(72, 86);
-  ctx.bezierCurveTo(74, 76, 88, 70, 110, 70);
-  ctx.bezierCurveTo(132, 70, 146, 76, 148, 86);
-  ctx.lineTo(141, 136);
-  ctx.bezierCurveTo(138, 154, 126, 164, 110, 164);
-  ctx.bezierCurveTo(94, 164, 82, 154, 79, 136);
-  ctx.closePath();
-  ctx.fillStyle = charcoal;
-  ctx.fill();
-
-  // Cup rim and coffee.
-  ctx.beginPath();
-  ctx.ellipse(110, 88, 39, 15, 0, 0, Math.PI * 2);
-  ctx.fillStyle = cream;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(110, 88, 30, 9, 0, 0, Math.PI * 2);
-  ctx.fillStyle = coffee;
-  ctx.fill();
-
-  // Inner cup highlights.
-  ctx.beginPath();
-  ctx.moveTo(86, 102);
-  ctx.lineTo(91, 134);
-  ctx.bezierCurveTo(94, 145, 101, 151, 110, 151);
-  ctx.bezierCurveTo(119, 151, 126, 145, 129, 134);
-  ctx.lineTo(134, 102);
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = cream;
-  ctx.stroke();
-
-  // Handle.
-  ctx.beginPath();
-  ctx.moveTo(148, 104);
-  ctx.lineTo(160, 104);
-  ctx.bezierCurveTo(174, 104, 182, 114, 182, 128);
-  ctx.bezierCurveTo(182, 143, 171, 153, 158, 153);
-  ctx.lineTo(145, 153);
-  ctx.lineWidth = 11;
-  ctx.strokeStyle = charcoal;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(150, 116);
-  ctx.lineTo(158, 116);
-  ctx.bezierCurveTo(165, 116, 169, 121, 169, 128);
-  ctx.bezierCurveTo(169, 135, 164, 140, 157, 140);
-  ctx.lineTo(148, 140);
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = cream;
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-function drawClusterIcon(ctx) {
-  const charcoal = '#202529';
-  const cream = '#fff6e4';
-
-  // Main disc.
-  ctx.beginPath();
-  ctx.arc(110, 110, 98, 0, Math.PI * 2);
-  ctx.fillStyle = charcoal;
-  ctx.fill();
-
-  ctx.save();
-  ctx.translate(10, 8);
-
-  // Simplified moka pot: bold, readable, and with a clean central count panel.
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = charcoal;
-  ctx.fillStyle = cream;
-
-  // Knob.
-  ctx.beginPath();
-  ctx.moveTo(86, 28);
-  ctx.lineTo(124, 28);
-  ctx.lineTo(130, 47);
-  ctx.lineTo(80, 47);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Lid.
-  ctx.beginPath();
-  ctx.moveTo(56, 66);
-  ctx.lineTo(82, 47);
-  ctx.lineTo(124, 47);
-  ctx.lineTo(150, 66);
-  ctx.lineTo(135, 78);
-  ctx.lineTo(71, 78);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Spout.
-  ctx.beginPath();
-  ctx.moveTo(67, 78);
-  ctx.lineTo(42, 90);
-  ctx.lineTo(67, 101);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Upper chamber.
-  ctx.beginPath();
-  ctx.moveTo(70, 76);
-  ctx.lineTo(136, 76);
-  ctx.lineTo(127, 126);
-  ctx.lineTo(79, 126);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Blank central count panel. The Mapbox text layer sits over this.
-  roundedRect(ctx, 79, 83, 48, 36, 9);
-  ctx.fillStyle = cream;
-  ctx.fill();
-
-  // Waist.
-  ctx.fillStyle = cream;
-  ctx.beginPath();
-  ctx.moveTo(76, 124);
-  ctx.lineTo(130, 124);
-  ctx.lineTo(133, 142);
-  ctx.lineTo(73, 142);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Bottom chamber.
-  ctx.beginPath();
-  ctx.moveTo(72, 140);
-  ctx.lineTo(134, 140);
-  ctx.lineTo(145, 178);
-  ctx.bezierCurveTo(120, 190, 88, 190, 61, 178);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  // Handle.
-  ctx.beginPath();
-  ctx.moveTo(144, 72);
-  ctx.bezierCurveTo(170, 70, 184, 87, 179, 109);
-  ctx.bezierCurveTo(176, 128, 164, 144, 151, 155);
-  ctx.lineWidth = 16;
-  ctx.strokeStyle = cream;
-  ctx.stroke();
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = charcoal;
-  ctx.stroke();
-
-  // Simple structure lines, kept away from the number panel.
-  ctx.beginPath();
-  ctx.moveTo(82, 48);
-  ctx.lineTo(77, 75);
-  ctx.moveTo(124, 48);
-  ctx.lineTo(130, 75);
-  ctx.moveTo(88, 144);
-  ctx.lineTo(84, 178);
-  ctx.moveTo(118, 144);
-  ctx.lineTo(122, 178);
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = charcoal;
-  ctx.stroke();
-
-  // Valve.
-  ctx.beginPath();
-  ctx.arc(78, 160, 7, 0, Math.PI * 2);
-  ctx.fillStyle = charcoal;
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function ensureMapImages(map) {
+async function ensureMapImages(map) {
   if (!map.hasImage('cafe-pin')) {
-    map.addImage('cafe-pin', makeCanvasImage(drawCafePin), { pixelRatio: ICON_CANVAS_PX / PIN_DISPLAY_PX });
+    const cupImg = await loadMapboxImage(map, '/cup.png');
+    const imgW = cupImg.naturalWidth || cupImg.width || 512;
+    map.addImage('cafe-pin', cupImg, { pixelRatio: imgW / CUP_DISPLAY_PX });
   }
+
   if (!map.hasImage('cluster-moka')) {
-    map.addImage('cluster-moka', makeCanvasImage(drawClusterIcon), { pixelRatio: ICON_CANVAS_PX / CLUSTER_DISPLAY_PX });
+    const clusterImg = await loadMapboxImage(map, '/cluster.png');
+    const imgW = clusterImg.naturalWidth || clusterImg.width || 512;
+    map.addImage('cluster-moka', clusterImg, { pixelRatio: imgW / CLUSTER_DISPLAY_PX });
   }
 }
 
-function addLayers(map, cafes) {
+async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
 
-  ensureMapImages(map);
+  await ensureMapImages(map);
 
   map.addSource('cafes', {
     type: 'geojson',
@@ -269,7 +61,7 @@ function addLayers(map, cafes) {
     clusterRadius: 42,
   });
 
-  // Native Mapbox cluster icon layer. No DOM markers, so clusters cannot drift or jump.
+  // Cluster image layer. Native Mapbox symbol layers do not drift or jump like DOM markers.
   map.addLayer({
     id: 'clusters',
     type: 'symbol',
@@ -277,14 +69,16 @@ function addLayers(map, cafes) {
     filter: ['has', 'point_count'],
     layout: {
       'icon-image': 'cluster-moka',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.9, 13, 1.0, 16, 1.08],
       'icon-anchor': 'center',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.9, 12, 1.0, 16, 1.08],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
       'icon-padding': 0,
     },
   });
 
+  // Cluster number as locked native Mapbox text, centered over the cluster icon.
+  // Tune text-offset if the cream count area in cluster.png moves.
   map.addLayer({
     id: 'cluster-counts',
     type: 'symbol',
@@ -295,24 +89,24 @@ function addLayers(map, cafes) {
       'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
       'text-size': [
         'case',
-        ['<', ['get', 'point_count'], 10], 15,
-        ['<', ['get', 'point_count'], 100], 14,
-        11,
+        ['<', ['get', 'point_count'], 10], 16,
+        ['<', ['get', 'point_count'], 100], 15,
+        12,
       ],
       'text-anchor': 'center',
-      'text-offset': [0, -0.08],
+      'text-offset': [0, -0.04],
       'text-allow-overlap': true,
       'text-ignore-placement': true,
       'text-padding': 0,
     },
     paint: {
       'text-color': '#111111',
-      'text-halo-color': '#fff6e4',
-      'text-halo-width': 0.5,
+      'text-halo-color': 'rgba(255, 246, 228, 0.9)',
+      'text-halo-width': 0.4,
     },
   });
 
-  // Individual cafe pins. Native Mapbox symbol layer = stable and fast for 2000+ cafes.
+  // Individual cafe pins.
   map.addLayer({
     id: 'pins',
     type: 'symbol',
@@ -321,11 +115,19 @@ function addLayers(map, cafes) {
     layout: {
       'icon-image': 'cafe-pin',
       'icon-anchor': 'bottom',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.7, 12, 0.85, 14, 1.0, 17, 1.08],
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.64, 11.5, 0.78, 14, 1.0, 17, 1.08],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
       'icon-padding': 0,
     },
+  });
+}
+
+function expandCluster(map, feature) {
+  const clusterId = feature.properties.cluster_id;
+  const coords = feature.geometry.coordinates.slice();
+  map.getSource('cafes').getClusterExpansionZoom(clusterId, (err, zoom) => {
+    if (!err) map.easeTo({ center: coords, zoom });
   });
 }
 
@@ -357,24 +159,22 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
-    map.on('load', () => {
+    map.on('load', async () => {
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (cafe && typeof onSelect === 'function') onSelect(cafe);
       });
 
-      map.on('click', 'clusters', (e) => {
-        const feature = e.features[0];
-        const clusterId = feature.properties.cluster_id;
-        const coords = feature.geometry.coordinates.slice();
-        map.getSource('cafes').getClusterExpansionZoom(clusterId, (err, zoom) => {
-          if (!err) map.easeTo({ center: coords, zoom });
-        });
-      });
+      map.on('click', 'clusters', (e) => expandCluster(map, e.features[0]));
+      map.on('click', 'cluster-counts', (e) => expandCluster(map, e.features[0]));
 
-      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
+      const setPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
+      const clearPointer = () => { map.getCanvas().style.cursor = ''; };
+      map.on('mouseenter', 'clusters', setPointer);
+      map.on('mouseleave', 'clusters', clearPointer);
+      map.on('mouseenter', 'cluster-counts', setPointer);
+      map.on('mouseleave', 'cluster-counts', clearPointer);
 
       let hoverPopup = null;
       map.on('mouseenter', 'pins', (e) => {
@@ -398,7 +198,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         hoverPopup = null;
       });
 
-      addLayers(map, cafesRef.current);
+      await addLayers(map, cafesRef.current);
       setReady(true);
     });
 
@@ -416,7 +216,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => {
-      addLayers(map, cafesRef.current);
+      addLayers(map, cafesRef.current).catch(() => {});
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
@@ -428,7 +228,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     if (map.getSource('cafes')) {
       map.getSource('cafes').setData(buildGeoJSON(cafes));
     } else if (cafes.length > 0) {
-      addLayers(map, cafes);
+      addLayers(map, cafes).catch(() => {});
     }
   }, [cafes, ready]);
 
