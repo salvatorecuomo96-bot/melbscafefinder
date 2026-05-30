@@ -1,18 +1,10 @@
 /**
  * google_find_instagram.js
- * Finds missing Instagram + Facebook for cafes using Google Custom Search API.
+ * Finds missing Instagram + Facebook for cafes using Serper.dev (Google results).
  * Resumable via data/google_ig_progress.json
  *
- * Setup (one-time):
- *   1. Enable "Custom Search JSON API" in Google Cloud Console
- *   2. Create a search engine at programmablesearchengine.google.com
- *      → set it to search the whole web
- *      → copy the Search Engine ID (cx)
- *   3. Add to .env:
- *        GOOGLE_CSE_KEY=your_api_key
- *        GOOGLE_CX=your_cx_id
- *
- * Run: node scripts/google_find_instagram.js
+ * Setup: add SERPER_KEY=your_key to .env (get free key at serper.dev)
+ * Run:   node scripts/google_find_instagram.js
  */
 import fs from 'fs';
 import path from 'path';
@@ -23,10 +15,8 @@ const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const CAFES_FILE = path.join(__dirname, '../public/cafes.json');
 const PROG_FILE  = path.join(__dirname, '../data/google_ig_progress.json');
 
-const API_KEY = process.env.GOOGLE_CSE_KEY;
-const CX      = process.env.GOOGLE_CX;
-
-const DELAY_MS = 200; // Google CSE allows ~10 req/sec on paid tier
+const API_KEY  = process.env.SERPER_KEY;
+const DELAY_MS = 150;
 
 const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink'];
 const IG_SKIP = ['p','reel','explore','accounts','stories','tv','reels','instagram'];
@@ -36,19 +26,22 @@ function loadProgress() {
   catch { return {}; }
 }
 
-async function googleSearch(query) {
-  const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&num=5`;
-  const res = await fetch(url);
+async function serperSearch(query) {
+  const res = await fetch('https://google.serper.dev/search', {
+    method: 'POST',
+    headers: { 'X-API-KEY': API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: query, num: 5, gl: 'au' }),
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(`Google CSE ${res.status}: ${err?.error?.message || res.statusText}`);
+    throw new Error(`Serper ${res.status}: ${err?.message || res.statusText}`);
   }
   const data = await res.json();
-  return (data.items || []).map(i => i.link);
+  return (data.organic || []).map(r => r.link).filter(Boolean);
 }
 
 async function findInstagram(cafe) {
-  const urls = await googleSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:instagram.com`);
+  const urls = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:instagram.com`);
   for (const href of urls) {
     const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
     if (!m) continue;
@@ -59,7 +52,7 @@ async function findInstagram(cafe) {
 }
 
 async function findFacebook(cafe) {
-  const urls = await googleSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:facebook.com`);
+  const urls = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:facebook.com`);
   for (const href of urls) {
     const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
     if (!m) continue;
@@ -72,17 +65,16 @@ async function findFacebook(cafe) {
 }
 
 async function run() {
-  if (!API_KEY || !CX) {
-    console.error('Missing GOOGLE_CSE_KEY or GOOGLE_CX in .env');
-    console.error('See setup instructions at the top of this file.');
+  if (!API_KEY) {
+    console.error('Missing SERPER_KEY in .env — get a free key at serper.dev');
     process.exit(1);
   }
 
   const cafes    = JSON.parse(fs.readFileSync(CAFES_FILE, 'utf8'));
   const progress = loadProgress();
+  const targets  = cafes.filter(c => (!c.instagram || !c.facebook) && progress[c.id] === undefined);
 
-  const targets = cafes.filter(c => (!c.instagram || !c.facebook) && progress[c.id] === undefined);
-  console.log(`Cafes missing Instagram or Facebook: ${targets.length}`);
+  console.log(`Cafes to process: ${targets.length}`);
 
   let igFound = 0, fbFound = 0;
   for (let i = 0; i < targets.length; i++) {
@@ -116,6 +108,8 @@ async function run() {
     } catch (err) {
       process.stdout.write(` ERROR: ${err.message}`);
       results.error = err.message;
+      // pause on error in case of rate limiting
+      await new Promise(r => setTimeout(r, 2000));
     }
 
     progress[cafe.id] = results;
@@ -124,7 +118,7 @@ async function run() {
     if ((i + 1) % 50 === 0) {
       fs.writeFileSync(PROG_FILE, JSON.stringify(progress, null, 2));
       fs.writeFileSync(CAFES_FILE, JSON.stringify(cafes, null, 2));
-      console.log(`  [saved — IG:${igFound} FB:${fbFound} found so far]`);
+      console.log(`  [saved — IG:+${igFound} FB:+${fbFound}]`);
     }
   }
 
