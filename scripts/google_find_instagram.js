@@ -29,7 +29,7 @@ function distKm(lat, lng) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink'];
+const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink','profile.php','pages','search','about','home'];
 const IG_SKIP = ['p','reel','explore','accounts','stories','tv','reels','instagram'];
 
 function loadProgress() {
@@ -68,8 +68,8 @@ function extractFB(urls) {
     const handle = m[1].toLowerCase();
     if (FB_SKIP.includes(handle)) continue;
     if (/^\d+$/.test(handle)) continue;
-    // reject handles that look like domain names
-    if (handle.startsWith('www') || /\.(com|au|net|org|co)/.test(handle)) continue;
+    // reject handles that look like domain names or PHP pages
+    if (handle.startsWith('www') || /\.(com|au|net|org|co|php)/.test(handle)) continue;
     return `https://facebook.com/${m[1]}`;
   }
   return null;
