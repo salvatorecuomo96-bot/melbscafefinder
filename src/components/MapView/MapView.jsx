@@ -10,13 +10,17 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// SVG native dimensions (after viewBox crop on cup)
-const CUP_W = 1254; const CUP_H = 1080;
-const CLU_S = 1254;
+// ─── SDF pin icon ─────────────────────────────────────────────────────────────
+// Classic teardrop map pin with circular window.
+// White on transparent → Mapbox tints with icon-color at runtime → infinitely sharp.
+const PIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 52" width="120" height="156">
+  <path fill="white" fill-rule="evenodd"
+    d="M20 1C9.5 1 1 9.5 1 20 1 33.5 20 51 20 51S39 33.5 39 20C39 9.5 30.5 1 20 1Z
+       M20 11.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17z"/>
+</svg>`;
 
-// On-screen display sizes in px
-const CUP_PX = 36;
-const CLU_PX = 56;
+const PIN_RENDER_W = 120;   // high-res render (SVG width attr)
+const PIN_DISPLAY  = 48;    // on-screen px at icon-size 1.0
 
 function buildGeoJSON(cafes) {
   return {
@@ -29,32 +33,24 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function loadSVG(src, w, h) {
+function loadSDF(svgStr, w, h) {
   return new Promise((resolve, reject) => {
     const img = new Image(w, h);
-    img.onload = () => resolve(img);
+    img.onload  = () => resolve(img);
     img.onerror = reject;
-    img.src = src;
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgStr)}`;
   });
 }
 
 async function ensureImages(map) {
-  const jobs = [];
   if (!map.hasImage('cafe-pin')) {
-    jobs.push(
-      loadSVG('/cup.svg', CUP_W, CUP_H).then(img =>
-        map.addImage('cafe-pin', img, { pixelRatio: CUP_W / CUP_PX })
-      )
-    );
+    const h = Math.round(PIN_RENDER_W * 156 / 120);
+    const img = await loadSDF(PIN_SVG, PIN_RENDER_W, h);
+    map.addImage('cafe-pin', img, {
+      sdf: true,
+      pixelRatio: PIN_RENDER_W / PIN_DISPLAY,
+    });
   }
-  if (!map.hasImage('cluster-moka')) {
-    jobs.push(
-      loadSVG('/cluster.svg', CLU_S, CLU_S).then(img =>
-        map.addImage('cluster-moka', img, { pixelRatio: CLU_S / CLU_PX })
-      )
-    );
-  }
-  await Promise.all(jobs);
 }
 
 async function addLayers(map, cafes) {
@@ -68,49 +64,39 @@ async function addLayers(map, cafes) {
     cluster: true,
     clusterMaxZoom: 13,
     clusterRadius: 42,
+    promoteId: 'id',
   });
 
-  // Moka pot cluster icon
+  // ── Clusters ──────────────────────────────────────────────────────────────
   map.addLayer({
     id: 'clusters',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['has', 'point_count'],
-    layout: {
-      'icon-image': 'cluster-moka',
-      'icon-anchor': 'center',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.85, 13, 1.0, 16, 1.1],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
+    paint: {
+      'circle-color': '#1a1a1a',
+      'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 30],
+      'circle-stroke-width': 2.5,
+      'circle-stroke-color': '#ffffff',
     },
   });
 
-  // Count number centered on the moka pot body
   map.addLayer({
-    id: 'cluster-counts',
+    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
-      'text-field': ['case',
-        ['>', ['get', 'point_count'], 999], '999+',
-        ['to-string', ['get', 'point_count']],
-      ],
-      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-      'text-size': ['interpolate', ['linear'], ['zoom'], 9, 11, 13, 14],
-      'text-anchor': 'center',
-      'text-offset': [0, 0.1],
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 13,
       'text-allow-overlap': true,
       'text-ignore-placement': true,
     },
-    paint: {
-      'text-color': '#1a1108',
-      'text-halo-color': 'rgba(244, 236, 227, 0.92)',
-      'text-halo-width': 1.2,
-    },
+    paint: { 'text-color': '#ffffff' },
   });
 
-  // Coffee cup pin for individual cafes
+  // ── Individual pins (SDF, hover-aware) ────────────────────────────────────
   map.addLayer({
     id: 'pins',
     type: 'symbol',
@@ -119,9 +105,31 @@ async function addLayers(map, cafes) {
     layout: {
       'icon-image': 'cafe-pin',
       'icon-anchor': 'bottom',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.65, 12, 0.85, 14, 1.0, 17, 1.1],
+      'icon-size': ['interpolate', ['linear'], ['zoom'],
+        9,  0.55,
+        12, 0.78,
+        14, 1.0,
+        17, 1.2,
+      ],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
+    },
+    paint: {
+      // Warm espresso brown; lights up on hover
+      'icon-color': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#c06020',
+        '#5c2d0e',
+      ],
+      // White outline for map separation; thicker on hover
+      'icon-halo-color': '#ffffff',
+      'icon-halo-width': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        3,
+        1.5,
+      ],
     },
   });
 }
@@ -139,6 +147,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   const mapRef        = useRef(null);
   const cafesRef      = useRef(cafes);
   const userMarkerRef = useRef(null);
+  const hoveredIdRef  = useRef(null);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
 
@@ -162,6 +171,8 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('load', async () => {
+
+      // ── Clicks ──────────────────────────────────────────────────────────
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
@@ -169,23 +180,40 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
       });
 
       map.on('click', 'clusters', (e) => expandCluster(map, e.features[0]));
-      map.on('click', 'cluster-counts', (e) => expandCluster(map, e.features[0]));
+      map.on('click', 'cluster-count', (e) => expandCluster(map, e.features[0]));
 
-      const setPointer  = () => { map.getCanvas().style.cursor = 'pointer'; };
-      const clearPointer = () => { map.getCanvas().style.cursor = ''; };
-      ['clusters', 'cluster-counts', 'pins'].forEach(l => {
-        map.on('mouseenter', l, setPointer);
-        map.on('mouseleave', l, clearPointer);
+      // ── Cursor ──────────────────────────────────────────────────────────
+      ['clusters', 'cluster-count', 'pins'].forEach((l) => {
+        map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', l, () => { map.getCanvas().style.cursor = ''; });
       });
 
+      // ── Hover state (SDF color change) ──────────────────────────────────
+      map.on('mousemove', 'pins', (e) => {
+        if (!e.features.length) return;
+        const id = e.features[0].id;
+        if (hoveredIdRef.current === id) return;
+        if (hoveredIdRef.current !== null) {
+          map.setFeatureState({ source: 'cafes', id: hoveredIdRef.current }, { hover: false });
+        }
+        hoveredIdRef.current = id;
+        map.setFeatureState({ source: 'cafes', id }, { hover: true });
+      });
+      map.on('mouseleave', 'pins', () => {
+        if (hoveredIdRef.current !== null) {
+          map.setFeatureState({ source: 'cafes', id: hoveredIdRef.current }, { hover: false });
+          hoveredIdRef.current = null;
+        }
+      });
+
+      // ── Tooltip ─────────────────────────────────────────────────────────
       let hoverPopup = null;
       map.on('mouseenter', 'pins', (e) => {
-        map.getCanvas().style.cursor = 'pointer';
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (!cafe) return;
         hoverPopup = new mapboxgl.Popup({
-          closeButton: false, closeOnClick: false, offset: 20,
+          closeButton: false, closeOnClick: false, offset: 28,
           className: 'map-pin-tooltip',
         })
           .setLngLat(e.features[0].geometry.coordinates)
@@ -193,7 +221,6 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
           .addTo(map);
       });
       map.on('mouseleave', 'pins', () => {
-        map.getCanvas().style.cursor = '';
         hoverPopup?.remove();
         hoverPopup = null;
       });
@@ -219,7 +246,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
 
-  // Update cafe data
+  // Update data
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
@@ -242,7 +269,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     });
   }, [selectedId, ready, cafes]);
 
-  // User dot
+  // User location dot
   useEffect(() => {
     if (!ready || !userCoords) return;
     if (userMarkerRef.current) userMarkerRef.current.remove();
