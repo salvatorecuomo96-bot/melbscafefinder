@@ -41,3 +41,5 @@ data/
 # PDFs and temp files
 *.pdf
 C*UsersjayfrAppDataLocal*
+
+.vercel
