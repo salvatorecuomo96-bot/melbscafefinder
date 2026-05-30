@@ -18,6 +18,17 @@ const PROG_FILE  = path.join(__dirname, '../data/google_ig_progress.json');
 const API_KEY  = process.env.SERPER_KEY;
 const DELAY_MS = 150;
 
+const CBD = { lat: -37.8136, lng: 144.9631 };
+const RADIUS_KM = 10;
+
+function distKm(lat, lng) {
+  const R = 6371;
+  const dLat = (lat - CBD.lat) * Math.PI / 180;
+  const dLng = (lng - CBD.lng) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(CBD.lat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink'];
 const IG_SKIP = ['p','reel','explore','accounts','stories','tv','reels','instagram'];
 
@@ -72,7 +83,11 @@ async function run() {
 
   const cafes    = JSON.parse(fs.readFileSync(CAFES_FILE, 'utf8'));
   const progress = loadProgress();
-  const targets  = cafes.filter(c => (!c.instagram || !c.facebook) && progress[c.id] === undefined);
+  const targets  = cafes.filter(c =>
+    (!c.instagram || !c.facebook) &&
+    progress[c.id] === undefined &&
+    distKm(c.latitude, c.longitude) <= RADIUS_KM
+  );
 
   console.log(`Cafes to process: ${targets.length}`);
 
