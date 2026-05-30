@@ -10,10 +10,6 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// Target on-map display sizes. The PNGs can be high-res; pixelRatio makes them render crisp.
-const CUP_DISPLAY_PX = 38;
-const CLUSTER_DISPLAY_PX = 62;
-
 function buildGeoJSON(cafes) {
   return {
     type: 'FeatureCollection',
@@ -25,109 +21,54 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function loadMapboxImage(map, url) {
-  return new Promise((resolve, reject) => {
-    map.loadImage(url, (err, img) => {
-      if (err) reject(err);
-      else resolve(img);
-    });
-  });
-}
-
-async function ensureMapImages(map) {
-  if (!map.hasImage('cafe-pin')) {
-    const cupImg = await loadMapboxImage(map, '/cup.png');
-    const imgW = cupImg.naturalWidth || cupImg.width || 512;
-    map.addImage('cafe-pin', cupImg, { pixelRatio: imgW / CUP_DISPLAY_PX });
-  }
-
-  if (!map.hasImage('cluster-moka')) {
-    const clusterImg = await loadMapboxImage(map, '/cluster.png');
-    const imgW = clusterImg.naturalWidth || clusterImg.width || 512;
-    map.addImage('cluster-moka', clusterImg, { pixelRatio: imgW / CLUSTER_DISPLAY_PX });
-  }
-}
-
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
-
-  await ensureMapImages(map);
 
   map.addSource('cafes', {
     type: 'geojson',
     data: buildGeoJSON(cafes),
     cluster: true,
     clusterMaxZoom: 13,
-    clusterRadius: 42,
+    clusterRadius: 40,
   });
 
-  // Cluster image layer. Native Mapbox symbol layers do not drift or jump like DOM markers.
   map.addLayer({
     id: 'clusters',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['has', 'point_count'],
-    layout: {
-      'icon-image': 'cluster-moka',
-      'icon-anchor': 'center',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.9, 12, 1.0, 16, 1.08],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
-      'icon-padding': 0,
-    },
-  });
-
-  // Cluster number as locked native Mapbox text, centered over the cluster icon.
-  // Tune text-offset if the cream count area in cluster.png moves.
-  map.addLayer({
-    id: 'cluster-counts',
-    type: 'symbol',
-    source: 'cafes',
-    filter: ['has', 'point_count'],
-    layout: {
-      'text-field': ['case', ['>', ['get', 'point_count'], 999], '999+', ['to-string', ['get', 'point_count']]],
-      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-      'text-size': [
-        'case',
-        ['<', ['get', 'point_count'], 10], 16,
-        ['<', ['get', 'point_count'], 100], 15,
-        12,
-      ],
-      'text-anchor': 'center',
-      'text-offset': [0, -0.04],
-      'text-allow-overlap': true,
-      'text-ignore-placement': true,
-      'text-padding': 0,
-    },
     paint: {
-      'text-color': '#111111',
-      'text-halo-color': 'rgba(255, 246, 228, 0.9)',
-      'text-halo-width': 0.4,
+      'circle-color': '#1a1a1a',
+      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#fff',
     },
   });
 
-  // Individual cafe pins.
+  map.addLayer({
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'cafes',
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 12,
+    },
+    paint: { 'text-color': '#fff' },
+  });
+
   map.addLayer({
     id: 'pins',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
-    layout: {
-      'icon-image': 'cafe-pin',
-      'icon-anchor': 'bottom',
-      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.64, 11.5, 0.78, 14, 1.0, 17, 1.08],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
-      'icon-padding': 0,
+    paint: {
+      'circle-color': '#6b3a2a',
+      'circle-radius': 7,
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#fff',
     },
-  });
-}
-
-function expandCluster(map, feature) {
-  const clusterId = feature.properties.cluster_id;
-  const coords = feature.geometry.coordinates.slice();
-  map.getSource('cafes').getClusterExpansionZoom(clusterId, (err, zoom) => {
-    if (!err) map.easeTo({ center: coords, zoom });
   });
 }
 
@@ -159,22 +100,23 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
-    map.on('load', async () => {
+    map.on('load', () => {
+      map.on('click', 'clusters', (e) => {
+        const [feature] = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+        map.getSource('cafes').getClusterExpansionZoom(feature.properties.cluster_id, (err, zoom) => {
+          if (err) return;
+          map.easeTo({ center: feature.geometry.coordinates, zoom });
+        });
+      });
+
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (cafe && typeof onSelect === 'function') onSelect(cafe);
       });
 
-      map.on('click', 'clusters', (e) => expandCluster(map, e.features[0]));
-      map.on('click', 'cluster-counts', (e) => expandCluster(map, e.features[0]));
-
-      const setPointer = () => { map.getCanvas().style.cursor = 'pointer'; };
-      const clearPointer = () => { map.getCanvas().style.cursor = ''; };
-      map.on('mouseenter', 'clusters', setPointer);
-      map.on('mouseleave', 'clusters', clearPointer);
-      map.on('mouseenter', 'cluster-counts', setPointer);
-      map.on('mouseleave', 'cluster-counts', clearPointer);
+      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
 
       let hoverPopup = null;
       map.on('mouseenter', 'pins', (e) => {
@@ -185,7 +127,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         hoverPopup = new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false,
-          offset: 20,
+          offset: 14,
           className: 'map-pin-tooltip',
         })
           .setLngLat(e.features[0].geometry.coordinates)
@@ -198,7 +140,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         hoverPopup = null;
       });
 
-      await addLayers(map, cafesRef.current);
+      addLayers(map, cafesRef.current);
       setReady(true);
     });
 
