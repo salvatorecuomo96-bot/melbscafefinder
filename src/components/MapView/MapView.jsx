@@ -10,17 +10,9 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// ─── SDF pin icon ─────────────────────────────────────────────────────────────
-// Classic teardrop map pin with circular window.
-// White on transparent → Mapbox tints with icon-color at runtime → infinitely sharp.
-const PIN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 52" width="120" height="156">
-  <path fill="white" fill-rule="evenodd"
-    d="M20 1C9.5 1 1 9.5 1 20 1 33.5 20 51 20 51S39 33.5 39 20C39 9.5 30.5 1 20 1Z
-       M20 11.5a8.5 8.5 0 100 17 8.5 8.5 0 000-17z"/>
-</svg>`;
-
-const PIN_RENDER_W = 120;   // high-res render (SVG width attr)
-const PIN_DISPLAY  = 48;    // on-screen px at icon-size 1.0
+// on-screen display sizes in px at icon-size 1.0
+const CUP_DISPLAY = 40;
+const CLU_DISPLAY = 52;
 
 function buildGeoJSON(cafes) {
   return {
@@ -33,24 +25,22 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function loadSDF(svgStr, w, h) {
+function loadPNG(src) {
   return new Promise((resolve, reject) => {
-    const img = new Image(w, h);
+    const img = new Image();
     img.onload  = () => resolve(img);
     img.onerror = reject;
-    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgStr)}`;
+    img.src = src;
   });
 }
 
 async function ensureImages(map) {
-  if (!map.hasImage('cafe-pin')) {
-    const h = Math.round(PIN_RENDER_W * 156 / 120);
-    const img = await loadSDF(PIN_SVG, PIN_RENDER_W, h);
-    map.addImage('cafe-pin', img, {
-      sdf: true,
-      pixelRatio: PIN_RENDER_W / PIN_DISPLAY,
-    });
-  }
+  const [cup, clu] = await Promise.all([
+    map.hasImage('cafe-pin')     ? Promise.resolve(null) : loadPNG('/cup.png'),
+    map.hasImage('cluster-icon') ? Promise.resolve(null) : loadPNG('/cluster.png'),
+  ]);
+  if (cup) map.addImage('cafe-pin',     cup, { pixelRatio: cup.naturalWidth  / CUP_DISPLAY });
+  if (clu) map.addImage('cluster-icon', clu, { pixelRatio: clu.naturalWidth  / CLU_DISPLAY });
 }
 
 async function addLayers(map, cafes) {
@@ -64,39 +54,34 @@ async function addLayers(map, cafes) {
     cluster: true,
     clusterMaxZoom: 13,
     clusterRadius: 42,
-    promoteId: 'id',
   });
 
-  // ── Clusters ──────────────────────────────────────────────────────────────
+  // ── Clusters (moka pot + count) ───────────────────────────────────────────
   map.addLayer({
     id: 'clusters',
-    type: 'circle',
-    source: 'cafes',
-    filter: ['has', 'point_count'],
-    paint: {
-      'circle-color': '#1a1a1a',
-      'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 30],
-      'circle-stroke-width': 2.5,
-      'circle-stroke-color': '#ffffff',
-    },
-  });
-
-  map.addLayer({
-    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
+      'icon-image': 'cluster-icon',
+      'icon-anchor': 'center',
+      'icon-size': ['interpolate', ['linear'], ['zoom'],
+        9,  0.7,
+        13, 1.0,
+      ],
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
       'text-field': '{point_count_abbreviated}',
-      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
       'text-size': 13,
+      'text-offset': [0, 0.35],
       'text-allow-overlap': true,
       'text-ignore-placement': true,
     },
-    paint: { 'text-color': '#ffffff' },
+    paint: { 'text-color': '#3d1a00' },
   });
 
-  // ── Individual pins (SDF, hover-aware) ────────────────────────────────────
+  // ── Individual pins (cup) ─────────────────────────────────────────────────
   map.addLayer({
     id: 'pins',
     type: 'symbol',
@@ -104,7 +89,7 @@ async function addLayers(map, cafes) {
     filter: ['!', ['has', 'point_count']],
     layout: {
       'icon-image': 'cafe-pin',
-      'icon-anchor': 'bottom',
+      'icon-anchor': 'center',
       'icon-size': ['interpolate', ['linear'], ['zoom'],
         9,  0.55,
         12, 0.78,
@@ -113,23 +98,6 @@ async function addLayers(map, cafes) {
       ],
       'icon-allow-overlap': true,
       'icon-ignore-placement': true,
-    },
-    paint: {
-      // Warm espresso brown; lights up on hover
-      'icon-color': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        '#c06020',
-        '#5c2d0e',
-      ],
-      // White outline for map separation; thicker on hover
-      'icon-halo-color': '#ffffff',
-      'icon-halo-width': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        3,
-        1.5,
-      ],
     },
   });
 }
@@ -147,7 +115,6 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   const mapRef        = useRef(null);
   const cafesRef      = useRef(cafes);
   const userMarkerRef = useRef(null);
-  const hoveredIdRef  = useRef(null);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
 
@@ -180,30 +147,11 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
       });
 
       map.on('click', 'clusters', (e) => expandCluster(map, e.features[0]));
-      map.on('click', 'cluster-count', (e) => expandCluster(map, e.features[0]));
 
       // ── Cursor ──────────────────────────────────────────────────────────
-      ['clusters', 'cluster-count', 'pins'].forEach((l) => {
+      ['clusters', 'pins'].forEach((l) => {
         map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', l, () => { map.getCanvas().style.cursor = ''; });
-      });
-
-      // ── Hover state (SDF color change) ──────────────────────────────────
-      map.on('mousemove', 'pins', (e) => {
-        if (!e.features.length) return;
-        const id = e.features[0].id;
-        if (hoveredIdRef.current === id) return;
-        if (hoveredIdRef.current !== null) {
-          map.setFeatureState({ source: 'cafes', id: hoveredIdRef.current }, { hover: false });
-        }
-        hoveredIdRef.current = id;
-        map.setFeatureState({ source: 'cafes', id }, { hover: true });
-      });
-      map.on('mouseleave', 'pins', () => {
-        if (hoveredIdRef.current !== null) {
-          map.setFeatureState({ source: 'cafes', id: hoveredIdRef.current }, { hover: false });
-          hoveredIdRef.current = null;
-        }
       });
 
       // ── Tooltip ─────────────────────────────────────────────────────────
