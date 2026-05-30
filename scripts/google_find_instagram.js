@@ -51,8 +51,7 @@ async function serperSearch(query) {
   return (data.organic || []).map(r => r.link).filter(Boolean);
 }
 
-async function findInstagram(cafe) {
-  const urls = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:instagram.com`);
+function extractIG(urls) {
   for (const href of urls) {
     const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
     if (!m) continue;
@@ -62,17 +61,34 @@ async function findInstagram(cafe) {
   return null;
 }
 
-async function findFacebook(cafe) {
-  const urls = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:facebook.com`);
+function extractFB(urls) {
   for (const href of urls) {
     const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
     if (!m) continue;
     const handle = m[1].toLowerCase();
     if (FB_SKIP.includes(handle)) continue;
     if (/^\d+$/.test(handle)) continue;
+    // reject handles that look like domain names
+    if (handle.startsWith('www') || /\.(com|au|net|org|co)/.test(handle)) continue;
     return `https://facebook.com/${m[1]}`;
   }
   return null;
+}
+
+async function findInstagram(cafe) {
+  // strategy 1: site-restricted
+  const urls1 = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:instagram.com`);
+  const ig1 = extractIG(urls1);
+  if (ig1) return ig1;
+  // strategy 2: broader search, pick out instagram links
+  await new Promise(r => setTimeout(r, DELAY_MS));
+  const urls2 = await serperSearch(`"${cafe.name}" Melbourne cafe instagram`);
+  return extractIG(urls2.filter(u => u.includes('instagram.com')));
+}
+
+async function findFacebook(cafe) {
+  const urls = await serperSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:facebook.com`);
+  return extractFB(urls);
 }
 
 async function run() {
