@@ -10,10 +10,6 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
-// desired on-screen px at icon-size 1.0
-const CUP_PX = 36;
-const CLU_PX = 48;
-
 function buildGeoJSON(cafes) {
   return {
     type: 'FeatureCollection',
@@ -25,30 +21,8 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function loadPNG(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload  = () => resolve(img);
-    img.onerror = (e) => reject(new Error(`Failed to load ${src}: ${e.type}`));
-    img.src = src;
-  });
-}
-
-async function ensureImages(map) {
-  if (!map.hasImage('cafe-pin')) {
-    const img = await loadPNG('/cup.png');
-    map.addImage('cafe-pin', img, { pixelRatio: img.naturalWidth / CUP_PX });
-  }
-  if (!map.hasImage('cluster-moka')) {
-    const img = await loadPNG('/cluster.png');
-    map.addImage('cluster-moka', img, { pixelRatio: img.naturalWidth / CLU_PX });
-  }
-}
-
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
-
-  await ensureImages(map).catch((err) => console.error('[MapView] image load failed:', err));
 
   map.addSource('cafes', {
     type: 'geojson',
@@ -58,67 +32,46 @@ async function addLayers(map, cafes) {
     clusterRadius: 42,
   });
 
-  // ── Cluster icons (moka pot) ───────────────────────────────────────────────
+  // ── Clusters (dark circle + white count) ─────────────────────────────────
   map.addLayer({
     id: 'clusters',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['has', 'point_count'],
-    layout: {
-      'icon-image': 'cluster-moka',
-      'icon-anchor': 'center',
-      'icon-size': ['interpolate', ['linear'], ['zoom'],
-        9,  0.9,
-        12, 1.0,
-        16, 1.08,
-      ],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
+    paint: {
+      'circle-color': '#1a1a1a',
+      'circle-radius': ['step', ['get', 'point_count'], 18, 10, 24, 50, 30],
+      'circle-stroke-width': 2.5,
+      'circle-stroke-color': '#ffffff',
     },
   });
 
-  // ── Cluster counts (separate text layer above icons) ───────────────────────
   map.addLayer({
     id: 'cluster-counts',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
-      'text-field': ['case',
-        ['>', ['get', 'point_count'], 999], '999+',
-        ['to-string', ['get', 'point_count']],
-      ],
-      'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold'],
-      'text-size': ['step', ['get', 'point_count'],
-        16,       // 1–9  (1 digit)
-        10, 15,   // 10–99 (2 digits)
-        100, 12,  // 100+ (3+ digits)
-      ],
-      'text-anchor': 'center',
-      'text-offset': [0, -0.04],
+      'text-field': '{point_count_abbreviated}',
+      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      'text-size': 13,
       'text-allow-overlap': true,
       'text-ignore-placement': true,
     },
-    paint: { 'text-color': '#111111' },
+    paint: { 'text-color': '#ffffff' },
   });
 
-  // ── Individual cafe pins (cup) ─────────────────────────────────────────────
+  // ── Individual cafe pins ──────────────────────────────────────────────────
   map.addLayer({
     id: 'pins',
-    type: 'symbol',
+    type: 'circle',
     source: 'cafes',
     filter: ['!', ['has', 'point_count']],
-    layout: {
-      'icon-image': 'cafe-pin',
-      'icon-anchor': 'bottom',
-      'icon-size': ['interpolate', ['linear'], ['zoom'],
-        9,    0.64,
-        11.5, 0.78,
-        14,   1.0,
-        17,   1.08,
-      ],
-      'icon-allow-overlap': true,
-      'icon-ignore-placement': true,
+    paint: {
+      'circle-color': '#5c2d0e',
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 4, 14, 7, 17, 9],
+      'circle-stroke-width': 1.5,
+      'circle-stroke-color': '#ffffff',
     },
   });
 }

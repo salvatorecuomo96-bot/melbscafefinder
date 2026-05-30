@@ -1,21 +1,32 @@
 /**
  * google_find_instagram.js
- * For each cafe missing Instagram or Facebook, searches DuckDuckGo with site: operator
- * and extracts the profile URL from results (uddg= param).
+ * Finds missing Instagram + Facebook for cafes using Google Custom Search API.
  * Resumable via data/google_ig_progress.json
+ *
+ * Setup (one-time):
+ *   1. Enable "Custom Search JSON API" in Google Cloud Console
+ *   2. Create a search engine at programmablesearchengine.google.com
+ *      → set it to search the whole web
+ *      → copy the Search Engine ID (cx)
+ *   3. Add to .env:
+ *        GOOGLE_CSE_KEY=your_api_key
+ *        GOOGLE_CX=your_cx_id
+ *
  * Run: node scripts/google_find_instagram.js
  */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import 'dotenv/config';
 
 const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const CAFES_FILE = path.join(__dirname, '../public/cafes.json');
 const PROG_FILE  = path.join(__dirname, '../data/google_ig_progress.json');
 
-const DELAY_MS   = 1500;
-const TIMEOUT_MS = 12000;
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36';
+const API_KEY = process.env.GOOGLE_CSE_KEY;
+const CX      = process.env.GOOGLE_CX;
+
+const DELAY_MS = 200; // Google CSE allows ~10 req/sec on paid tier
 
 const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink'];
 const IG_SKIP = ['p','reel','explore','accounts','stories','tv','reels','instagram'];
@@ -25,37 +36,20 @@ function loadProgress() {
   catch { return {}; }
 }
 
-async function ddgSearch(query, retries = 2) {
-  const q = encodeURIComponent(query);
-  const url = `https://html.duckduckgo.com/html/?q=${q}`;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-      const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: controller.signal });
-      clearTimeout(timer);
-      const html = await res.text();
-      return [...html.matchAll(/uddg=(https?[^&"]+)/g)].map(m => decodeURIComponent(m[1]));
-    } catch {
-      if (attempt < retries) await new Promise(r => setTimeout(r, 2000));
-    }
+async function googleSearch(query) {
+  const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX}&q=${encodeURIComponent(query)}&num=5`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`Google CSE ${res.status}: ${err?.error?.message || res.statusText}`);
   }
-  return [];
+  const data = await res.json();
+  return (data.items || []).map(i => i.link);
 }
 
 async function findInstagram(cafe) {
-  // Strategy 1: site: filter
-  const urls1 = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:instagram.com`);
-  for (const href of urls1.filter(u => u.includes('instagram.com/'))) {
-    const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
-    if (!m) continue;
-    if (IG_SKIP.includes(m[1].toLowerCase())) continue;
-    return `https://instagram.com/${m[1]}`;
-  }
-  // Strategy 2: plain keyword search
-  await new Promise(r => setTimeout(r, DELAY_MS));
-  const urls2 = await ddgSearch(`"${cafe.name}" ${cafe.suburb || ''} Melbourne instagram`);
-  for (const href of urls2.filter(u => u.includes('instagram.com/'))) {
+  const urls = await googleSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:instagram.com`);
+  for (const href of urls) {
     const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
     if (!m) continue;
     if (IG_SKIP.includes(m[1].toLowerCase())) continue;
@@ -65,21 +59,8 @@ async function findInstagram(cafe) {
 }
 
 async function findFacebook(cafe) {
-  await new Promise(r => setTimeout(r, DELAY_MS));
-  // Strategy 1: site: filter
-  const urls1 = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:facebook.com`);
-  for (const href of urls1.filter(u => u.includes('facebook.com/'))) {
-    const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
-    if (!m) continue;
-    const handle = m[1].toLowerCase();
-    if (FB_SKIP.includes(handle)) continue;
-    if (/^\d+$/.test(handle)) continue;
-    return `https://facebook.com/${m[1]}`;
-  }
-  // Strategy 2: plain keyword search
-  await new Promise(r => setTimeout(r, DELAY_MS));
-  const urls2 = await ddgSearch(`"${cafe.name}" ${cafe.suburb || ''} Melbourne facebook`);
-  for (const href of urls2.filter(u => u.includes('facebook.com/'))) {
+  const urls = await googleSearch(`${cafe.name} ${cafe.suburb || ''} Melbourne site:facebook.com`);
+  for (const href of urls) {
     const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
     if (!m) continue;
     const handle = m[1].toLowerCase();
@@ -91,6 +72,12 @@ async function findFacebook(cafe) {
 }
 
 async function run() {
+  if (!API_KEY || !CX) {
+    console.error('Missing GOOGLE_CSE_KEY or GOOGLE_CX in .env');
+    console.error('See setup instructions at the top of this file.');
+    process.exit(1);
+  }
+
   const cafes    = JSON.parse(fs.readFileSync(CAFES_FILE, 'utf8'));
   const progress = loadProgress();
 
@@ -104,26 +91,31 @@ async function run() {
 
     const results = {};
 
-    if (!cafe.instagram) {
-      const ig = await findInstagram(cafe);
-      results.instagram = ig || null;
-      if (ig) {
-        const idx = cafes.findIndex(c => c.id === cafe.id);
-        cafes[idx].instagram = ig;
-        igFound++;
-        process.stdout.write(` IG:${ig.replace('https://instagram.com/', '@')}`);
+    try {
+      if (!cafe.instagram) {
+        const ig = await findInstagram(cafe);
+        results.instagram = ig || null;
+        if (ig) {
+          cafes.find(c => c.id === cafe.id).instagram = ig;
+          igFound++;
+          process.stdout.write(` IG:${ig.replace('https://instagram.com/', '@')}`);
+        }
+        await new Promise(r => setTimeout(r, DELAY_MS));
       }
-    }
 
-    if (!cafe.facebook) {
-      const fb = await findFacebook(cafe);
-      results.facebook = fb || null;
-      if (fb) {
-        const idx = cafes.findIndex(c => c.id === cafe.id);
-        cafes[idx].facebook = fb;
-        fbFound++;
-        process.stdout.write(` FB:${fb.replace('https://facebook.com/', '@')}`);
+      if (!cafe.facebook) {
+        const fb = await findFacebook(cafe);
+        results.facebook = fb || null;
+        if (fb) {
+          cafes.find(c => c.id === cafe.id).facebook = fb;
+          fbFound++;
+          process.stdout.write(` FB:${fb.replace('https://facebook.com/', '@')}`);
+        }
+        await new Promise(r => setTimeout(r, DELAY_MS));
       }
+    } catch (err) {
+      process.stdout.write(` ERROR: ${err.message}`);
+      results.error = err.message;
     }
 
     progress[cafe.id] = results;
@@ -134,8 +126,6 @@ async function run() {
       fs.writeFileSync(CAFES_FILE, JSON.stringify(cafes, null, 2));
       console.log(`  [saved — IG:${igFound} FB:${fbFound} found so far]`);
     }
-
-    await new Promise(r => setTimeout(r, DELAY_MS));
   }
 
   fs.writeFileSync(PROG_FILE, JSON.stringify(progress, null, 2));
