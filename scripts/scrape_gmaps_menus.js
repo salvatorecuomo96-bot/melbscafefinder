@@ -43,7 +43,7 @@ const PROG_FILE  = path.join(__dirname, '../data/gmaps_menu_progress.json');
 const CBD            = { lat: -37.8136, lng: 144.9631 };
 const MAX_MENU_PAGES = 8;     // a menu is rarely more than a handful of pages
 const DHASH_THRESH   = 10;    // ≤ this Hamming distance ⇒ same page (duplicate)
-const DELAY_MS       = 1800;  // pause between cafes — stays under the radar
+const DELAY_MS       = 2600;  // pause between cafes — gentler = less likely to be blocked
 const NAV_TIMEOUT    = 30000;
 
 cloudinary.config({
@@ -83,14 +83,44 @@ async function dhash(buffer) {
 }
 const hamming = (a, b) => a.reduce((d, _, i) => d + (a[i] !== b[i] ? 1 : 0), 0);
 
+// Dismiss Google's cookie-consent interstitial if present.
+async function dismissConsent(page) {
+  try {
+    const url = page.url();
+    if (!/consent\.google|sorry\/index/.test(url)) return false;
+    const clicked = await page.evaluate(() => {
+      const btn = Array.from(document.querySelectorAll('button, [role="button"]'))
+        .find((b) => /accept all|reject all|i agree|accept/i.test(b.textContent || ''));
+      if (btn) { btn.click(); return true; }
+      return false;
+    });
+    if (clicked) await new Promise((r) => setTimeout(r, 2500));
+    return clicked;
+  } catch { return false; }
+}
+
+// Detect Google block / error page ("sorry", 400, unusual traffic).
+async function isBlocked(page) {
+  try {
+    const t = await page.evaluate(() => document.body.innerText.slice(0, 400));
+    return /unusual traffic|That.s an error|malformed or illegal|not a robot/i.test(t)
+        || /\/sorry\//.test(page.url());
+  } catch { return false; }
+}
+
 // ── Scrape the Menu tab → ordered list of distinct menu photo URLs ──────────
-async function getMenuPhotoUrls(page, placeId) {
-  await page.goto(`https://www.google.com/maps/place/?q=place_id:${placeId}`,
-    { waitUntil: 'networkidle2', timeout: NAV_TIMEOUT });
-  await sleep(2500);
+// Returns { status, urls }. status: 'ok' | 'no-gallery' | 'no-menu' | 'blocked'
+async function getMenuPhotoUrls(page, cafe) {
+  // Use the cafe's real consumer Maps URL — less likely to be flagged than a
+  // hand-built place_id URL.
+  await page.goto(cafe.googleMapsUrl, { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT });
+  await sleep(2200);
+  await dismissConsent(page);
+
+  if (await isBlocked(page)) return { status: 'blocked', urls: [] };
 
   const photoBtn = await page.$('button[aria-label*="Photo"], [aria-label="See photos"]');
-  if (!photoBtn) return [];
+  if (!photoBtn) return { status: 'no-gallery', urls: [] };
   await photoBtn.click();
   await sleep(2800);
 
@@ -100,7 +130,7 @@ async function getMenuPhotoUrls(page, placeId) {
     if (tab) { tab.click(); return true; }
     return false;
   });
-  if (!hasMenuTab) return [];
+  if (!hasMenuTab) return { status: 'no-menu', urls: [] };
   await sleep(2200);
 
   // Scroll until the loaded-photo count stabilises (all pages present).
@@ -117,7 +147,7 @@ async function getMenuPhotoUrls(page, placeId) {
   }
 
   // Extract in DOM order; only real photo assets (/p/ or /gps-cs-s/), no avatars.
-  return page.evaluate(() => {
+  const urls = await page.evaluate(() => {
     const seen = new Set();
     const out = [];
     document.querySelectorAll('[role="main"] [style*="googleusercontent"]').forEach((el) => {
@@ -129,6 +159,7 @@ async function getMenuPhotoUrls(page, placeId) {
     });
     return out;
   });
+  return { status: 'ok', urls };
 }
 
 // ── Download + perceptual de-dup → unique page buffers (official-first) ─────
@@ -177,7 +208,7 @@ async function run() {
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled', '--lang=en-AU'],
   });
 
-  let withMenus = 0, totalImages = 0;
+  let withMenus = 0, totalImages = 0, consecutiveBlocks = 0;
 
   for (let i = 0; i < targets.length; i++) {
     const cafe = targets[i];
@@ -189,7 +220,24 @@ async function run() {
       await pg.setViewport({ width: 1366, height: 1100 });
       await pg.setExtraHTTPHeaders({ 'Accept-Language': 'en-AU,en;q=0.9' });
 
-      const urls    = await getMenuPhotoUrls(pg, placeIdOf(cafe));
+      const { status, urls } = await getMenuPhotoUrls(pg, cafe);
+
+      if (status === 'blocked') {
+        consecutiveBlocks++;
+        const backoff = Math.min(60000, 8000 * consecutiveBlocks);
+        process.stdout.write(` ⚠ BLOCKED by Google — backing off ${Math.round(backoff/1000)}s`);
+        // don't record progress so it retries on next run
+        await pg.close().catch(() => {});
+        process.stdout.write('\n');
+        if (consecutiveBlocks >= 5) {
+          console.log('\n✋ Google is blocking repeatedly. Stopping — wait a while (or change network) and re-run; progress is saved.');
+          break;
+        }
+        await sleep(backoff);
+        continue;
+      }
+      consecutiveBlocks = 0;
+
       const buffers = urls.length ? await uniqueMenuBuffers(urls) : [];
 
       if (buffers.length) {
@@ -203,9 +251,10 @@ async function run() {
           progress[cafe.id] = uploaded.length;
           withMenus++; totalImages += uploaded.length;
           process.stdout.write(` ✓ ${uploaded.length} menu page${uploaded.length > 1 ? 's' : ''}`);
-        } else { progress[cafe.id] = 0; }
+        } else { progress[cafe.id] = 0; process.stdout.write(' (upload failed)'); }
       } else {
         progress[cafe.id] = 0;
+        process.stdout.write(status === 'no-menu' ? ' · no menu' : status === 'no-gallery' ? ' · no gallery' : ' · 0 photos');
       }
     } catch (err) {
       progress[cafe.id] = null;
