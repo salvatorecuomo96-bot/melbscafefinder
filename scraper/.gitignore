@@ -22,3 +22,4 @@ output/master_cafes_geoapify.csv
 # OS noise
 .DS_Store
 Thumbs.db
+google_auth.json

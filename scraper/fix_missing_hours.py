@@ -290,7 +290,10 @@ async def main():
 
     if todo:
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            launch_kwargs = {"headless": True}
+            if use_gmaps:
+                launch_kwargs["channel"] = "chrome"  # real Chrome avoids Google bot detection
+            browser = await p.chromium.launch(**launch_kwargs)
             ctx_kwargs = dict(
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "

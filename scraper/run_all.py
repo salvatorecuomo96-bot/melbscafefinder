@@ -28,4 +28,7 @@ def run(script_name):
 if __name__ == "__main__":
     run("fetch_hours_places.py")
     run("scrape_menu_images.py")
+    run("sweep_missing_cafes.py")
+    run("check_closures.py")
+    run("enrich_cafes.py")
     print("\n\nAll done.")
