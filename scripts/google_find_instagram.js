@@ -114,7 +114,7 @@ async function run() {
   const cafes    = JSON.parse(fs.readFileSync(CAFES_FILE, 'utf8'));
   const progress = loadProgress();
   const targets  = cafes.filter(c =>
-    (!c.instagram || !c.facebook) &&
+    !c.instagram &&
     progress[c.id] === undefined &&
     distKm(c.latitude, c.longitude) <= RADIUS_KM
   );
@@ -129,27 +129,14 @@ async function run() {
     const results = {};
 
     try {
-      if (!cafe.instagram) {
-        const ig = await findInstagram(cafe);
-        results.instagram = ig || null;
-        if (ig) {
-          cafes.find(c => c.id === cafe.id).instagram = ig;
-          igFound++;
-          process.stdout.write(` IG:${ig.replace('https://instagram.com/', '@')}`);
-        }
-        await new Promise(r => setTimeout(r, DELAY_MS));
+      const ig = await findInstagram(cafe);
+      results.instagram = ig || null;
+      if (ig) {
+        cafes.find(c => c.id === cafe.id).instagram = ig;
+        igFound++;
+        process.stdout.write(` IG:${ig.replace('https://instagram.com/', '@')}`);
       }
-
-      if (!cafe.facebook) {
-        const fb = await findFacebook(cafe);
-        results.facebook = fb || null;
-        if (fb) {
-          cafes.find(c => c.id === cafe.id).facebook = fb;
-          fbFound++;
-          process.stdout.write(` FB:${fb.replace('https://facebook.com/', '@')}`);
-        }
-        await new Promise(r => setTimeout(r, DELAY_MS));
-      }
+      await new Promise(r => setTimeout(r, DELAY_MS));
     } catch (err) {
       process.stdout.write(` ERROR: ${err.message}`);
       results.error = err.message;
@@ -170,8 +157,8 @@ async function run() {
   fs.writeFileSync(PROG_FILE, JSON.stringify(progress, null, 2));
   fs.writeFileSync(CAFES_FILE, JSON.stringify(cafes, null, 2));
 
-  console.log(`\nDone. Instagram: +${igFound}, Facebook: +${fbFound}`);
-  console.log(`Total IG: ${cafes.filter(c => c.instagram).length} | FB: ${cafes.filter(c => c.facebook).length}`);
+  console.log(`\nDone. Instagram: +${igFound}`);
+  console.log(`Total IG: ${cafes.filter(c => c.instagram).length}`);
 }
 
 run().catch(console.error);
