@@ -51,9 +51,11 @@ async function serperSearch(query) {
   return (data.organic || []).map(r => ({ link: r.link, title: r.title || '' })).filter(r => r.link);
 }
 
-// Returns true if title contains at least one meaningful word from the cafe name
+// Returns true if title contains at least one meaningful word from the cafe name.
+// If no meaningful words exist (very short name), always returns true.
 function titleMatchesCafe(title, cafeName) {
-  const words = cafeName.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+  const words = cafeName.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 1);
+  if (words.length === 0) return true;
   const t = title.toLowerCase();
   return words.some(w => t.includes(w));
 }
