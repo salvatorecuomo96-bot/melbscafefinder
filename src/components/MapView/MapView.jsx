@@ -25,32 +25,30 @@ function buildGeoJSON(cafes) {
   };
 }
 
-function loadMapImage(map, url) {
+function loadPNG(src) {
   return new Promise((resolve, reject) => {
-    map.loadImage(url, (err, img) => {
-      if (err) reject(err);
-      else resolve(img);
-    });
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = (e) => reject(new Error(`Failed to load ${src}: ${e.type}`));
+    img.src = src;
   });
 }
 
 async function ensureImages(map) {
   if (!map.hasImage('cafe-pin')) {
-    const img = await loadMapImage(map, '/cup.png');
-    const w = img.width || img.naturalWidth || 256;
-    map.addImage('cafe-pin', img, { pixelRatio: w / CUP_PX });
+    const img = await loadPNG('/cup.png');
+    map.addImage('cafe-pin', img, { pixelRatio: img.naturalWidth / CUP_PX });
   }
   if (!map.hasImage('cluster-moka')) {
-    const img = await loadMapImage(map, '/cluster.png');
-    const w = img.width || img.naturalWidth || 256;
-    map.addImage('cluster-moka', img, { pixelRatio: w / CLU_PX });
+    const img = await loadPNG('/cluster.png');
+    map.addImage('cluster-moka', img, { pixelRatio: img.naturalWidth / CLU_PX });
   }
 }
 
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
 
-  await ensureImages(map);
+  await ensureImages(map).catch((err) => console.error('[MapView] image load failed:', err));
 
   map.addSource('cafes', {
     type: 'geojson',
