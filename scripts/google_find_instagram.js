@@ -13,10 +13,11 @@ const __dirname  = path.dirname(fileURLToPath(import.meta.url));
 const CAFES_FILE = path.join(__dirname, '../public/cafes.json');
 const PROG_FILE  = path.join(__dirname, '../data/google_ig_progress.json');
 
-const DELAY_MS = 1200;
+const DELAY_MS   = 1500;
+const TIMEOUT_MS = 12000;
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36';
 
-const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag'];
+const FB_SKIP = ['sharer','share','login','dialog','events','groups','photo','video','watch','marketplace','gaming','help','policies','privacy','ads','business','reel','hashtag','permalink'];
 const IG_SKIP = ['p','reel','explore','accounts','stories','tv','reels','instagram'];
 
 function loadProgress() {
@@ -24,19 +25,37 @@ function loadProgress() {
   catch { return {}; }
 }
 
-async function ddgSearch(query) {
+async function ddgSearch(query, retries = 2) {
   const q = encodeURIComponent(query);
   const url = `https://html.duckduckgo.com/html/?q=${q}`;
-  try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA } });
-    const html = await res.text();
-    return [...html.matchAll(/uddg=(https?[^&"]+)/g)].map(m => decodeURIComponent(m[1]));
-  } catch { return []; }
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: controller.signal });
+      clearTimeout(timer);
+      const html = await res.text();
+      return [...html.matchAll(/uddg=(https?[^&"]+)/g)].map(m => decodeURIComponent(m[1]));
+    } catch {
+      if (attempt < retries) await new Promise(r => setTimeout(r, 2000));
+    }
+  }
+  return [];
 }
 
 async function findInstagram(cafe) {
-  const urls = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:instagram.com`);
-  for (const href of urls.filter(u => u.includes('instagram.com/'))) {
+  // Strategy 1: site: filter
+  const urls1 = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:instagram.com`);
+  for (const href of urls1.filter(u => u.includes('instagram.com/'))) {
+    const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
+    if (!m) continue;
+    if (IG_SKIP.includes(m[1].toLowerCase())) continue;
+    return `https://instagram.com/${m[1]}`;
+  }
+  // Strategy 2: plain keyword search
+  await new Promise(r => setTimeout(r, DELAY_MS));
+  const urls2 = await ddgSearch(`"${cafe.name}" ${cafe.suburb || ''} Melbourne instagram`);
+  for (const href of urls2.filter(u => u.includes('instagram.com/'))) {
     const m = href.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
     if (!m) continue;
     if (IG_SKIP.includes(m[1].toLowerCase())) continue;
@@ -47,8 +66,20 @@ async function findInstagram(cafe) {
 
 async function findFacebook(cafe) {
   await new Promise(r => setTimeout(r, DELAY_MS));
-  const urls = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:facebook.com`);
-  for (const href of urls.filter(u => u.includes('facebook.com/'))) {
+  // Strategy 1: site: filter
+  const urls1 = await ddgSearch(`${cafe.name} ${cafe.suburb || ''} site:facebook.com`);
+  for (const href of urls1.filter(u => u.includes('facebook.com/'))) {
+    const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
+    if (!m) continue;
+    const handle = m[1].toLowerCase();
+    if (FB_SKIP.includes(handle)) continue;
+    if (/^\d+$/.test(handle)) continue;
+    return `https://facebook.com/${m[1]}`;
+  }
+  // Strategy 2: plain keyword search
+  await new Promise(r => setTimeout(r, DELAY_MS));
+  const urls2 = await ddgSearch(`"${cafe.name}" ${cafe.suburb || ''} Melbourne facebook`);
+  for (const href of urls2.filter(u => u.includes('facebook.com/'))) {
     const m = href.match(/facebook\.com\/([A-Za-z0-9_.%-]{3,})\/?(\?|$)/);
     if (!m) continue;
     const handle = m[1].toLowerCase();
