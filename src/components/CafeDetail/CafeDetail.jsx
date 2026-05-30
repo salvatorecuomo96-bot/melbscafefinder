@@ -6,6 +6,7 @@ import './CafeDetail.css';
 
 export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
   const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [menuOpen, setMenuOpen]       = useState(false);
   const [copied, setCopied]           = useState(false);
 
   const handleShare = () => {
@@ -113,18 +114,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               <p className="detail__desc">{cafe.shortDescription}</p>
             )}
 
-            {/* ── Menu ── */}
-            {menuImages.length > 0 && (
-              <section className="detail__menu">
-                <span className="detail__menu-label">Menu</span>
-                <div className="detail__menu-scroll">
-                  {menuImages.map((src, i) => (
-                    <img key={i} src={src} alt={`${cafe.name} menu ${i + 1}`} loading="lazy" />
-                  ))}
-                </div>
-              </section>
-            )}
-
             {/* ── Hours ── */}
             <section className="detail__section">
               <div className="detail__hours-row">
@@ -170,6 +159,15 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               >
                 <MapPinIcon /> Maps
               </a>
+              {menuImages.length > 0 && (
+                <button
+                  className="detail__btn"
+                  onClick={() => setMenuOpen(true)}
+                  aria-label={`View menu (${menuImages.length} ${menuImages.length === 1 ? 'photo' : 'photos'})`}
+                >
+                  <MenuIcon /> Menu
+                </button>
+              )}
               {(cafe.instagram || cafe.facebook || cafe.tiktok) ? (
                 <a
                   className="detail__btn"
@@ -200,6 +198,14 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
           images={images}
           startIndex={lightboxIdx}
           onClose={() => setLightboxIdx(null)}
+        />
+      )}
+
+      {menuOpen && (
+        <Lightbox
+          images={menuImages}
+          startIndex={0}
+          onClose={() => setMenuOpen(false)}
         />
       )}
     </>
@@ -288,6 +294,14 @@ function SocialIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
       <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 5h18M3 12h18M3 19h12"/>
     </svg>
   );
 }
