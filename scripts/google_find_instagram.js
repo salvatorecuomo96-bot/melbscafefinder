@@ -51,19 +51,24 @@ async function serperSearch(query) {
   return (data.organic || []).map(r => ({ link: r.link, title: r.title || '' })).filter(r => r.link);
 }
 
-// Check if handle loosely matches the cafe name (at least one meaningful word in common)
-function handleMatchesCafe(handle, cafeName) {
-  const words = cafeName.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-  const h = handle.toLowerCase();
-  return words.some(w => h.includes(w));
+// Returns true if title contains at least one meaningful word from the cafe name
+function titleMatchesCafe(title, cafeName) {
+  const words = cafeName.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+  const t = title.toLowerCase();
+  return words.some(w => t.includes(w));
 }
+
+// Known chain names — reject if handle contains these
+const CHAIN_BLOCKLIST = ['mcdonald', 'starbucks', '7eleven', 'subway', 'kfc', 'hungry', 'dominos', 'nandos'];
 
 function extractIG(results, cafeName) {
   for (const { link, title } of results) {
     const m = link.match(/instagram\.com\/([A-Za-z0-9_.]{2,})\/?(\?|$)/);
     if (!m) continue;
     if (IG_SKIP.includes(m[1].toLowerCase())) continue;
-    if (!handleMatchesCafe(m[1], cafeName) && !handleMatchesCafe(title, cafeName)) continue;
+    if (CHAIN_BLOCKLIST.some(c => m[1].toLowerCase().includes(c))) continue;
+    // accept if title matches cafe name OR it's the first result from a site: query
+    if (!titleMatchesCafe(title, cafeName) && !titleMatchesCafe(m[1], cafeName)) continue;
     return `https://instagram.com/${m[1]}`;
   }
   return null;
@@ -77,7 +82,8 @@ function extractFB(results, cafeName) {
     if (FB_SKIP.includes(handle)) continue;
     if (/^\d+$/.test(handle)) continue;
     if (handle.startsWith('www') || /\.(com|au|net|org|co|php)/.test(handle)) continue;
-    if (!handleMatchesCafe(handle, cafeName) && !handleMatchesCafe(title, cafeName)) continue;
+    if (CHAIN_BLOCKLIST.some(c => handle.includes(c))) continue;
+    if (!titleMatchesCafe(title, cafeName) && !titleMatchesCafe(handle, cafeName)) continue;
     return `https://facebook.com/${m[1]}`;
   }
   return null;
