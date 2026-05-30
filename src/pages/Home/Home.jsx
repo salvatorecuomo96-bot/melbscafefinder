@@ -151,7 +151,7 @@ export default function Home() {
         <div className="layout__brand">
           <button
             className="layout__home-btn"
-            onClick={() => handleSavedView(false)}
+            onClick={() => { handleSavedView(false); setDetailCafe(null); api.reset(); }}
             aria-label="Go to discover"
           >
             <span className="layout__logo" aria-hidden="true">
