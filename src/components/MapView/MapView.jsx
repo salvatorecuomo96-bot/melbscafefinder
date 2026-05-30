@@ -10,6 +10,14 @@ const STYLES = {
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
 };
 
+// SVG native dimensions (after viewBox crop on cup)
+const CUP_W = 1254; const CUP_H = 1080;
+const CLU_S = 1254;
+
+// On-screen display sizes in px
+const CUP_PX = 36;
+const CLU_PX = 56;
+
 function buildGeoJSON(cafes) {
   return {
     type: 'FeatureCollection',
@@ -21,55 +29,109 @@ function buildGeoJSON(cafes) {
   };
 }
 
+function loadSVG(src, w, h) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(w, h);
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function ensureImages(map) {
+  const jobs = [];
+  if (!map.hasImage('cafe-pin')) {
+    jobs.push(
+      loadSVG('/cup.svg', CUP_W, CUP_H).then(img =>
+        map.addImage('cafe-pin', img, { pixelRatio: CUP_W / CUP_PX })
+      )
+    );
+  }
+  if (!map.hasImage('cluster-moka')) {
+    jobs.push(
+      loadSVG('/cluster.svg', CLU_S, CLU_S).then(img =>
+        map.addImage('cluster-moka', img, { pixelRatio: CLU_S / CLU_PX })
+      )
+    );
+  }
+  await Promise.all(jobs);
+}
+
 async function addLayers(map, cafes) {
   if (map.getSource('cafes')) return;
+
+  await ensureImages(map);
 
   map.addSource('cafes', {
     type: 'geojson',
     data: buildGeoJSON(cafes),
     cluster: true,
     clusterMaxZoom: 13,
-    clusterRadius: 40,
+    clusterRadius: 42,
   });
 
+  // Moka pot cluster icon
   map.addLayer({
     id: 'clusters',
-    type: 'circle',
-    source: 'cafes',
-    filter: ['has', 'point_count'],
-    paint: {
-      'circle-color': '#1a1a1a',
-      'circle-radius': ['step', ['get', 'point_count'], 16, 10, 22, 50, 28],
-      'circle-stroke-width': 2,
-      'circle-stroke-color': '#fff',
-    },
-  });
-
-  map.addLayer({
-    id: 'cluster-count',
     type: 'symbol',
     source: 'cafes',
     filter: ['has', 'point_count'],
     layout: {
-      'text-field': '{point_count_abbreviated}',
-      'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      'text-size': 12,
+      'icon-image': 'cluster-moka',
+      'icon-anchor': 'center',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.85, 13, 1.0, 16, 1.1],
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
     },
-    paint: { 'text-color': '#fff' },
   });
 
+  // Count number centered on the moka pot body
   map.addLayer({
-    id: 'pins',
-    type: 'circle',
+    id: 'cluster-counts',
+    type: 'symbol',
     source: 'cafes',
-    filter: ['!', ['has', 'point_count']],
+    filter: ['has', 'point_count'],
+    layout: {
+      'text-field': ['case',
+        ['>', ['get', 'point_count'], 999], '999+',
+        ['to-string', ['get', 'point_count']],
+      ],
+      'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+      'text-size': ['interpolate', ['linear'], ['zoom'], 9, 11, 13, 14],
+      'text-anchor': 'center',
+      'text-offset': [0, 0.1],
+      'text-allow-overlap': true,
+      'text-ignore-placement': true,
+    },
     paint: {
-      'circle-color': '#6b3a2a',
-      'circle-radius': 7,
-      'circle-stroke-width': 1.5,
-      'circle-stroke-color': '#fff',
+      'text-color': '#1a1108',
+      'text-halo-color': 'rgba(244, 236, 227, 0.92)',
+      'text-halo-width': 1.2,
     },
   });
+
+  // Coffee cup pin for individual cafes
+  map.addLayer({
+    id: 'pins',
+    type: 'symbol',
+    source: 'cafes',
+    filter: ['!', ['has', 'point_count']],
+    layout: {
+      'icon-image': 'cafe-pin',
+      'icon-anchor': 'bottom',
+      'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.65, 12, 0.85, 14, 1.0, 17, 1.1],
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
+    },
+  });
+}
+
+function expandCluster(map, feature) {
+  const coords = feature.geometry.coordinates.slice();
+  map.getSource('cafes').getClusterExpansionZoom(
+    feature.properties.cluster_id,
+    (err, zoom) => { if (!err) map.easeTo({ center: coords, zoom }); }
+  );
 }
 
 export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
@@ -82,7 +144,6 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
 
   useEffect(() => { cafesRef.current = cafes; }, [cafes]);
 
-  // Init map once
   useEffect(() => {
     if (!TOKEN || !containerRef.current) return;
     mapboxgl.accessToken = TOKEN;
@@ -100,23 +161,22 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
-    map.on('load', () => {
-      map.on('click', 'clusters', (e) => {
-        const [feature] = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        map.getSource('cafes').getClusterExpansionZoom(feature.properties.cluster_id, (err, zoom) => {
-          if (err) return;
-          map.easeTo({ center: feature.geometry.coordinates, zoom });
-        });
-      });
-
+    map.on('load', async () => {
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (cafe && typeof onSelect === 'function') onSelect(cafe);
       });
 
-      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
+      map.on('click', 'clusters', (e) => expandCluster(map, e.features[0]));
+      map.on('click', 'cluster-counts', (e) => expandCluster(map, e.features[0]));
+
+      const setPointer  = () => { map.getCanvas().style.cursor = 'pointer'; };
+      const clearPointer = () => { map.getCanvas().style.cursor = ''; };
+      ['clusters', 'cluster-counts', 'pins'].forEach(l => {
+        map.on('mouseenter', l, setPointer);
+        map.on('mouseleave', l, clearPointer);
+      });
 
       let hoverPopup = null;
       map.on('mouseenter', 'pins', (e) => {
@@ -125,9 +185,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (!cafe) return;
         hoverPopup = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false,
-          offset: 14,
+          closeButton: false, closeOnClick: false, offset: 20,
           className: 'map-pin-tooltip',
         })
           .setLngLat(e.features[0].geometry.coordinates)
@@ -140,7 +198,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
         hoverPopup = null;
       });
 
-      addLayers(map, cafesRef.current);
+      await addLayers(map, cafesRef.current);
       setReady(true);
     });
 
@@ -157,9 +215,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     if (!ready) return;
     const map = mapRef.current;
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
-    map.once('style.load', () => {
-      addLayers(map, cafesRef.current).catch(() => {});
-    });
+    map.once('style.load', () => addLayers(map, cafesRef.current).catch(() => {}));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
 
@@ -169,12 +225,12 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     const map = mapRef.current;
     if (map.getSource('cafes')) {
       map.getSource('cafes').setData(buildGeoJSON(cafes));
-    } else if (cafes.length > 0) {
+    } else {
       addLayers(map, cafes).catch(() => {});
     }
   }, [cafes, ready]);
 
-  // Fly to selected cafe
+  // Fly to selected
   useEffect(() => {
     if (!ready || !selectedId) return;
     const cafe = cafes.find((c) => c.id === selectedId);
@@ -182,12 +238,11 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     mapRef.current.flyTo({
       center: [cafe.longitude, cafe.latitude],
       zoom: Math.max(mapRef.current.getZoom(), 15),
-      speed: 0.8,
-      essential: true,
+      speed: 0.8, essential: true,
     });
   }, [selectedId, ready, cafes]);
 
-  // User location dot
+  // User dot
   useEffect(() => {
     if (!ready || !userCoords) return;
     if (userMarkerRef.current) userMarkerRef.current.remove();
