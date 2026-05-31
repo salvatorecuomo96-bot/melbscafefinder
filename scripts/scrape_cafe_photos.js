@@ -38,7 +38,7 @@ const CAFES_FILE = path.join(__dirname, '../public/cafes.json');
 const PROG_FILE  = path.join(__dirname, '../data/cafe_photos_progress.json');
 
 const CBD          = { lat: -37.8136, lng: 144.9631 };
-const RADIUS_KM    = 5;
+const RADIUS_KM    = 10;
 const MAX_CANDIDATES = 12;     // photos sent to Claude per cafe
 const TARGET_PHOTOS  = 4;      // aim for this many; backfill missing categories with face-free extras
 const CAND_SIZE    = 'w400';   // small size for the vision call (cheap tokens)
