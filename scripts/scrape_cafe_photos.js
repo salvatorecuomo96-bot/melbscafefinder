@@ -142,14 +142,20 @@ Pick the SINGLE BEST photo for each of these four categories:
 
 Also return "extras": a ranked array (best first) of OTHER photo indices to use as
 backfill when a category is missing — any good-quality photo of interior, food, coffee,
-a drink, or an appealing detail shot. The same face rule applies: NO clearly visible faces.
-Do not put menu photos, blurry/dark shots, or anything with a clear face in extras, and do
-not repeat an index already used for the four categories.
+a drink, or an appealing detail shot. The same strict no-people rule below applies.
+Do not put menu photos, blurry/dark shots, or anything with a person's face in extras, and
+do not repeat an index already used for the four categories.
 
 Rules:
-- REJECT any photo with a clearly visible, recognizable human face. Small/blurred/background people are acceptable; a clear face in focus is NOT.
+- NO PEOPLE. Strongly prefer photos with no people in them at all. REJECT any photo where a
+  human face is identifiable in any way — front-on, profile, partial, reflected, or in the
+  background — if its features can be made out. Only tolerate a person if they are tiny and
+  far away, fully turned away (back of head only), or so motion-blurred their face is
+  unrecognizable. When unsure whether a face is identifiable, reject it. Hands/arms holding a
+  cup with no face are fine.
+- If the only photo available for a category has an identifiable face, return -1 for that
+  category rather than using it.
 - Pick the most attractive, well-lit, in-focus, representative photo for each category.
-- If NO suitable photo exists for a category, use -1 for that category.
 - Each photo index may be used for at most one category. Photos are 0-indexed in the order given.
 Return only the structured result.`;
 
