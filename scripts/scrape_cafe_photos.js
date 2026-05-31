@@ -40,6 +40,7 @@ const PROG_FILE  = path.join(__dirname, '../data/cafe_photos_progress.json');
 const CBD          = { lat: -37.8136, lng: 144.9631 };
 const RADIUS_KM    = 5;
 const MAX_CANDIDATES = 12;     // photos sent to Claude per cafe
+const TARGET_PHOTOS  = 5;      // aim for this many; backfill with extra face-free shots
 const CAND_SIZE    = 'w400';   // small size for the vision call (cheap tokens)
 const FINAL_SIZE   = 'w1200';  // full size for the saved/uploaded image
 const DELAY_MS     = 2600;     // between cafes — gentle, avoids Google blocking
@@ -138,6 +139,12 @@ Pick the SINGLE BEST photo for each of these four categories:
 - coffee: a coffee drink (latte, espresso, cappuccino, etc.), close-up
 - food: a food dish or pastry (not coffee)
 
+Also return "extras": a ranked array (best first) of OTHER photo indices to use as
+backfill when a category is missing — any good-quality photo of interior, food, coffee,
+a drink, or an appealing detail shot. The same face rule applies: NO clearly visible faces.
+Do not put menu photos, blurry/dark shots, or anything with a clear face in extras, and do
+not repeat an index already used for the four categories.
+
 Rules:
 - REJECT any photo with a clearly visible, recognizable human face. Small/blurred/background people are acceptable; a clear face in focus is NOT.
 - Pick the most attractive, well-lit, in-focus, representative photo for each category.
@@ -152,8 +159,9 @@ const RESULT_SCHEMA = {
     interior: { type: 'integer' },
     coffee:   { type: 'integer' },
     food:     { type: 'integer' },
+    extras:   { type: 'array', items: { type: 'integer' } },
   },
-  required: ['exterior', 'interior', 'coffee', 'food'],
+  required: ['exterior', 'interior', 'coffee', 'food', 'extras'],
   additionalProperties: false,
 };
 
@@ -239,18 +247,33 @@ async function run() {
       } else {
         const picks = await classifyPhotos(urls);
         const chosen = [];
+        const used = new Set();
+        const labels = [];
+        const valid = (idx) => Number.isInteger(idx) && idx >= 0 && idx < urls.length && !used.has(idx);
+
+        // 1) the four categories, in order
         for (const cat of ORDER) {
           const idx = picks[cat];
-          if (Number.isInteger(idx) && idx >= 0 && idx < urls.length) {
-            try { chosen.push(await uploadChosen(urls[idx], `${cafe.id}_${cat}`)); }
-            catch { /* skip a failed upload */ }
-          }
+          if (!valid(idx)) continue;
+          used.add(idx);
+          try { chosen.push(await uploadChosen(urls[idx], `${cafe.id}_${cat}`)); labels.push(cat); }
+          catch { used.delete(idx); }
         }
+        // 2) backfill with face-free extras until we reach TARGET_PHOTOS
+        let extraN = 0;
+        for (const idx of (Array.isArray(picks.extras) ? picks.extras : [])) {
+          if (chosen.length >= TARGET_PHOTOS) break;
+          if (!valid(idx)) continue;
+          used.add(idx);
+          try { chosen.push(await uploadChosen(urls[idx], `${cafe.id}_extra_${extraN}`)); labels.push('+'); extraN++; }
+          catch { used.delete(idx); }
+        }
+
         if (chosen.length) {
           cafes.find((c) => c.id === cafe.id).images = chosen;
           progress[cafe.id] = chosen.length;
           done++;
-          process.stdout.write(` ✓ ${chosen.length} photos [${ORDER.filter((c) => picks[c] >= 0).join(', ')}]\n`);
+          process.stdout.write(` ✓ ${chosen.length} photos [${labels.join(', ')}]\n`);
         } else {
           progress[cafe.id] = 0;
           process.stdout.write(' · no usable photos\n');
