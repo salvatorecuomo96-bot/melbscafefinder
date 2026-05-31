@@ -38,6 +38,8 @@
   align-items: center;
   justify-content: center;
   padding: 60px 80px;
+  touch-action: none;          /* let our pinch/pan/double-tap handlers work */
+  overflow: hidden;
 }
 
 .lb__img {
@@ -48,11 +50,13 @@
   animation: lbImg 200ms ease;
   user-select: none;
   -webkit-user-drag: none;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 @keyframes lbImg {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .lb__nav {
