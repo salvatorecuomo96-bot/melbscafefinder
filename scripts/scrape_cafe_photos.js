@@ -47,6 +47,7 @@ const DELAY_MS     = 2600;     // between cafes — gentle, avoids Google blocki
 const NAV_TIMEOUT  = 30000;
 const MODEL        = 'claude-haiku-4-5';
 const LIMIT        = parseInt(process.env.PHOTO_LIMIT || '0', 10) || Infinity;
+const ALL          = !!process.env.PHOTO_ALL;   // PHOTO_ALL=1 → ignore radius, do every cafe
 
 // Cafes whose photos were curated by hand — never overwrite these.
 const MANUAL_SKIP = new Set(['au79-abbotsford-abbotsford', 'amiri-cafe-melbourne']);
@@ -204,11 +205,12 @@ async function run() {
     .filter((c) => /query_place_id=/.test(c.googleMapsUrl || '')
       && !MANUAL_SKIP.has(c.id)
       && progress[c.id] === undefined
-      && c.latitude && distKm(c.latitude, c.longitude) <= RADIUS_KM)
+      && c.latitude
+      && (ALL || distKm(c.latitude, c.longitude) <= RADIUS_KM))
     .sort((a, b) => distKm(a.latitude, a.longitude) - distKm(b.latitude, b.longitude))
     .slice(0, LIMIT);
 
-  console.log(`Cafes to curate: ${targets.length}${LIMIT !== Infinity ? ` (TEST limit ${LIMIT})` : ''}`);
+  console.log(`Cafes to curate: ${targets.length}${ALL ? ' (ALL cafes)' : ` (within ${RADIUS_KM}km)`}${LIMIT !== Infinity ? ` — TEST limit ${LIMIT}` : ''}`);
 
   const browser = await puppeteerExtra.launch({
     headless: true,
