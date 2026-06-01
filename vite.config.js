@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon-180.png'],
       manifest: {
-        name: 'Melbourne Cafe Finder',
-        short_name: 'Cafe Finder',
+        name: 'Kookabrew',
+        short_name: 'Kookabrew',
         description: 'Find your perfect Melbourne cafe. Filter by vibe, Wi-Fi, specialty coffee, and more.',
         theme_color: '#1a1a1a',
         background_color: '#f5f0eb',
@@ -25,6 +25,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        skipWaiting: true,            // activate new SW immediately
+        clientsClaim: true,           // take control of open pages at once
+        cleanupOutdatedCaches: true,  // purge stale precaches (old build)
         runtimeCaching: [
           {
             urlPattern: /\/cafes\.json$/,
