@@ -45,7 +45,7 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
     let list = cafes.filter((cafe) => {
       if (q) {
-        const haystack = [cafe.name, cafe.suburb, cafe.address, ...(cafe.tags || [])]
+        const haystack = [cafe.name, cafe.suburb]
           .join(' ').toLowerCase();
         if (!haystack.includes(q)) return false;
       }
@@ -100,9 +100,9 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
         };
         const proximityBonus = (c) => {
           const d = Math.sqrt((c.latitude - CBD_LAT) ** 2 + (c.longitude - CBD_LNG) ** 2) * 111;
-          return Math.max(0, 1 - d / 40);
+          return Math.max(0, 1 - d / 12);   // CBD-focused: fades out by ~12km
         };
-        const score = (c) => bayesian(c) * (0.6 + 0.4 * proximityBonus(c));
+        const score = (c) => bayesian(c) * (0.25 + 0.75 * proximityBonus(c));
         return score(b) - score(a);
       }
 

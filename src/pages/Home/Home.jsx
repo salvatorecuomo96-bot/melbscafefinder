@@ -166,14 +166,13 @@ export default function Home() {
             {savedCount > 0 ? savedCount : 'Saved'}
           </button>
         </div>
-        <p className="layout__tagline">Your Melbourne cafe finder.</p>
 
         {!savedView && (
           <>
             <SearchBar
               value={api.filters.query}
               onChange={api.setQuery}
-              placeholder="Search cafe, suburb, or vibe"
+              placeholder="Search cafe or suburb"
             />
 
             <div className="layout__actions">

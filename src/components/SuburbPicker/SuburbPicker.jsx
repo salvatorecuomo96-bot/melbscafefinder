@@ -1,7 +1,7 @@
 import './SuburbPicker.css';
 
 const INNER_SUBURBS = [
-  'Melbourne',
+  'Melbourne CBD',
   'Southbank', 'Docklands', 'East Melbourne', 'West Melbourne',
   'Carlton', 'North Melbourne', 'Fitzroy', 'Collingwood', 'Richmond', 'South Melbourne', 'Cremorne',
   'Brunswick', 'Parkville', 'Fitzroy North', 'Abbotsford', 'Prahran', 'South Yarra', 'Albert Park', 'Port Melbourne', 'Kensington',

@@ -45,17 +45,14 @@ export default function MobileExplore({
     <div className={`mobile-explore${hidden ? ' mobile-explore--hidden' : ''}`}>
       <header className="mobile-explore__header">
         <img src="/logo-icon.png" className="mobile-explore__logo-icon" alt="" aria-hidden="true" />
-        <div className="mobile-explore__brandtext">
-          <span className="mobile-explore__wordmark"><span className="mobile-explore__wm-brown">Kooka</span>brew</span>
-          <span className="mobile-explore__tagline">Your Melbourne cafe finder.</span>
-        </div>
+        <span className="mobile-explore__wordmark"><span className="mobile-explore__wm-brown">Kooka</span>brew</span>
       </header>
 
       <div className="mobile-explore__search">
         <SearchBar
           value={api.filters.query}
           onChange={api.setQuery}
-          placeholder="Search cafe, suburb..."
+          placeholder="Search cafe or suburb"
         />
       </div>
 
