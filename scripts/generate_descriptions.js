@@ -94,7 +94,9 @@ async function run() {
       const desc = await describe(cafe);
       progress[cafe.id] = desc ? 1 : 0;
       if (desc) {
-        cafes.find((c) => c.id === cafe.id).shortDescription = desc;
+        const target = cafes.find((c) => c.id === cafe.id);
+        target.shortDescription = desc;
+        target.descriptionSource = 'claude';
         done++;
         process.stdout.write(` ✓ ${desc.slice(0, 60)}…`);
       } else {

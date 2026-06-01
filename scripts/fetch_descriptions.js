@@ -89,7 +89,9 @@ async function run() {
       const desc = await fetchDescription(placeIdOf(cafe));
       progress[cafe.id] = desc ? 1 : 0;
       if (desc) {
-        cafes.find((c) => c.id === cafe.id).shortDescription = desc;
+        const target = cafes.find((c) => c.id === cafe.id);
+        target.shortDescription = desc;
+        target.descriptionSource = 'google';   // drives "via Google" attribution
         found++;
         process.stdout.write(` ✓ ${desc.slice(0, 50)}…`);
       } else {
