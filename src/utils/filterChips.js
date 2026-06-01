@@ -1,58 +1,32 @@
-import { FILTER_SECTIONS } from '../constants/filters.js';
+import { PRICE_LEVELS } from '../constants/filters.js';
 
-const BOOL_MAP = Object.fromEntries(
-  FILTER_SECTIONS.flatMap((s) => (s.booleans || []).map((b) => [b.key, b.label]))
-);
-
-const ENUM_LABEL_MAP = {};
-for (const section of FILTER_SECTIONS) {
-  for (const e of (section.enums || [])) {
-    ENUM_LABEL_MAP[e.key] = {};
-    for (const opt of e.options) {
-      const val   = typeof opt === 'string' ? opt : opt.value;
-      const label = typeof opt === 'string' ? opt[0].toUpperCase() + opt.slice(1) : opt.label;
-      ENUM_LABEL_MAP[e.key][val] = label;
-    }
-  }
-}
+const priceLabelByValue = Object.fromEntries(PRICE_LEVELS.map((p) => [p.value, p.label]));
 
 export function getActiveFilterChips(api) {
-  const {
-    filters,
-    toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePriceLevel, toggleOpenNow, toggleOpenLate, setMinRating,
-  } = api;
-
+  const { filters } = api;
   const chips = [];
 
-  if (filters.openNow)  chips.push({ label: 'Open now',  onRemove: toggleOpenNow  });
-  if (filters.openLate) chips.push({ label: 'Open late', onRemove: toggleOpenLate });
+  if (filters.openNow) chips.push({ label: 'Open now', onRemove: api.toggleOpenNow });
+  if (filters.openLate) chips.push({ label: 'Open late', onRemove: api.toggleOpenLate });
 
-  for (const [key, val] of Object.entries(filters.booleans)) {
-    if (!val) continue;
-    chips.push({ label: BOOL_MAP[key] || key, onRemove: () => toggleBoolean(key) });
+  for (const brand of filters.coffeeBrands || []) {
+    chips.push({ label: brand, onRemove: () => api.toggleCoffeeBrand(brand) });
   }
 
-  for (const [key, val] of Object.entries(filters.enums)) {
-    if (!val) continue;
-    const label = ENUM_LABEL_MAP[key]?.[val] || val;
-    chips.push({ label, onRemove: () => toggleEnum(key, val) });
-  }
-
-  for (const brand of filters.coffeeBrands) {
-    chips.push({ label: brand, onRemove: () => toggleCoffeeBrand(brand) });
-  }
-
-  for (const level of filters.priceLevels) {
-    chips.push({ label: '$'.repeat(level), onRemove: () => togglePriceLevel(level) });
+  for (const level of filters.priceLevels || []) {
+    chips.push({ label: priceLabelByValue[level] || `$${level}`, onRemove: () => api.togglePriceLevel(level) });
   }
 
   if (filters.minRating) {
-    chips.push({ label: `${filters.minRating}+ stars`, onRemove: () => setMinRating(0) });
+    chips.push({ label: `${filters.minRating}+ ★`, onRemove: () => api.setMinRating(0) });
   }
 
-  if (filters.query) {
-    chips.push({ label: `"${filters.query}"`, onRemove: () => api.setQuery('') });
+  if (filters.suburb) {
+    chips.push({ label: filters.suburb, onRemove: () => api.setSuburb(filters.suburb) });
+  }
+
+  if (filters.query?.trim()) {
+    chips.push({ label: `Search: ${filters.query.trim()}`, onRemove: () => api.setQuery('') });
   }
 
   return chips;

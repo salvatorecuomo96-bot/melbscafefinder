@@ -18,7 +18,7 @@
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
     "@resvg/resvg-js": "^2.6.2",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.0.2",
     "cheerio": "^1.2.0",
     "cloudinary": "^2.10.0",
     "dotenv": "^17.4.2",
@@ -27,7 +27,7 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "sharp": "^0.34.5",
-    "vite": "^5.4.10",
+    "vite": "^8.0.16",
     "vite-plugin-pwa": "^1.3.0"
   }
 }

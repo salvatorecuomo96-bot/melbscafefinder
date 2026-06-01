@@ -21,7 +21,18 @@
   overflow: hidden;
 }
 
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-2, #f3f0ea);
+  color: var(--color-ink-mute);
+  font-weight: 600;
+}
+
 /* ===== Panel — floating on mobile, sidebar on desktop ===== */
+
 .layout__panel {
   grid-area: 1 / 1 / 2 / 2;
   position: relative;

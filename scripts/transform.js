@@ -151,28 +151,11 @@ for (const feature of features) {
     latitude: lat,
     longitude: lng,
 
-    // ── Phase 2 will fill these ──
+    // ── Google enrichment fills these ──
     rating: null,
-    coffeeQuality: null,
-    foodQuality: null,
     priceLevel: null,
     images: [],
-    shortDescription: null,
-
-    // ── Attributes (Phase 2 enrichment via review keyword matching) ──
-    hasWifi: null,
-    laptopFriendly: null,
-    dogFriendly: null,
-    outdoorSeating: null,
-    quiet: null,
-    goodForDates: null,
-    goodForWork: null,
-    goodForGroups: null,
-    specialtyCoffee: null,
-    matcha: null,
-    pastries: null,
-    hasDecaf: null,
-    plantMilk: null,
+    coffeeBrand: null,
 
     // ── From Geoapify directly ──
     phone: raw.phone || raw['contact:phone'] || null,
@@ -180,7 +163,6 @@ for (const feature of features) {
     openingHours: hours,
 
     // ── Misc ──
-    vibe: null,
     tags: [],
     amenities: [],
     _source: 'geoapify',

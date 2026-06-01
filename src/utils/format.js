@@ -45,8 +45,3 @@ export function isOpenLate(openingHours) {
   const [closeH, closeM] = parts[1].split(':').map(Number);
   return (closeH * 60 + (closeM || 0)) >= LATE_THRESHOLD;
 }
-
-export function plantMilkLabel(milks) {
-  if (!milks?.length) return 'Dairy only';
-  return milks.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ');
-}

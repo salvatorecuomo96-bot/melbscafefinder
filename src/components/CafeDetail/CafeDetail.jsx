@@ -109,15 +109,6 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               </div>
             </header>
 
-            {/* ── Description ── */}
-            {cafe.shortDescription && (
-              <div className="detail__desc-wrap">
-                <p className="detail__desc">{cafe.shortDescription}</p>
-                {cafe.descriptionSource === 'google' && (
-                  <span className="detail__desc-credit">About — via Google</span>
-                )}
-              </div>
-            )}
 
             {/* ── Hours ── */}
             <section className="detail__section">

@@ -12,7 +12,7 @@ export default defineConfig({
       manifest: {
         name: 'Kookabrew',
         short_name: 'Kookabrew',
-        description: 'Find your perfect Melbourne cafe. Filter by vibe, Wi-Fi, specialty coffee, and more.',
+        description: 'Find Melbourne cafes by suburb, opening hours, rating, price, and coffee brand.',
         theme_color: '#1a1a1a',
         background_color: '#f5f0eb',
         display: 'standalone',
@@ -57,8 +57,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          mapbox: ['mapbox-gl'],
+        manualChunks(id) {
+          if (id.includes('node_modules/mapbox-gl')) return 'mapbox';
         },
       },
     },

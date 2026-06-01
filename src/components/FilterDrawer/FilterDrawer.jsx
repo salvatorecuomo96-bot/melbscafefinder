@@ -1,17 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
-  RELIABLE_SECTIONS,
-  CLUE_SECTIONS,
+  FILTER_SECTIONS,
   COFFEE_BRANDS,
   PRICE_LEVELS,
 } from '../../constants/filters.js';
 import './FilterDrawer.css';
 
-const SPARSE_THRESHOLD = 40;
-
 export default function FilterDrawer({ open, onClose, api }) {
-  const [cluesOpen, setCluesOpen] = useState(false);
-
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -27,14 +22,22 @@ export default function FilterDrawer({ open, onClose, api }) {
 
   const {
     filters, filterCounts,
-    toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePriceLevel, setMinRating,
+    toggleCoffeeBrand, togglePriceLevel, setMinRating,
     toggleOpenNow, toggleOpenLate, reset, activeCount, visibleCafes,
   } = api;
 
-  const boolCount = (key) => filterCounts.booleans[key] || 0;
-  const enumCount = (key, val) => filterCounts.enums?.[key]?.[val] || 0;
   const brandCount = (brand) => filterCounts.brands[brand] || 0;
+  const brandOptions = [
+    ...new Set([
+      ...COFFEE_BRANDS,
+      ...Object.keys(filterCounts.brands || {}),
+    ]),
+  ].filter((brand) => brandCount(brand) > 0 || filters.coffeeBrands.includes(brand));
+
+  brandOptions.sort((a, b) => {
+    const byCount = brandCount(b) - brandCount(a);
+    return byCount || a.localeCompare(b);
+  });
 
   return (
     <div className="drawer" onClick={onClose} role="dialog" aria-modal="true" aria-label="Filters">
@@ -52,11 +55,9 @@ export default function FilterDrawer({ open, onClose, api }) {
         </header>
 
         <div className="drawer__body">
-
-          {/* ── Reliable ── */}
           <div className="drawer__group-header">
-            <span className="drawer__group-label">Reliable</span>
-            <span className="drawer__group-sub">Verified data</span>
+            <span className="drawer__group-label">Reliable filters</span>
+            <span className="drawer__group-sub">Hours, rating, price, and coffee brand</span>
           </div>
 
           <section className="drawer__group">
@@ -80,19 +81,15 @@ export default function FilterDrawer({ open, onClose, api }) {
             </div>
           </section>
 
-          {RELIABLE_SECTIONS.map((section) => (
+          {FILTER_SECTIONS.map((section) => (
             <SectionBody
               key={section.id}
               section={section}
               filters={filters}
-              filterCounts={filterCounts}
-              toggleBoolean={toggleBoolean}
-              toggleEnum={toggleEnum}
               toggleCoffeeBrand={toggleCoffeeBrand}
               togglePriceLevel={togglePriceLevel}
-              boolCount={boolCount}
-              enumCount={enumCount}
               brandCount={brandCount}
+              brandOptions={brandOptions}
             />
           ))}
 
@@ -106,39 +103,6 @@ export default function FilterDrawer({ open, onClose, api }) {
               format={(v) => (v ? `${v}+ ★` : 'Any')}
             />
           </section>
-
-          {/* ── People mention (collapsible) ── */}
-          <button
-            className={`drawer__clues-toggle${cluesOpen ? ' is-open' : ''}`}
-            onClick={() => setCluesOpen((o) => !o)}
-            aria-expanded={cluesOpen}
-          >
-            <span className="drawer__clues-toggle-label">
-              <span className="drawer__clues-toggle-title">Mentioned in reviews</span>
-              <span className="drawer__clues-toggle-sub">Vibes, food, coffee, atmosphere</span>
-            </span>
-            <ChevronIcon />
-          </button>
-
-          {cluesOpen && (
-            <div className="drawer__clue-sections">
-              {CLUE_SECTIONS.map((section) => (
-                <SectionBody
-                  key={section.id}
-                  section={section}
-                  filters={filters}
-                  filterCounts={filterCounts}
-                  toggleBoolean={toggleBoolean}
-                  toggleEnum={toggleEnum}
-                  toggleCoffeeBrand={toggleCoffeeBrand}
-                  togglePriceLevel={togglePriceLevel}
-                  boolCount={boolCount}
-                  enumCount={enumCount}
-                  brandCount={brandCount}
-                />
-              ))}
-            </div>
-          )}
         </div>
 
         <footer className="drawer__foot">
@@ -154,78 +118,32 @@ export default function FilterDrawer({ open, onClose, api }) {
   );
 }
 
-function SectionBody({ section, filters, filterCounts, toggleBoolean, toggleEnum, toggleCoffeeBrand, togglePriceLevel, boolCount, enumCount, brandCount }) {
-  const hasContent = section.booleans?.length > 0 || section.enums?.length > 0 || section.brands || section.price;
+function SectionBody({ section, filters, toggleCoffeeBrand, togglePriceLevel, brandCount, brandOptions }) {
+  const hasContent = section.brands || section.price;
   if (!hasContent) return null;
   return (
     <section className="drawer__group">
       {section.label && <h3>{section.label}</h3>}
-      {section.booleans?.length > 0 && (
-        <div className="drawer__pills">
-          {section.booleans.map((f) => {
-            const count = boolCount(f.key);
-            const sparse = count < SPARSE_THRESHOLD;
-            return (
-              <button
-                key={f.key}
-                className={`drawer__pill ${filters.booleans[f.key] ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
-                onClick={() => toggleBoolean(f.key)}
-                aria-pressed={!!filters.booleans[f.key]}
-              >
-                {f.label}
-                <span className="drawer__pill-count">{count}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-      {section.enums?.map((enumDef) => {
-        const options = enumDef.options.map((o) =>
-          typeof o === 'string' ? { value: o, label: o[0].toUpperCase() + o.slice(1) } : o
-        );
-        return (
-          <div key={enumDef.key} className="drawer__enum">
-            <span className="drawer__enum-label">{enumDef.label}</span>
-            <div className="drawer__pills">
-              {options.map((o) => {
-                const count = enumCount(enumDef.key, o.value);
-                const sparse = count < SPARSE_THRESHOLD;
-                return (
-                  <button
-                    key={o.value}
-                    className={`drawer__pill ${filters.enums[enumDef.key] === o.value ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
-                    onClick={() => toggleEnum(enumDef.key, o.value)}
-                    aria-pressed={filters.enums[enumDef.key] === o.value}
-                  >
-                    {o.label}
-                    <span className="drawer__pill-count">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
       {section.brands && (
         <div className="drawer__enum">
-          <span className="drawer__enum-label">Coffee brand</span>
-          <div className="drawer__pills">
-            {COFFEE_BRANDS.map((brand) => {
-              const count = brandCount(brand);
-              const sparse = count < SPARSE_THRESHOLD;
-              return (
+          <span className="drawer__enum-label">Roaster / coffee supplier</span>
+          {brandOptions.length ? (
+            <div className="drawer__pills">
+              {brandOptions.map((brand) => (
                 <button
                   key={brand}
-                  className={`drawer__pill ${filters.coffeeBrands.includes(brand) ? 'is-on' : ''} ${sparse ? 'is-sparse' : ''}`}
+                  className={`drawer__pill ${filters.coffeeBrands.includes(brand) ? 'is-on' : ''}`}
                   onClick={() => toggleCoffeeBrand(brand)}
                   aria-pressed={filters.coffeeBrands.includes(brand)}
                 >
                   {brand}
-                  <span className="drawer__pill-count">{count}</span>
+                  <span className="drawer__pill-count">{brandCount(brand)}</span>
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="drawer__empty-note">Coffee-brand data is being curated.</p>
+          )}
         </div>
       )}
       {section.price && (
@@ -246,14 +164,6 @@ function SectionBody({ section, filters, filterCounts, toggleBoolean, toggleEnum
         </div>
       )}
     </section>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
   );
 }
 

@@ -84,6 +84,16 @@ function expandCluster(map, feature) {
   );
 }
 
+function buildTooltipNode(cafe) {
+  const wrapper = document.createElement('div');
+  const name = document.createElement('strong');
+  name.textContent = cafe.name || 'Cafe';
+  const suburb = document.createElement('span');
+  suburb.textContent = cafe.suburb || '';
+  wrapper.append(name, suburb);
+  return wrapper;
+}
+
 export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
   const containerRef  = useRef(null);
   const mapRef        = useRef(null);
@@ -140,7 +150,7 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
           className: 'map-pin-tooltip',
         })
           .setLngLat(e.features[0].geometry.coordinates)
-          .setHTML(`<strong>${cafe.name}</strong><span>${cafe.suburb}</span>`)
+          .setDOMContent(buildTooltipNode(cafe))
           .addTo(map);
       });
       map.on('mouseleave', 'pins', () => {

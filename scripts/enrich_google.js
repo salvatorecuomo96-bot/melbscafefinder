@@ -101,30 +101,13 @@ async function findPlaceIdLoose(name, lat, lng) {
 }
 
 async function getDetails(placeId) {
-  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website,business_status,reviews';
+  const fields = 'name,rating,user_ratings_total,photos,price_level,opening_hours,formatted_phone_number,website,business_status';
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${KEY}`;
   await sleep(RATE_MS);
   const data = await get(url);
   return data.status === 'OK' ? data.result : null;
 }
 
-function extractAttributes(reviews = []) {
-  const text = reviews.map((r) => r.text || '').join(' ').toLowerCase();
-  const has = (re) => re.test(text) ? true : null;
-  const quiet = /\bquiet\b|\bpeaceful\b|\bcalm\b|\brelax/.test(text)
-    ? true : /\bnoisy\b|\bloud\b|\bcrowded\b/.test(text) ? false : null;
-  return {
-    hasWifi:         has(/\bwi.?fi\b|\bwireless\b|\binternet\b/),
-    laptopFriendly:  has(/\blaptop\b|\bremote work\b|\bwork(ing)? (from|here)\b|\bstud(y|ying)\b/),
-    dogFriendly:     has(/\bdog\b|\bpup(py|pet)?\b|\bcanine\b|\bpooch\b|\bfour.legged\b/),
-    outdoorSeating:  has(/\boutdoor\b|\boutside\b|\bgarden\b|\bterrace\b|\bcourtyard\b|\balfresco\b|\bsidewal(k|kside)\b/),
-    quiet,
-    matcha:          has(/\bmatcha\b/),
-    pastries:        has(/\bpastry\b|\bpastries\b|\bcroissant\b|\bdanish\b|\bscone\b|\bbrioche\b/),
-    hasDecaf:        has(/\bdecaf\b/),
-    specialtyCoffee: has(/\bspecialt(y|ies) coffee\b|\bsingle.?origin\b|\bfilter coffee\b|\baeropress\b|\bpour.?over\b|\bcold brew\b/),
-  };
-}
 
 async function getPhotoUrl(ref) {
   const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${ref}&key=${KEY}`;
@@ -597,7 +580,6 @@ const merged = cafes
   .map((cafe) => {
     const e = progress.enriched[cafe.id];
     if (!e?.found) return cafe;
-    const attrs = extractAttributes(e.reviews || []);
     return {
       ...cafe,
       rating: e.rating,
@@ -607,17 +589,8 @@ const merged = cafes
       openingHours: e.openingHours || cafe.openingHours,
       phone: e.phone || cafe.phone,
       website: e.website || cafe.website,
-      _googlePlaceId: e.googlePlaceId,
-      // Only overwrite if the existing value is null (manual curation wins)
-      hasWifi:         cafe.hasWifi         ?? attrs.hasWifi,
-      laptopFriendly:  cafe.laptopFriendly  ?? attrs.laptopFriendly,
-      dogFriendly:     cafe.dogFriendly     ?? attrs.dogFriendly,
-      outdoorSeating:  cafe.outdoorSeating  ?? attrs.outdoorSeating,
-      quiet:           cafe.quiet           ?? attrs.quiet,
-      matcha:          cafe.matcha          ?? attrs.matcha,
-      pastries:        cafe.pastries        ?? attrs.pastries,
-      hasDecaf:        cafe.hasDecaf        ?? attrs.hasDecaf,
-      specialtyCoffee: cafe.specialtyCoffee ?? attrs.specialtyCoffee,
+            _googlePlaceId: e.googlePlaceId,
+
     };
   });
 
@@ -632,7 +605,6 @@ for (const nc of progress.newCafes) {
   while (seen.has(slug)) slug = `${slugify(`${nc.name}-${suburb}`)}-${suffix++}`;
   seen.add(slug);
 
-  const ncAttrs = extractAttributes(nc.reviews || []);
   newConverted.push({
     id: slug,
     name: nc.name,
@@ -642,28 +614,13 @@ for (const nc of progress.newCafes) {
     longitude: nc.longitude,
     rating: nc.rating,
     userRatingsTotal: nc.userRatingsTotal,
-    coffeeQuality: null,
-    foodQuality: null,
-    priceLevel: nc.priceLevel,
+        priceLevel: nc.priceLevel,
     images: nc.photoUrls?.length ? nc.photoUrls : [],
-    shortDescription: null,
-    hasWifi:         ncAttrs.hasWifi,
-    laptopFriendly:  ncAttrs.laptopFriendly,
-    dogFriendly:     ncAttrs.dogFriendly,
-    outdoorSeating:  ncAttrs.outdoorSeating,
-    quiet:           ncAttrs.quiet,
-    goodForDates: null,
-    goodForWork: null,
-    goodForGroups: null,
-    specialtyCoffee: ncAttrs.specialtyCoffee,
-    matcha:          ncAttrs.matcha,
-    pastries:        ncAttrs.pastries,
-    hasDecaf:        ncAttrs.hasDecaf,
-    plantMilk: null,
+    coffeeBrand: null,
+
     phone: nc.phone,
     website: nc.website,
     openingHours: nc.openingHours,
-    vibe: null,
     tags: [],
     amenities: [],
     _source: 'google',

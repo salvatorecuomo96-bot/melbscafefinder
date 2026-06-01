@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 /**
- * Strips fields from public/cafes.json that are not used by any UI component,
- * filter, or search logic. Run after any enrichment step.
+ * Strips public/cafes.json to fields used by the current UI, search logic, and
+ * reliable filters. Run after enrichment/publishing.
  *
  * Usage: node scripts/trim_cafes.js
  */
@@ -13,22 +14,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SRC = join(__dirname, '../public/cafes.json');
 
 const KEEP = new Set([
-  // Identity
+  // Identity and location
   'id', 'name', 'suburb', 'address', 'latitude', 'longitude',
   // Display
-  'images', 'rating', 'userRatingsTotal', 'shortDescription', 'vibe',
-  'priceLevel', 'phone', 'website', 'openingHours', 'tags',
-  // Coffee
-  'specialtyCoffee', 'filterCoffee', 'hasDecaf', 'matcha', 'chaiType', 'coffeeBrand',
-  // Food
-  'pastries', 'breakfastAllDay', 'brunchQuality', 'veganOptions', 'plantMilk',
-  // Practical
-  'hasWifi', 'hasPowerOutlets', 'laptopFriendly',
-  'outdoorSeating', 'dogFriendly', 'pramFriendly', 'kidFriendly',
-  // Atmosphere
-  'noiseLevel', 'serviceStyle',
-  // Character
-  'hiddenGem', 'locallyOwned',
+  'images', 'menuImages', 'rating', 'userRatingsTotal', 'priceLevel',
+  'phone', 'website', 'instagram', 'facebook', 'tiktok', 'googleMapsUrl',
+  'openingHours', 'tags',
+  // Reliable filter/search enrichment
+  'coffeeBrand',
 ]);
 
 const cafes = JSON.parse(readFileSync(SRC, 'utf8'));
@@ -36,16 +29,16 @@ const cafes = JSON.parse(readFileSync(SRC, 'utf8'));
 const trimmed = cafes.map((cafe) => {
   const out = {};
   for (const key of KEEP) {
-    if (key in cafe) out[key] = cafe[key];
+    if (key in cafe && cafe[key] != null) out[key] = cafe[key];
   }
   return out;
 });
 
 const before = JSON.stringify(cafes).length;
-const after  = JSON.stringify(trimmed).length;
+const after = JSON.stringify(trimmed).length;
 writeFileSync(SRC, JSON.stringify(trimmed));
 
 console.log(`Cafes: ${trimmed.length}`);
 console.log(`Before: ${(before / 1024).toFixed(0)} KB`);
-console.log(`After:  ${(after  / 1024).toFixed(0)} KB`);
+console.log(`After:  ${(after / 1024).toFixed(0)} KB`);
 console.log(`Saved:  ${((before - after) / 1024).toFixed(0)} KB (${(100 * (1 - after / before)).toFixed(1)}%)`);

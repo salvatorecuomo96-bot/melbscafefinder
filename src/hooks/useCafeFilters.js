@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_FILTERS, FILTER_SECTIONS } from '../constants/filters.js';
+import { DEFAULT_FILTERS } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
 import { openStatus, isOpenLate } from '../utils/format.js';
-
-const BOOL_KEYS = FILTER_SECTIONS.flatMap((s) => (s.booleans || []).map((b) => b.key));
-const ENUM_KEYS = FILTER_SECTIONS.flatMap((s) => (s.enums || []).map((e) => e.key));
 
 export function useCafeFilters({ cafes = [], userCoords } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState('rating');
 
-  // Debounce the search query: input updates immediately, filtering waits 200 ms
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const debounceRef = useRef(null);
   useEffect(() => {
@@ -19,25 +15,18 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
     return () => clearTimeout(debounceRef.current);
   }, [filters.query]);
 
-  // Count how many cafes match each filter option (for display in drawer)
   const filterCounts = useMemo(() => {
-    const booleans = {}, enums = {}, brands = {};
-    let openNow = 0, openLate = 0;
+    const brands = {};
+    let openNow = 0;
+    let openLate = 0;
+
     for (const cafe of cafes) {
-      for (const key of BOOL_KEYS) {
-        if (cafe[key] === true) booleans[key] = (booleans[key] || 0) + 1;
-      }
-      for (const key of ENUM_KEYS) {
-        if (cafe[key]) {
-          if (!enums[key]) enums[key] = {};
-          enums[key][cafe[key]] = (enums[key][cafe[key]] || 0) + 1;
-        }
-      }
       if (cafe.coffeeBrand) brands[cafe.coffeeBrand] = (brands[cafe.coffeeBrand] || 0) + 1;
       if (openStatus(cafe.openingHours).isOpen) openNow++;
       if (isOpenLate(cafe.openingHours)) openLate++;
     }
-    return { booleans, enums, brands, openNow, openLate };
+
+    return { brands, openNow, openLate };
   }, [cafes]);
 
   const visibleCafes = useMemo(() => {
@@ -45,24 +34,15 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
     let list = cafes.filter((cafe) => {
       if (q) {
-        const haystack = [cafe.name, cafe.suburb]
-          .join(' ').toLowerCase();
+        const haystack = [cafe.name, cafe.suburb, cafe.coffeeBrand]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
         if (!haystack.includes(q)) return false;
       }
 
       if (filters.suburb && cafe.suburb !== filters.suburb) return false;
 
-      // Boolean: hard match — only show cafes explicitly marked true
-      for (const [key, isOn] of Object.entries(filters.booleans)) {
-        if (isOn && cafe[key] !== true) return false;
-      }
-
-      // Enum: hard match — null does NOT pass when filter is active
-      for (const [key, val] of Object.entries(filters.enums)) {
-        if (val && cafe[key] !== val) return false;
-      }
-
-      // Coffee brands: hard match
       if (filters.coffeeBrands.length) {
         if (!filters.coffeeBrands.includes(cafe.coffeeBrand)) return false;
       }
@@ -100,7 +80,7 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
         };
         const proximityBonus = (c) => {
           const d = Math.sqrt((c.latitude - CBD_LAT) ** 2 + (c.longitude - CBD_LNG) ** 2) * 111;
-          return Math.max(0, 1 - d / 12);   // CBD-focused: fades out by ~12km
+          return Math.max(0, 1 - d / 12);
         };
         const score = (c) => bayesian(c) * (0.25 + 0.75 * proximityBonus(c));
         return score(b) - score(a);
@@ -111,15 +91,6 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
     return list;
   }, [cafes, filters, debouncedQuery, sort, userCoords]);
-
-  const toggleBoolean = (key) =>
-    setFilters((f) => ({ ...f, booleans: { ...f.booleans, [key]: !f.booleans[key] } }));
-
-  const toggleEnum = (key, value) =>
-    setFilters((f) => ({
-      ...f,
-      enums: { ...f.enums, [key]: f.enums[key] === value ? undefined : value },
-    }));
 
   const toggleCoffeeBrand = (brand) =>
     setFilters((f) => ({
@@ -137,27 +108,24 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
         : [...f.priceLevels, level],
     }));
 
-  const setQuery  = (query)  => setFilters((f) => ({ ...f, query }));
+  const setQuery = (query) => setFilters((f) => ({ ...f, query }));
   const setSuburb = (suburb) => setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
-  const toggleOpenNow  = () => setFilters((f) => ({ ...f, openNow:  !f.openNow  }));
+  const toggleOpenNow = () => setFilters((f) => ({ ...f, openNow: !f.openNow }));
   const toggleOpenLate = () => setFilters((f) => ({ ...f, openLate: !f.openLate }));
   const reset = () => setFilters(DEFAULT_FILTERS);
 
   const activeCount =
-    Object.values(filters.booleans).filter(Boolean).length +
-    Object.values(filters.enums).filter(Boolean).length +
     filters.coffeeBrands.length +
     filters.priceLevels.length +
     (filters.minRating ? 1 : 0) +
-    (filters.openNow   ? 1 : 0) +
-    (filters.openLate  ? 1 : 0) +
-    (filters.suburb    ? 1 : 0);
+    (filters.openNow ? 1 : 0) +
+    (filters.openLate ? 1 : 0) +
+    (filters.suburb ? 1 : 0);
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
-    setQuery, setSuburb, toggleBoolean, toggleEnum, toggleCoffeeBrand,
-    togglePriceLevel, setMinRating,
+    setQuery, setSuburb, toggleCoffeeBrand, togglePriceLevel, setMinRating,
     toggleOpenNow, toggleOpenLate, reset,
   };
 }

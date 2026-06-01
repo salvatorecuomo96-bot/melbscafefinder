@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import FilterChips from '../../components/FilterChips/FilterChips.jsx';
 import SortBar from '../../components/SortBar/SortBar.jsx';
@@ -6,7 +7,7 @@ import CafeCard from '../../components/CafeCard/CafeCard.jsx';
 import CafeDetail from '../../components/CafeDetail/CafeDetail.jsx';
 import CafePreviewCard from '../../components/CafePreviewCard/CafePreviewCard.jsx';
 import FilterDrawer from '../../components/FilterDrawer/FilterDrawer.jsx';
-import MapView from '../../components/MapView/MapView.jsx';
+
 import EmptyState from '../../components/EmptyState/EmptyState.jsx';
 import BottomSheet from '../../components/BottomSheet/BottomSheet.jsx';
 import BottomNav from '../../components/BottomNav/BottomNav.jsx';
@@ -23,7 +24,10 @@ import { haversineKm } from '../../utils/distance.js';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import './Home.css';
 
+const MapView = lazy(() => import('../../components/MapView/MapView.jsx'));
+
 export default function Home() {
+
   const [previewCafe, setPreviewCafe]   = useState(null);
   const [detailCafe, setDetailCafe]     = useState(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
@@ -225,8 +229,6 @@ export default function Home() {
 
             <div className="layout__chips-wrap">
               <FilterChips
-                activeBooleans={api.filters.booleans}
-                onToggle={api.toggleBoolean}
                 onOpenAll={() => setDrawerOpen(true)}
                 activeCount={api.activeCount}
               />
@@ -248,15 +250,18 @@ export default function Home() {
       </aside>
 
       <main className="layout__map">
-        <MapView
-          cafes={api.visibleCafes}
-          selectedId={previewCafe?.id}
-          onSelect={(cafe) => {
-            setPreviewCafe(cafe);
-            setDetailCafe(cafe); // Open detail when clicking map pin
-          }}
-          userCoords={coords}
-        />
+                <Suspense fallback={<div className="map-loading">Loading map…</div>}>
+          <MapView
+            cafes={api.visibleCafes}
+            selectedId={previewCafe?.id}
+            onSelect={(cafe) => {
+              setPreviewCafe(cafe);
+              setDetailCafe(cafe); // Open detail when clicking map pin
+            }}
+            userCoords={coords}
+          />
+        </Suspense>
+
         {previewCafe && activeTab === 'map' && sheetSnap === 0 && (
           <CafePreviewCard
             cafe={previewCafe}

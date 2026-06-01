@@ -154,9 +154,7 @@ function buildEntry(result, detail, suburb) {
     website: detail?.website || null,
     openingHours: parseHours(detail?.opening_hours?.periods),
     images: [],
-    shortDescription: null,
     tags: [],
-    specialtyCoffee: null,
     coffeeBrand: null,
     priceLevel: result.price_level || null,
     googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((detail?.name || result.name) + ' ' + suburb)}&query_place_id=${result.place_id}`,
@@ -175,8 +173,8 @@ async function main() {
       continue;
     }
     const full = {
-      images: [], shortDescription: null, tags: [],
-      specialtyCoffee: null, coffeeBrand: null, priceLevel: 2,
+      images: [], tags: [],
+      coffeeBrand: null, priceLevel: 2,
       ...entry,
     };
     toAdd.push(full);
