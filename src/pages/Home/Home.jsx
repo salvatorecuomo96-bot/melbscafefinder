@@ -154,13 +154,7 @@ export default function Home() {
             onClick={() => { handleSavedView(false); setDetailCafe(null); api.reset(); }}
             aria-label="Go to discover"
           >
-            <span className="layout__logo" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 64 64">
-                <rect width="64" height="64" rx="14" fill="#1a1a1a" />
-                <path d="M20 22h22a6 6 0 0 1 0 12h-2v4a8 8 0 0 1-8 8H28a8 8 0 0 1-8-8V22zm22 4v6a2 2 0 0 0 0-6z" fill="#e8c39e" />
-              </svg>
-            </span>
-            <span className="layout__wordmark">Melbourne <em>Cafe</em> Finder</span>
+            <img src="/logo-header.png" className="layout__logo-img" alt="Kookabrew" />
           </button>
           <button
             className={`layout__saved-tab${savedView ? ' is-active' : ''}`}
@@ -171,6 +165,7 @@ export default function Home() {
             {savedCount > 0 ? savedCount : 'Saved'}
           </button>
         </div>
+        <p className="layout__tagline">Your Melbourne cafe finder.</p>
 
         {!savedView && (
           <>
