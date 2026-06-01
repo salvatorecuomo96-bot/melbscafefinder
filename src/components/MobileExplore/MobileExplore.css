@@ -26,19 +26,21 @@
   padding: calc(18px + env(safe-area-inset-top)) 16px 14px;
 }
 
-.mobile-explore__logo { display: inline-flex; flex-shrink: 0; }
+.mobile-explore__logo-icon { height: 52px; width: auto; flex-shrink: 0; display: block; }
+.mobile-explore__brandtext { display: flex; flex-direction: column; gap: 1px; }
 
 .mobile-explore__wordmark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 22px;
   letter-spacing: -0.01em;
-  color: var(--color-ink);
+  color: #1a1208;
 }
-.mobile-explore__wordmark em {
+.mobile-explore__wm-brown { color: var(--color-accent); }
+.mobile-explore__tagline {
+  font-size: 12.5px;
+  color: #8a8178;
   font-style: italic;
-  font-weight: 500;
-  color: var(--color-accent);
 }
 
 /* ===== Search ===== */
