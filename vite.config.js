@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      selfDestroying: true,   // kill-switch: unregisters stuck SWs + wipes their caches
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon-180.png'],
       manifest: {
