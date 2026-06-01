@@ -78,8 +78,6 @@ export default function CafeCard({ cafe, onOpen, isSaved = false, onToggleSave }
           {cafe.suburb}{priceLabel(cafe.priceLevel) ? ` · ${priceLabel(cafe.priceLevel)}` : ''}
         </p>
 
-        <p className="card__desc">{cafe.shortDescription}</p>
-
       </div>
     </article>
   );
