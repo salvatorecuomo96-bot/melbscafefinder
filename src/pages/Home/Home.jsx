@@ -154,7 +154,8 @@ export default function Home() {
             onClick={() => { handleSavedView(false); setDetailCafe(null); api.reset(); }}
             aria-label="Go to discover"
           >
-            <img src="/logo-header.png" className="layout__logo-img" alt="Kookabrew" />
+            <img src="/logo-icon.png" className="layout__logo-icon" alt="" aria-hidden="true" />
+            <span className="layout__wordmark">Kooka<em>brew</em></span>
           </button>
           <button
             className={`layout__saved-tab${savedView ? ' is-active' : ''}`}

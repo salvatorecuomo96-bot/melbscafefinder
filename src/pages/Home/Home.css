@@ -65,12 +65,12 @@
 }
 .layout__home-btn:hover .layout__wordmark { opacity: 0.7; }
 
-.layout__logo-img {
-  height: 26px;
+.layout__logo-icon {
+  height: 40px;
   width: auto;
   display: block;
 }
-.layout__home-btn:hover .layout__logo-img { opacity: 0.8; }
+.layout__home-btn:hover .layout__logo-icon { opacity: 0.85; }
 
 .layout__tagline {
   align-self: flex-start;
@@ -84,7 +84,7 @@
 .layout__wordmark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 20px;
   letter-spacing: -0.01em;
 }
 .layout__wordmark em {
