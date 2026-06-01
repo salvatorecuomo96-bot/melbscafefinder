@@ -189,6 +189,16 @@ export default function CafeDetail({ cafe, onClose, isSaved, onToggleSave }) {
               ) : null}
             </div>
 
+            {/* ── Photo credit + takedown ── */}
+            <p className="detail__credit">
+              Photos via Google &amp; business listings.{' '}
+              <a
+                href={`mailto:salvatore.cuomo96@gmail.com?subject=${encodeURIComponent(`Photo removal request — ${cafe.name}`)}&body=${encodeURIComponent(`Please remove a photo for "${cafe.name}" (${cafe.suburb}).\n\nWhich photo / reason:\n`)}`}
+              >
+                Report a photo
+              </a>
+            </p>
+
           </div>
         </div>
       </div>

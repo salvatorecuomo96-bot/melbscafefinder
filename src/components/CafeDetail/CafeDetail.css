@@ -286,6 +286,19 @@
   font-weight: 600;
 }
 
+/* ── Photo credit + takedown ── */
+.detail__credit {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #9b938a;
+  text-align: center;
+}
+.detail__credit a {
+  color: #9b938a;
+  text-decoration: underline;
+}
+.detail__credit a:hover { color: #6b6359; }
+
 /* ── Actions ── */
 .detail__actions {
   display: flex;
