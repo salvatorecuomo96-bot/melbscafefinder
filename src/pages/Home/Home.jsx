@@ -155,7 +155,7 @@ export default function Home() {
             aria-label="Go to discover"
           >
             <img src="/logo-icon.png" className="layout__logo-icon" alt="" aria-hidden="true" />
-            <span className="layout__wordmark">Kookabrew</span>
+            <span className="layout__wordmark"><span className="layout__wm-brown">Kooka</span>brew</span>
           </button>
           <button
             className={`layout__saved-tab${savedView ? ' is-active' : ''}`}

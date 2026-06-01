@@ -66,7 +66,7 @@
 .layout__home-btn:hover .layout__wordmark { opacity: 0.7; }
 
 .layout__logo-icon {
-  height: 60px;
+  height: 66px;
   width: auto;
   display: block;
 }
@@ -86,7 +86,9 @@
   font-weight: 700;
   font-size: 20px;
   letter-spacing: -0.01em;
+  color: #1a1208;            /* "brew" = black */
 }
+.layout__wm-brown { color: var(--color-accent); }  /* "Kooka" = brown */
 .layout__wordmark em {
   font-style: italic;
   font-weight: 500;
