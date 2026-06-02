@@ -13,6 +13,10 @@ export function getActiveFilterChips(api) {
     chips.push({ label: `${filters.minRating}+ ★`, onRemove: () => api.setMinRating(0) });
   }
 
+  if (filters.minReviews) {
+    chips.push({ label: `${filters.minReviews}+ reviews`, onRemove: () => api.setMinReviews(0) });
+  }
+
   if (filters.suburb) {
     chips.push({ label: filters.suburb, onRemove: () => api.setSuburb(filters.suburb) });
   }

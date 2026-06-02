@@ -20,7 +20,7 @@ export default function FilterDrawer({ open, onClose, api }) {
 
   const {
     filters, filterCounts,
-    toggleCoffeeBrand, setMinRating,
+    toggleCoffeeBrand, setMinRating, setMinReviews,
     toggleOpenNow, toggleOpenLate, reset, activeCount, visibleCafes,
   } = api;
 
@@ -83,6 +83,22 @@ export default function FilterDrawer({ open, onClose, api }) {
               step={0.5}
               format={(v) => (v ? `${v}+ ★` : 'Any')}
             />
+          </section>
+
+          <section className="drawer__group">
+            <h3>Number of reviews</h3>
+            <div className="drawer__segment">
+              {[0, 100, 200, 500].map((val) => (
+                <button
+                  key={val}
+                  className={`drawer__seg-btn${filters.minReviews === val ? ' is-on' : ''}`}
+                  onClick={() => setMinReviews(val)}
+                  aria-pressed={filters.minReviews === val}
+                >
+                  {val === 0 ? 'Any' : `${val}+`}
+                </button>
+              ))}
+            </div>
           </section>
 
           {/* ── Coffee brand (collapsed by default) ── */}

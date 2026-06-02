@@ -232,6 +232,36 @@
   margin-left: 4px;
 }
 
+/* Segmented control (reviews filter) */
+.drawer__segment {
+  display: flex;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.drawer__seg-btn {
+  flex: 1;
+  padding: 10px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-soft);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.drawer__seg-btn + .drawer__seg-btn {
+  border-left: 1.5px solid var(--color-border);
+}
+
+.drawer__seg-btn.is-on {
+  background: var(--color-ink);
+  color: #fff;
+  font-weight: 600;
+}
+
 .slider {
   display: flex;
   align-items: center;

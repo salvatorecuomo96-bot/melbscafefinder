@@ -34,7 +34,7 @@ export default function Home() {
   const [flyTrigger, setFlyTrigger]     = useState(0);
   const [submitOpen, setSubmitOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
-  const [listOpen, setListOpen]         = useState(false);
+  const [mapBounds, setMapBounds]       = useState(null);
   const [sheetSnap, setSheetSnap]       = useState(0);
   const handleSheetSnap = (snap) => {
     setSheetSnap(snap);
@@ -84,17 +84,31 @@ export default function Home() {
     if (cafe) setDetailCafe(cafe);
   }, [rawCafes]);
 
+  // Desktop sidebar list (all filtered cafes)
   const LIST_CAP = 100;
   const allDisplay = savedView
     ? api.visibleCafes.filter((c) => isSaved(c.id))
     : api.visibleCafes;
   const displayCafes = allDisplay.slice(0, LIST_CAP);
 
+  // Map bottom sheet list (cafes visible in current map viewport)
+  const viewportCafes = useMemo(() => {
+    if (!mapBounds) return api.visibleCafes;
+    const { north, south, east, west } = mapBounds;
+    return api.visibleCafes.filter((cafe) =>
+      cafe.latitude  >= south && cafe.latitude  <= north &&
+      cafe.longitude >= west  && cafe.longitude <= east
+    );
+  }, [api.visibleCafes, mapBounds]);
+  const SHEET_CAP = 100;
+  const sheetCafes = viewportCafes.slice(0, SHEET_CAP);
+
   const handleSavedView = (val) => {
     setSavedView(val);
     setSheetSnap(val ? 1 : 0);
   };
 
+  // Desktop sidebar list content
   const cafeList = loading ? (
     <LoadingState count={6} />
   ) : (
@@ -117,6 +131,33 @@ export default function Home() {
                   setPreviewCafe(cafe);
                   setDetailCafe(cafe);
                 }}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+
+  // Map bottom sheet list content
+  const sheetList = loading ? (
+    <LoadingState count={4} />
+  ) : (
+    <>
+      <SortBar sort={api.sort} onChange={api.setSort} count={viewportCafes.length} shown={sheetCafes.length} cap={SHEET_CAP} />
+      {sheetCafes.length === 0 ? (
+        <div style={{ padding: '0 16px' }}>
+          <EmptyState onReset={api.reset} activeFilters={getActiveFilterChips(api)} />
+        </div>
+      ) : (
+        <ul className="layout__list" style={{ padding: '0 12px 12px' }}>
+          {sheetCafes.map((cafe) => (
+            <li key={cafe.id}>
+              <CafeCard
+                cafe={cafe}
+                isSaved={isSaved(cafe.id)}
+                onToggleSave={toggleSave}
+                onOpen={() => setDetailCafe(cafe)}
               />
             </li>
           ))}
@@ -227,10 +268,6 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
-              <button className="near-me-btn" onClick={() => setListOpen(true)}>
-                <ListIcon />
-                Cafes List
-              </button>
             </div>
 
             <div className="layout__chips-wrap">
@@ -256,12 +293,13 @@ export default function Home() {
       </aside>
 
       <main className="layout__map">
-                <Suspense fallback={<div className="map-loading">Loading map…</div>}>
+        <Suspense fallback={<div className="map-loading">Loading map…</div>}>
           <MapView
             cafes={api.visibleCafes}
             selectedId={previewCafe?.id}
             onSelect={(cafe) => setPreviewCafe(cafe)}
             onDeselect={() => setPreviewCafe(null)}
+            onBoundsChange={setMapBounds}
             userCoords={coords}
             flyTrigger={flyTrigger}
           />
@@ -273,49 +311,12 @@ export default function Home() {
             onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
           />
         )}
-
-        {activeTab === 'map' && !previewCafe && (
-          <button className="map-list-fab" onClick={() => setListOpen(true)}>
-            <ListIcon />
-            Cafes List
-          </button>
-        )}
       </main>
 
-      {listOpen && activeTab === 'map' && (
-        <div className="map-list-panel">
-          <div className="map-list-panel__head">
-            <span className="map-list-panel__title">Cafes List</span>
-            <button className="map-list-panel__close" onClick={() => setListOpen(false)} aria-label="Close list">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-          </div>
-          <div className="map-list-panel__body">
-            <SortBar sort={api.sort} onChange={api.setSort} count={allDisplay.length} shown={displayCafes.length} cap={LIST_CAP} />
-            {displayCafes.length === 0 ? (
-              <EmptyState onReset={api.reset} activeFilters={getActiveFilterChips(api)} />
-            ) : (
-              <ul className="layout__list">
-                {displayCafes.map((cafe) => (
-                  <li key={cafe.id}>
-                    <CafeCard
-                      cafe={cafe}
-                      isSaved={isSaved(cafe.id)}
-                      onToggleSave={toggleSave}
-                      onOpen={() => {
-                        setListOpen(false);
-                        setPreviewCafe(cafe);
-                        setDetailCafe(cafe);
-                      }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
+      {activeTab === 'map' && (
+        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={viewportCafes.length}>
+          {sheetList}
+        </BottomSheet>
       )}
 
       {!savedView && (
@@ -375,19 +376,6 @@ function StarIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
-    </svg>
-  );
-}
-
-function ListIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="8" y1="6" x2="21" y2="6"/>
-      <line x1="8" y1="12" x2="21" y2="12"/>
-      <line x1="8" y1="18" x2="21" y2="18"/>
-      <line x1="3" y1="6" x2="3.01" y2="6"/>
-      <line x1="3" y1="12" x2="3.01" y2="12"/>
-      <line x1="3" y1="18" x2="3.01" y2="18"/>
     </svg>
   );
 }

@@ -29,8 +29,25 @@
   touch-action: none;
   cursor: grab;
   user-select: none;
+  position: relative;
 }
 .bottom-sheet__handle-area:active { cursor: grabbing; }
+
+.bottom-sheet__close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-surface-2, #f3f0ea);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
 
 .bottom-sheet__pill {
   width: 36px;

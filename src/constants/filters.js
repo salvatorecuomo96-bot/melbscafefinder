@@ -25,6 +25,7 @@ export const DEFAULT_FILTERS = {
   enums:        {},
   coffeeBrands: [],
   minRating:    0,
+  minReviews:   0,
   openNow:      false,
   openLate:     false,
 };
