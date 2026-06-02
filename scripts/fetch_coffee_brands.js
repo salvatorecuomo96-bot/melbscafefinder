@@ -82,7 +82,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchText(placeId) {
   const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=en`, {
-    headers: { 'X-Goog-Api-Key': KEY, 'X-Goog-FieldMask': 'reviews,editorialSummary,generativeSummary' },
+    headers: { 'X-Goog-Api-Key': KEY, 'X-Goog-FieldMask': 'reviews,editorialSummary' },
   });
   if (!res.ok) throw new Error(`${res.status}`);
   const d = await res.json();
