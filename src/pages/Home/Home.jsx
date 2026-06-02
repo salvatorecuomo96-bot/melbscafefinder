@@ -26,6 +26,10 @@ import './Home.css';
 
 const MapView = lazy(() => import('../../components/MapView/MapView.jsx'));
 
+// Must match slugify() in scripts/prerender.js so /cafes/{suburb} URLs resolve.
+const slugify = (s) => (s || '').toLowerCase().trim()
+  .replace(/&/g, 'and').replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
+
 export default function Home() {
 
   const [previewCafe, setPreviewCafe]   = useState(null);
@@ -89,15 +93,42 @@ export default function Home() {
 
   const savedCafes = allCafes.filter((c) => isSaved(c.id));
 
-  // Deep-link: open cafe from ?cafe=<id> on initial load
+  // Deep-link on first load: /cafe/{id}, ?cafe={id}, or /cafes/{suburb}
   const deepLinked = useRef(false);
   useEffect(() => {
     if (!rawCafes.length || deepLinked.current) return;
     deepLinked.current = true;
-    const id = new URLSearchParams(window.location.search).get('cafe');
-    if (!id) return;
-    const cafe = rawCafes.find((c) => c.id === id);
-    if (cafe) setDetailCafe(cafe);
+    const { pathname, search } = window.location;
+    const cafeMatch = pathname.match(/^\/cafe\/([^/]+)\/?$/);
+    const id = cafeMatch ? decodeURIComponent(cafeMatch[1]) : new URLSearchParams(search).get('cafe');
+    if (id) {
+      const cafe = rawCafes.find((c) => c.id === id);
+      if (cafe) { setPreviewCafe(cafe); setDetailCafe(cafe); return; }
+    }
+    const subMatch = pathname.match(/^\/cafes\/([^/]+)\/?$/);
+    if (subMatch) {
+      const suburb = suburbs.find((s) => slugify(s) === subMatch[1].toLowerCase());
+      if (suburb) api.setSuburb(suburb);
+    }
+  }, [rawCafes, suburbs]);
+
+  // Reflect the open cafe in the URL (shareable + canonical), and react to Back
+  useEffect(() => {
+    if (!deepLinked.current) return;
+    const target = detailCafe
+      ? `/cafe/${detailCafe.id}`
+      : (window.location.pathname.startsWith('/cafe/') ? '/' : null);
+    if (target && window.location.pathname !== target) window.history.pushState({}, '', target);
+  }, [detailCafe]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const m = window.location.pathname.match(/^\/cafe\/([^/]+)\/?$/);
+      const cafe = m ? rawCafes.find((c) => c.id === decodeURIComponent(m[1])) : null;
+      setDetailCafe(cafe || null);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, [rawCafes]);
 
   // Desktop sidebar list (all filtered cafes)
