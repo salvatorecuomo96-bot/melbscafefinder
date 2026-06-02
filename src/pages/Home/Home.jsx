@@ -203,10 +203,6 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
-              <button className="layout__action-btn" onClick={() => setListOpen(true)}>
-                <ListIcon />
-                Cafes List
-              </button>
             </div>
 
             <div className="layout__near-me">
@@ -276,6 +272,13 @@ export default function Home() {
             cafe={previewCafe}
             onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
           />
+        )}
+
+        {activeTab === 'map' && (
+          <button className="map-list-fab" onClick={() => setListOpen(true)}>
+            <ListIcon />
+            Cafes List
+          </button>
         )}
       </main>
 
