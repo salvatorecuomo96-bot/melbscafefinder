@@ -88,14 +88,14 @@ export default function FilterDrawer({ open, onClose, api }) {
           <section className="drawer__group">
             <h3>Number of reviews</h3>
             <div className="drawer__segment">
-              {[0, 100, 200, 500].map((val) => (
+              {[50, 100, 200, 500].map((val) => (
                 <button
                   key={val}
                   className={`drawer__seg-btn${filters.minReviews === val ? ' is-on' : ''}`}
-                  onClick={() => setMinReviews(val)}
+                  onClick={() => setMinReviews(filters.minReviews === val ? 0 : val)}
                   aria-pressed={filters.minReviews === val}
                 >
-                  {val === 0 ? 'Any' : `${val}+`}
+                  {val}+
                 </button>
               ))}
             </div>
