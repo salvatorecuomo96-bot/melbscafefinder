@@ -365,8 +365,8 @@
 .map-list-fab {
   position: absolute;
   right: 14px;
-  bottom: calc(56px + env(safe-area-inset-bottom) + 10px);
-  z-index: 20;
+  bottom: calc(56px + env(safe-area-inset-bottom) + 14px);
+  z-index: 22;
   display: inline-flex;
   align-items: center;
   gap: 6px;

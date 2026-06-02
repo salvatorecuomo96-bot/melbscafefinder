@@ -128,7 +128,7 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, userC
       attributionControl: false,
     });
 
-    map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
+    map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('load', async () => {
