@@ -32,14 +32,8 @@ export default function MobileExplore({
   const suburbs = [...new Set(cafes.map((c) => c.suburb).filter(Boolean))];
   const filtersOrSearch = api.activeCount > 0 || api.filters.query || api.filters.suburb;
 
-  const byRating = (a, b) => (b.rating ?? -1) - (a.rating ?? -1);
-  const byDist   = (a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999);
-
-  const sorted = filtersOrSearch
-    ? [...api.visibleCafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP)
-    : [...cafes].sort(nearMeActive ? byDist : byRating).slice(0, GRID_CAP);
-
-  const total = filtersOrSearch ? api.visibleCafes.length : cafes.length;
+  const sorted = api.visibleCafes.slice(0, GRID_CAP);
+  const total  = api.visibleCafes.length;
 
   return (
     <div className={`mobile-explore${hidden ? ' mobile-explore--hidden' : ''}`}>

@@ -117,6 +117,10 @@
   .layout--tab-saved .layout__map {
     pointer-events: none;
   }
+  /* Hide logo in map panel — search/filters still show */
+  .layout--tab-map .layout__brand {
+    display: none;
+  }
 }
 
 /* ===== Desktop list — hidden on mobile (bottom sheet handles it) ===== */

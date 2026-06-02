@@ -273,12 +273,6 @@ export default function Home() {
         )}
       </main>
 
-      {activeTab === 'map' && (
-        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
-          {cafeList}
-        </BottomSheet>
-      )}
-
       {!savedView && (
         <button
           className="layout__fab layout__fab--filters"
