@@ -103,7 +103,12 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
     }));
 
   const setQuery = (query) => setFilters((f) => ({ ...f, query }));
-  const setSuburb = (suburb) => setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
+  const setSuburb = (suburb) => {
+    setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
+    if (suburb) {
+      setSort((s) => (s === 'distance' ? 'rating' : s));
+    }
+  };
   const setMinRating   = (n) => setFilters((f) => ({ ...f, minRating: n }));
   const setMinReviews  = (n) => setFilters((f) => ({ ...f, minReviews: n }));
   const toggleOpenNow = () => setFilters((f) => ({ ...f, openNow: !f.openNow }));
