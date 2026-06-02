@@ -2,20 +2,64 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+
+    <title>Kookabrew — Discover Melbourne Cafes</title>
+    <meta name="description" content="Find Melbourne cafes that fit your morning. Browse 2,000+ cafes by suburb, rating, open hours, and coffee brand. Map-first, filter-first, no fluff." />
+    <link rel="canonical" href="https://kookabrew.au/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kookabrew.au/" />
+    <meta property="og:site_name" content="Kookabrew" />
+    <meta property="og:title" content="Kookabrew — Melbourne Cafe Finder" />
+    <meta property="og:description" content="Discover the best cafes in Melbourne. Filter by suburb, open now, rating, and coffee brand. 2,000+ cafes on one map." />
+    <meta property="og:image" content="https://kookabrew.au/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_AU" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kookabrew — Melbourne Cafe Finder" />
+    <meta name="twitter:description" content="Discover the best cafes in Melbourne. Filter by suburb, open now, rating, and coffee brand. 2,000+ cafes on one map." />
+    <meta name="twitter:image" content="https://kookabrew.au/og-image.png" />
+
+    <!-- Icons & PWA -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
-    <meta name="theme-color" content="#1a1a1a" />
-    <meta name="description" content="Find your perfect Melbourne cafe. Filter by vibe, Wi-Fi, laptop friendly, specialty coffee, matcha, and more." />
-    <title>Kookabrew — Melbourne Cafe Finder</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap" rel="stylesheet">
-    <link rel="preload" href="/cafes.json" as="fetch">
     <link rel="apple-touch-icon" href="/icon-180.png">
+    <meta name="theme-color" content="#1a1a1a" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kookabrew">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap" rel="stylesheet">
+
+    <!-- Preload data -->
+    <link rel="preload" href="/cafes.json" as="fetch" crossorigin>
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Kookabrew",
+      "description": "Melbourne cafe discovery tool. Browse 2,000+ cafes by suburb, rating, open hours, and coffee brand.",
+      "url": "https://kookabrew.au",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://kookabrew.au/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root">
