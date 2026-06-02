@@ -9,12 +9,24 @@ import './CafePreviewCard.css';
  *
  * Tapping the card body opens the full <CafeDetail /> modal.
  */
-export default function CafePreviewCard({ cafe, onOpen }) {
+export default function CafePreviewCard({ cafe, onOpen, onClose, isSaved = false, onToggleSave }) {
   if (!cafe) return null;
   const { isOpen, label: openLabel } = openStatus(cafe.openingHours);
 
   return (
     <div className="preview" role="dialog" aria-label={`${cafe.name} preview`}>
+      {onClose && <button className="preview__close" onClick={onClose} aria-label="Close">×</button>}
+      
+      {onToggleSave && (
+        <button
+          className={`preview__save${isSaved ? ' is-saved' : ''}`}
+          onClick={(e) => { e.stopPropagation(); onToggleSave(cafe.id); }}
+          aria-label={isSaved ? 'Unsave cafe' : 'Save cafe'}
+        >
+          <HeartIcon filled={isSaved} />
+        </button>
+      )}
+
       <button className="preview__body" onClick={onOpen}>
         <div className="preview__image">
           <img src={cafe.images?.[0]} alt="" />
@@ -55,6 +67,14 @@ function Star() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
+  );
+}
+
+function HeartIcon({ filled }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   );
 }

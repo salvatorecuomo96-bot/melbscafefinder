@@ -303,10 +303,13 @@ export default function Home() {
           />
         </Suspense>
 
-        {previewCafe && (!sheetVisible || sheetSnap === 0) && (
+        {previewCafe && (!sheetVisible || sheetSnap === 0) && !detailCafe && (
           <CafePreviewCard
             cafe={previewCafe}
-            onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
+            isSaved={isSaved(previewCafe.id)}
+            onToggleSave={toggleSave}
+            onClose={() => setPreviewCafe(null)}
+            onOpen={() => setDetailCafe(previewCafe)}
           />
         )}
       </main>
