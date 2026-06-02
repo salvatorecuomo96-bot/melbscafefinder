@@ -23,31 +23,16 @@
   flex-shrink: 0;
   padding: 10px 16px 8px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
   touch-action: none;
   cursor: grab;
   user-select: none;
   position: relative;
+  min-height: 44px;
 }
 .bottom-sheet__handle-area:active { cursor: grabbing; }
-
-.bottom-sheet__close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--color-surface-2, #f3f0ea);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-ink-soft);
-  cursor: pointer;
-}
 
 .bottom-sheet__pill {
   width: 36px;
@@ -56,11 +41,22 @@
   background: var(--color-border);
 }
 
-.bottom-sheet__peek-label {
-  font-size: 11.5px;
-  color: var(--color-ink-mute);
-  font-weight: 500;
-  letter-spacing: 0.01em;
+.bottom-sheet__close {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-surface-2, #f3f0ea);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .bottom-sheet__body {

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import './BottomSheet.css';
 
 const SHEET_FRAC  = 0.92;
-const PEEK_PX     = 88;
+const PEEK_PX     = 60;
 const MEDIUM_FRAC = 0.46;
 
 function snapToTranslate(snapIdx) {
@@ -12,7 +12,7 @@ function snapToTranslate(snapIdx) {
   return 0;
 }
 
-export default function BottomSheet({ snap, onSnap, count, children }) {
+export default function BottomSheet({ snap, onSnap, onClose, children }) {
   const [dragDelta, setDragDelta] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startYRef = useRef(0);
@@ -51,20 +51,15 @@ export default function BottomSheet({ snap, onSnap, count, children }) {
         onTouchEnd={onTouchEnd}
       >
         <div className="bottom-sheet__pill" />
-        {snap === 0 && count > 0 && (
-          <span className="bottom-sheet__peek-label">{count} cafes in view</span>
-        )}
-        {snap > 0 && (
-          <button
-            className="bottom-sheet__close"
-            onClick={() => onSnap(0)}
-            aria-label="Collapse list"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        )}
+        <button
+          className="bottom-sheet__close"
+          onClick={onClose}
+          aria-label="Close list"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <div className="bottom-sheet__body">

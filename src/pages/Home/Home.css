@@ -361,3 +361,30 @@
   .layout { grid-template-columns: 500px 1fr; }
 }
 
+/* ===== Cafes List FAB (map tab, mobile only) ===== */
+.map-sheet-fab {
+  position: absolute;
+  right: 14px;
+  bottom: calc(56px + env(safe-area-inset-bottom) + 14px);
+  z-index: 22;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--color-ink);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 100ms ease;
+  cursor: pointer;
+  border: none;
+}
+.map-sheet-fab:hover { transform: translateY(-1px); }
+.map-sheet-fab:active { transform: translateY(0); }
+
+@media (min-width: 900px) {
+  .map-sheet-fab { display: none; }
+}
+
