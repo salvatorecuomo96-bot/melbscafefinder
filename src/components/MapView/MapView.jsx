@@ -100,10 +100,12 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBou
   const cafesRef           = useRef(cafes);
   const onDeselectRef      = useRef(onDeselect);
   const onBoundsChangeRef  = useRef(onBoundsChange);
+  const userCoordsRef      = useRef(userCoords);
   const userMarkerRef      = useRef(null);
 
   useEffect(() => { onDeselectRef.current = onDeselect; }, [onDeselect]);
   useEffect(() => { onBoundsChangeRef.current = onBoundsChange; }, [onBoundsChange]);
+  useEffect(() => { userCoordsRef.current = userCoords; }, [userCoords]);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
 
@@ -222,14 +224,16 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBou
 
   // Fly to user location each time Near me is pressed
   useEffect(() => {
-    if (!ready || !flyTrigger || !userCoords) return;
+    if (!ready || !flyTrigger) return;
+    const uc = userCoordsRef.current;
+    if (!uc) return;
     mapRef.current.flyTo({
-      center: [userCoords.longitude, userCoords.latitude],
+      center: [uc.longitude, uc.latitude],
       zoom: Math.max(mapRef.current.getZoom(), 14),
       speed: 1.2,
       essential: true,
     });
-  }, [flyTrigger, ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flyTrigger, ready]);
 
   // Fly to selected
   useEffect(() => {

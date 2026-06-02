@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import FilterChips from '../../components/FilterChips/FilterChips.jsx';
@@ -54,7 +54,7 @@ export default function Home() {
   };
 
   const { cafes: rawCafes, loading } = useCafes();
-  const { coords, status: geoStatus } = useGeolocation();
+  const { coords, status: geoStatus, requestLocation } = useGeolocation();
   const api = useCafeFilters({ cafes: rawCafes, userCoords: coords });
   const { isSaved, toggleSave, savedCount, getShareUrl } = useSavedCafes();
 
@@ -67,7 +67,25 @@ export default function Home() {
   );
 
   const nearMeActive = api.sort === 'distance';
-  const handleNearMe = () => { api.setSort('distance'); setFlyTrigger((n) => n + 1); };
+  const pendingFlyRef = useRef(false);
+
+  const handleNearMe = useCallback(() => {
+    api.setSort('distance');
+    if (!coords) {
+      pendingFlyRef.current = true;
+      requestLocation();
+      return;
+    }
+    setFlyTrigger((n) => n + 1);
+  }, [api, coords, requestLocation]);
+
+  // Fire the delayed fly once coords arrive after a Near Me press
+  useEffect(() => {
+    if (coords && pendingFlyRef.current) {
+      pendingFlyRef.current = false;
+      setFlyTrigger((n) => n + 1);
+    }
+  }, [coords]);
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],

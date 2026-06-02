@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
-
-/**
- * Asks the browser for the user's lat/lng once.
- * Falls back to central Melbourne if denied / unsupported -
- * that way distance sort still works.
- */
-const MELBOURNE_CBD = { latitude: -37.8136, longitude: 144.9631 };
+import { useCallback, useEffect, useState } from 'react';
 
 export function useGeolocation() {
   const [coords, setCoords] = useState(null);
   const [status, setStatus] = useState('idle'); // 'idle' | 'asking' | 'ready' | 'denied'
 
-  useEffect(() => {
+  const requestLocation = useCallback(() => {
     if (!('geolocation' in navigator)) {
-      setCoords(MELBOURNE_CBD);
       setStatus('denied');
       return;
     }
@@ -24,12 +16,17 @@ export function useGeolocation() {
         setStatus('ready');
       },
       () => {
-        setCoords(MELBOURNE_CBD);
+        // Don't fall back to Melbourne CBD — leave coords as null so Near Me
+        // doesn't silently fly to the wrong place when location is unavailable.
         setStatus('denied');
       },
-      { timeout: 6000, maximumAge: 60_000 }
+      { timeout: 10_000, maximumAge: 30_000 }
     );
   }, []);
 
-  return { coords, status, fallback: MELBOURNE_CBD };
+  useEffect(() => {
+    requestLocation();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return { coords, status, requestLocation };
 }
