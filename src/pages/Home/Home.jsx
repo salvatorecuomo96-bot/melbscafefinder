@@ -275,6 +275,28 @@ export default function Home() {
         )}
       </main>
 
+      {activeTab === 'map' && (
+        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
+          <ul className="map-cafe-list">
+            {displayCafes.map((cafe) => (
+              <li key={cafe.id}>
+                <button className="map-cafe-row" onClick={() => setDetailCafe(cafe)}>
+                  <span className="map-cafe-row__info">
+                    <span className="map-cafe-row__name">{cafe.name}</span>
+                    <span className="map-cafe-row__sub">{cafe.suburb}</span>
+                  </span>
+                  {cafe.rating != null && (
+                    <span className="map-cafe-row__rating">
+                      <StarIcon /> {cafe.rating.toFixed(1)}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </BottomSheet>
+      )}
+
       {!savedView && (
         <button
           className="layout__fab layout__fab--filters"
@@ -324,6 +346,14 @@ export function HeartIcon({ filled, size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
     </svg>
   );
 }
