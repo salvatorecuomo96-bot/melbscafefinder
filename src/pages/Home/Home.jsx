@@ -203,6 +203,10 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
+              <button className="layout__action-btn" onClick={() => setListOpen(true)}>
+                <ListIcon />
+                Cafes List
+              </button>
             </div>
 
             <div className="layout__near-me">
@@ -260,22 +264,17 @@ export default function Home() {
           <MapView
             cafes={api.visibleCafes}
             selectedId={previewCafe?.id}
-            onSelect={(cafe) => {
-              setPreviewCafe(cafe);
-              setDetailCafe(cafe);
-            }}
+            onSelect={(cafe) => setPreviewCafe(cafe)}
+            onDeselect={() => setPreviewCafe(null)}
             userCoords={coords}
             flyTrigger={flyTrigger}
           />
         </Suspense>
 
-        {previewCafe && activeTab === 'map' && sheetSnap === 0 && (
+        {previewCafe && activeTab === 'map' && (
           <CafePreviewCard
             cafe={previewCafe}
-            isSaved={isSaved(previewCafe.id)}
-            onToggleSave={toggleSave}
             onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
-            onClose={() => setPreviewCafe(null)}
           />
         )}
       </main>
