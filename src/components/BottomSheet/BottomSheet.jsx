@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import './BottomSheet.css';
 
-const SHEET_FRAC  = 0.92;
+const SHEET_FRAC  = 0.78;
 const PEEK_PX     = 60;
 const MEDIUM_FRAC = 0.46;
 

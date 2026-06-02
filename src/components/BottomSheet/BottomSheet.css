@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: calc(50px + env(safe-area-inset-bottom)); /* sit above the BottomNav */
-  height: 92vh;
+  height: 78vh;
   background: var(--color-bg);
   border-radius: 18px 18px 0 0;
   box-shadow: 0 -2px 24px rgba(20, 14, 6, 0.10), 0 -1px 0 var(--color-border);
