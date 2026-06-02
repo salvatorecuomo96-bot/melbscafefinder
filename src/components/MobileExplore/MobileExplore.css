@@ -117,7 +117,10 @@
 
 /* ===== Suburb picker ===== */
 .mobile-explore__suburbs {
-  padding-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 2px 0; /* SuburbPicker has 14px left/bottom margin */
 }
 
 /* ===== Meta row (count + submit link) ===== */

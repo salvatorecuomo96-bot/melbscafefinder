@@ -75,15 +75,15 @@ export default function MobileExplore({
           <LocIcon />
           {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
         </button>
+      </div>
+
+      <div className="mobile-explore__suburbs">
+        <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
         {filtersOrSearch && (
           <button className="mexplore__reset" onClick={api.reset}>
             Clear
           </button>
         )}
-      </div>
-
-      <div className="mobile-explore__suburbs">
-        <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
       </div>
 
       <div className="mobile-explore__meta">
