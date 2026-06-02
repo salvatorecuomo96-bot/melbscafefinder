@@ -35,11 +35,13 @@ export default function Home() {
   const [submitOpen, setSubmitOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
   const [mapBounds, setMapBounds]       = useState(null);
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
   const handleSheetSnap = (snap) => {
     setSheetSnap(snap);
     if (snap >= 1) setPreviewCafe(null);
   };
+  const handleSheetClose = () => { setSheetVisible(false); setSheetSnap(0); };
   const [activeTab, setActiveTab]       = useState('explore');
 
   const handleTabChange = (tab) => {
@@ -47,6 +49,7 @@ export default function Home() {
     if (tab !== 'map') {
       setPreviewCafe(null);
       setSheetSnap(0);
+      setSheetVisible(false);
     }
   };
 
@@ -142,28 +145,23 @@ export default function Home() {
   // Map bottom sheet list content
   const sheetList = loading ? (
     <LoadingState count={4} />
+  ) : sheetCafes.length === 0 ? (
+    <div style={{ padding: '0 16px' }}>
+      <EmptyState onReset={api.reset} activeFilters={getActiveFilterChips(api)} />
+    </div>
   ) : (
-    <>
-      <SortBar sort={api.sort} onChange={api.setSort} count={viewportCafes.length} shown={sheetCafes.length} cap={SHEET_CAP} />
-      {sheetCafes.length === 0 ? (
-        <div style={{ padding: '0 16px' }}>
-          <EmptyState onReset={api.reset} activeFilters={getActiveFilterChips(api)} />
-        </div>
-      ) : (
-        <ul className="layout__list" style={{ padding: '0 12px 12px' }}>
-          {sheetCafes.map((cafe) => (
-            <li key={cafe.id}>
-              <CafeCard
-                cafe={cafe}
-                isSaved={isSaved(cafe.id)}
-                onToggleSave={toggleSave}
-                onOpen={() => setDetailCafe(cafe)}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
+    <ul className="layout__list" style={{ padding: '4px 12px 12px' }}>
+      {sheetCafes.map((cafe) => (
+        <li key={cafe.id}>
+          <CafeCard
+            cafe={cafe}
+            isSaved={isSaved(cafe.id)}
+            onToggleSave={toggleSave}
+            onOpen={() => setDetailCafe(cafe)}
+          />
+        </li>
+      ))}
+    </ul>
   );
 
   return (
@@ -313,8 +311,18 @@ export default function Home() {
         )}
       </main>
 
-      {activeTab === 'map' && (
-        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={viewportCafes.length}>
+      {activeTab === 'map' && !sheetVisible && !previewCafe && (
+        <button
+          className="map-sheet-fab"
+          onClick={() => { setSheetVisible(true); setSheetSnap(1); }}
+        >
+          <ListIcon />
+          Cafes List
+        </button>
+      )}
+
+      {activeTab === 'map' && sheetVisible && (
+        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} onClose={handleSheetClose}>
           {sheetList}
         </BottomSheet>
       )}
@@ -376,6 +384,16 @@ function StarIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
     </svg>
   );
 }
