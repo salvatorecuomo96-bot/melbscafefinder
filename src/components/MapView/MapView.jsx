@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapView.css';
@@ -94,13 +94,20 @@ function buildTooltipNode(cafe) {
   return wrapper;
 }
 
-export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
+export default function MapView({ cafes, selectedId, onSelect, userCoords, nearMeActive }) {
   const containerRef  = useRef(null);
   const mapRef        = useRef(null);
   const cafesRef      = useRef(cafes);
   const userMarkerRef = useRef(null);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
+
+  // Stable GeoJSON — only rebuilds when cafe positions actually change
+  const geoJSON = useMemo(
+    () => buildGeoJSON(cafes),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cafes.map((c) => `${c.id}:${c.latitude}:${c.longitude}`).join('|')]
+  );
 
   useEffect(() => { cafesRef.current = cafes; }, [cafes]);
 
@@ -177,18 +184,30 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords }) {
     map.setStyle(satellite ? STYLES.satellite : STYLES.map);
     map.once('style.load', () => addLayers(map, cafesRef.current).catch(() => {}));
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satellite]);
 
-  // Update data
+  // Update data — only when cafe positions actually change (not sort/distanceKm)
   useEffect(() => {
     if (!ready) return;
     const map = mapRef.current;
     if (map.getSource('cafes')) {
-      map.getSource('cafes').setData(buildGeoJSON(cafes));
+      map.getSource('cafes').setData(geoJSON);
     } else {
-      addLayers(map, cafes).catch(() => {});
+      addLayers(map, cafesRef.current).catch(() => {});
     }
-  }, [cafes, ready]);
+  }, [geoJSON, ready]);
+
+  // Fly to user location when Near me is activated
+  useEffect(() => {
+    if (!ready || !nearMeActive || !userCoords) return;
+    mapRef.current.flyTo({
+      center: [userCoords.longitude, userCoords.latitude],
+      zoom: Math.max(mapRef.current.getZoom(), 14),
+      speed: 1.2,
+      essential: true,
+    });
+  }, [nearMeActive, userCoords, ready]);
 
   // Fly to selected
   useEffect(() => {
