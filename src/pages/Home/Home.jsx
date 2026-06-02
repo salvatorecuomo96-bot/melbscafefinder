@@ -34,6 +34,7 @@ export default function Home() {
   const [flyTrigger, setFlyTrigger]     = useState(0);
   const [submitOpen, setSubmitOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
+  const [listOpen, setListOpen]         = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
   const handleSheetSnap = (snap) => {
     setSheetSnap(snap);
@@ -226,6 +227,10 @@ export default function Home() {
                 <LocIcon />
                 {geoStatus === 'asking' ? 'Locating…' : 'Near me'}
               </button>
+              <button className="near-me-btn" onClick={() => setListOpen(true)}>
+                <ListIcon />
+                Cafes List
+              </button>
             </div>
 
             <div className="layout__chips-wrap">
@@ -275,26 +280,40 @@ export default function Home() {
         )}
       </main>
 
-      {activeTab === 'map' && (
-        <BottomSheet snap={sheetSnap} onSnap={handleSheetSnap} count={displayCafes.length}>
-          <ul className="map-cafe-list">
-            {displayCafes.map((cafe) => (
-              <li key={cafe.id}>
-                <button className="map-cafe-row" onClick={() => setDetailCafe(cafe)}>
-                  <span className="map-cafe-row__info">
-                    <span className="map-cafe-row__name">{cafe.name}</span>
-                    <span className="map-cafe-row__sub">{cafe.suburb}</span>
-                  </span>
-                  {cafe.rating != null && (
-                    <span className="map-cafe-row__rating">
-                      <StarIcon /> {cafe.rating.toFixed(1)}
-                    </span>
-                  )}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </BottomSheet>
+      {listOpen && activeTab === 'map' && (
+        <div className="map-list-panel">
+          <div className="map-list-panel__head">
+            <span className="map-list-panel__title">Cafes List</span>
+            <button className="map-list-panel__close" onClick={() => setListOpen(false)} aria-label="Close list">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div className="map-list-panel__body">
+            <SortBar sort={api.sort} onChange={api.setSort} count={allDisplay.length} shown={displayCafes.length} cap={LIST_CAP} />
+            {displayCafes.length === 0 ? (
+              <EmptyState onReset={api.reset} activeFilters={getActiveFilterChips(api)} />
+            ) : (
+              <ul className="layout__list">
+                {displayCafes.map((cafe) => (
+                  <li key={cafe.id}>
+                    <CafeCard
+                      cafe={cafe}
+                      isSaved={isSaved(cafe.id)}
+                      onToggleSave={toggleSave}
+                      onOpen={() => {
+                        setListOpen(false);
+                        setPreviewCafe(cafe);
+                        setDetailCafe(cafe);
+                      }}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
 
       {!savedView && (
@@ -354,6 +373,19 @@ function StarIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 2l2.95 6.7L22 9.27l-5.2 5.06L18.18 22 12 18.27 5.82 22l1.38-7.67L2 9.27l7.05-.57L12 2z" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="8" y1="6" x2="21" y2="6"/>
+      <line x1="8" y1="12" x2="21" y2="12"/>
+      <line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/>
+      <line x1="3" y1="12" x2="3.01" y2="12"/>
+      <line x1="3" y1="18" x2="3.01" y2="18"/>
     </svg>
   );
 }
