@@ -68,7 +68,7 @@ export default function MobileExplore({
           Open now
         </button>
         <button
-          className="mexplore__btn"
+          className={`mexplore__btn${nearMeActive ? ' is-active' : ''}`}
           onClick={onNearMe}
           disabled={geoStatus === 'asking'}
         >

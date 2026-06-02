@@ -67,8 +67,20 @@ export default function Home() {
   );
 
   const nearMeActive = api.sort === 'distance';
-  const handleNearMeToggle = () => { api.setSort(nearMeActive ? 'rating' : 'distance'); setFlyTrigger((n) => n + 1); };
-  const handleNearMeMap = () => { api.setSort('distance'); setFlyTrigger((n) => n + 1); };
+  const handleNearMeToggle = () => { 
+    if (!nearMeActive) {
+      api.setSort('distance');
+      api.setSuburb(null);
+    } else {
+      api.setSort('rating');
+    }
+    setFlyTrigger((n) => n + 1); 
+  };
+  const handleNearMeMap = () => { 
+    api.setSort('distance'); 
+    api.setSuburb(null);
+    setFlyTrigger((n) => n + 1); 
+  };
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
