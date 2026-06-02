@@ -2,8 +2,8 @@
   position: absolute;
   left: 12px;
   right: 12px;
-  /* mobile: sit above BottomNav */
-  bottom: calc(56px + env(safe-area-inset-bottom) + 10px);
+  /* mobile: sit above BottomNav + peeked sheet handle (88px) */
+  bottom: calc(50px + env(safe-area-inset-bottom) + 88px + 10px);
   z-index: 25;
   background: var(--color-surface);
   border: 1px solid var(--color-border);

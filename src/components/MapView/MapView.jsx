@@ -94,14 +94,16 @@ function buildTooltipNode(cafe) {
   return wrapper;
 }
 
-export default function MapView({ cafes, selectedId, onSelect, onDeselect, userCoords, flyTrigger }) {
-  const containerRef    = useRef(null);
-  const mapRef          = useRef(null);
-  const cafesRef        = useRef(cafes);
-  const onDeselectRef   = useRef(onDeselect);
-  const userMarkerRef   = useRef(null);
+export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBoundsChange, userCoords, flyTrigger }) {
+  const containerRef       = useRef(null);
+  const mapRef             = useRef(null);
+  const cafesRef           = useRef(cafes);
+  const onDeselectRef      = useRef(onDeselect);
+  const onBoundsChangeRef  = useRef(onBoundsChange);
+  const userMarkerRef      = useRef(null);
 
   useEffect(() => { onDeselectRef.current = onDeselect; }, [onDeselect]);
+  useEffect(() => { onBoundsChangeRef.current = onBoundsChange; }, [onBoundsChange]);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
 
@@ -148,6 +150,17 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, userC
         const hit = map.queryRenderedFeatures(e.point, { layers: ['pins', 'clusters', 'cluster-counts'] });
         if (hit.length === 0) onDeselectRef.current?.();
       });
+
+      // Emit viewport bounds whenever the map moves or zooms
+      const emitBounds = () => {
+        const b = map.getBounds();
+        onBoundsChangeRef.current?.({
+          north: b.getNorth(), south: b.getSouth(),
+          east:  b.getEast(),  west:  b.getWest(),
+        });
+      };
+      map.on('moveend', emitBounds);
+      map.once('idle', emitBounds); // emit initial bounds once data settles
 
       // ── Cursor ──────────────────────────────────────────────────────────
       ['clusters', 'cluster-counts', 'pins'].forEach((l) => {

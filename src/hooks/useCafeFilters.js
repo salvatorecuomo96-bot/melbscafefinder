@@ -53,6 +53,7 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
       }
 
       if (filters.minRating && cafe.rating < filters.minRating) return false;
+      if (filters.minReviews && (cafe.userRatingsTotal ?? 0) < filters.minReviews) return false;
 
       if (filters.openNow && !openStatus(cafe.openingHours).isOpen) return false;
       if (filters.openLate && !isOpenLate(cafe.openingHours)) return false;
@@ -103,21 +104,23 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
   const setQuery = (query) => setFilters((f) => ({ ...f, query }));
   const setSuburb = (suburb) => setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
-  const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
+  const setMinRating   = (n) => setFilters((f) => ({ ...f, minRating: n }));
+  const setMinReviews  = (n) => setFilters((f) => ({ ...f, minReviews: n }));
   const toggleOpenNow = () => setFilters((f) => ({ ...f, openNow: !f.openNow }));
   const toggleOpenLate = () => setFilters((f) => ({ ...f, openLate: !f.openLate }));
   const reset = () => setFilters(DEFAULT_FILTERS);
 
   const activeCount =
     filters.coffeeBrands.length +
-    (filters.minRating ? 1 : 0) +
-    (filters.openNow ? 1 : 0) +
-    (filters.openLate ? 1 : 0) +
-    (filters.suburb ? 1 : 0);
+    (filters.minRating  ? 1 : 0) +
+    (filters.minReviews ? 1 : 0) +
+    (filters.openNow    ? 1 : 0) +
+    (filters.openLate   ? 1 : 0) +
+    (filters.suburb     ? 1 : 0);
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
-    setQuery, setSuburb, toggleCoffeeBrand, setMinRating,
+    setQuery, setSuburb, toggleCoffeeBrand, setMinRating, setMinReviews,
     toggleOpenNow, toggleOpenLate, reset,
   };
 }
