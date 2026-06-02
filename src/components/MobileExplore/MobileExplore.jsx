@@ -91,7 +91,13 @@ export default function MobileExplore({
           {total} {total === 1 ? 'cafe' : 'cafes'}
           {api.filters.suburb ? ` in ${api.filters.suburb}` : ''}
         </span>
-        <button className="mexplore__submit" onClick={onOpenSubmit}>+ Submit a cafe</button>
+        <label className="mexplore__sort">
+          <span>Sort:</span>
+          <select value={api.sort} onChange={(e) => api.setSort(e.target.value)}>
+            <option value="rating">Top rated</option>
+            <option value="distance">Nearest</option>
+          </select>
+        </label>
       </div>
 
       <div className="mobile-explore__feed">

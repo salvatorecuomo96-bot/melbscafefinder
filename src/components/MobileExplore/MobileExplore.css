@@ -136,13 +136,25 @@
   letter-spacing: 0.05em;
 }
 
-.mexplore__submit {
+.mexplore__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  color: var(--color-ink-mute);
-  transition: color 120ms ease;
-  -webkit-tap-highlight-color: transparent;
+  font-weight: 500;
+  color: var(--color-ink-soft);
 }
-.mexplore__submit:hover { color: var(--color-ink); }
+
+.mexplore__sort select {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
 
 /* ===== Feed ===== */
 .mobile-explore__feed {
