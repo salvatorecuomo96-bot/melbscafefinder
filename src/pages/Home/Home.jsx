@@ -277,6 +277,11 @@ export default function Home() {
 
             <div className="layout__desktop-suburb">
               <SuburbPicker active={api.filters.suburb} onSelect={api.setSuburb} suburbs={suburbs} />
+              {(api.activeCount > 0 || api.filters.query || api.filters.suburb) && (
+                <button className="layout__clear-btn" onClick={api.reset}>
+                  Clear
+                </button>
+              )}
             </div>
 
             <button className="layout__submit-btn" onClick={() => setSubmitOpen(true)}>

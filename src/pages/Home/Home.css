@@ -331,7 +331,25 @@
   .layout__near-me { display: flex; flex-wrap: wrap; gap: 8px; }
   .layout__actions { display: none; }
   .layout__fab--filters { display: none; }
-  .layout__desktop-suburb { display: block; }
+  .layout__desktop-suburb { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 12px; 
+  }
+  .layout__clear-btn {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-ink-mute);
+    padding: 4px 2px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+  }
+  .layout__clear-btn:hover { color: var(--color-ink); }
   .layout__submit-btn { display: block; }
 
   .layout__fab {
