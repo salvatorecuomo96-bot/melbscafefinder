@@ -21,18 +21,7 @@
   overflow: hidden;
 }
 
-.map-loading {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: var(--color-surface-2, #f3f0ea);
-  color: var(--color-ink-mute);
-  font-weight: 600;
-}
-
 /* ===== Panel — floating on mobile, sidebar on desktop ===== */
-
 .layout__panel {
   grid-area: 1 / 1 / 2 / 2;
   position: relative;
@@ -117,10 +106,6 @@
   .layout--tab-saved .layout__map {
     pointer-events: none;
   }
-  /* Hide logo in map panel — search/filters still show */
-  .layout--tab-map .layout__brand {
-    display: none;
-  }
 }
 
 /* ===== Desktop list — hidden on mobile (bottom sheet handles it) ===== */
@@ -137,14 +122,10 @@
 }
 
 /* ===== Filter FAB — desktop only ===== */
-.layout__fab--filters { display: none; }
-
 .layout__fab {
+  display: none;
   position: fixed;
-  right: 14px;
-  bottom: calc(20px + env(safe-area-inset-bottom));
-  z-index: 30;
-  display: inline-flex;
+  z-index: 40; /* Above everything */
   align-items: center;
   gap: 8px;
   padding: 13px 18px;
@@ -171,6 +152,21 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
+}
+
+@media (min-width: 900px) {
+  .layout__fab {
+    display: inline-flex;
+    bottom: auto;
+    top: 22px;
+    right: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    padding: 10px 16px;
+    font-size: 13px;
+  }
 }
 
 /* ===== Compact action row (mobile only) ===== */
@@ -360,31 +356,3 @@
 @media (min-width: 1200px) {
   .layout { grid-template-columns: 500px 1fr; }
 }
-
-/* ===== Cafes List FAB (map tab, mobile only) ===== */
-.map-sheet-fab {
-  position: absolute;
-  right: 14px;
-  bottom: calc(56px + env(safe-area-inset-bottom) + 14px);
-  z-index: 22;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  background: var(--color-ink);
-  color: #fff;
-  border-radius: var(--radius-pill);
-  font-weight: 600;
-  font-size: 13px;
-  box-shadow: var(--shadow-lg);
-  transition: transform 100ms ease;
-  cursor: pointer;
-  border: none;
-}
-.map-sheet-fab:hover { transform: translateY(-1px); }
-.map-sheet-fab:active { transform: translateY(0); }
-
-@media (min-width: 900px) {
-  .map-sheet-fab { display: none; }
-}
-

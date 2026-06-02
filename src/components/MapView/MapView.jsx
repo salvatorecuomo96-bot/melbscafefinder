@@ -134,12 +134,27 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBou
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('load', async () => {
+      // ── Singleton Popup ──────────────────────────────────────────────────
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: 28,
+        className: 'map-pin-tooltip',
+      });
 
       // ── Clicks ──────────────────────────────────────────────────────────
       map.on('click', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
-        if (cafe && typeof onSelect === 'function') onSelect(cafe);
+        if (cafe) {
+          if (typeof onSelect === 'function') onSelect(cafe);
+          
+          // Also show/update popup on click (good for mobile)
+          popup
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML(`<strong>${cafe.name}</strong><span>${cafe.suburb}</span>`)
+            .addTo(map);
+        }
       });
 
       map.on('click', 'clusters',      (e) => expandCluster(map, e.features[0]));
@@ -169,22 +184,19 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBou
       });
 
       // ── Tooltip ─────────────────────────────────────────────────────────
-      let hoverPopup = null;
       map.on('mouseenter', 'pins', (e) => {
         const id = e.features[0].properties.id;
         const cafe = cafesRef.current.find((c) => c.id === id);
         if (!cafe) return;
-        hoverPopup = new mapboxgl.Popup({
-          closeButton: false, closeOnClick: false, offset: 28,
-          className: 'map-pin-tooltip',
-        })
+        
+        popup
           .setLngLat(e.features[0].geometry.coordinates)
           .setDOMContent(buildTooltipNode(cafe))
           .addTo(map);
       });
+      
       map.on('mouseleave', 'pins', () => {
-        hoverPopup?.remove();
-        hoverPopup = null;
+        popup.remove();
       });
 
       await addLayers(map, cafesRef.current);
@@ -195,6 +207,9 @@ export default function MapView({ cafes, selectedId, onSelect, onDeselect, onBou
     return () => {
       userMarkerRef.current?.remove();
       userMarkerRef.current = null;
+      // Remove popup on cleanup if it exists
+      const popups = document.getElementsByClassName('mapboxgl-popup');
+      while (popups[0]) popups[0].remove();
       map.remove();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
