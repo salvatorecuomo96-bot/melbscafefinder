@@ -1,7 +1,3 @@
-import { PRICE_LEVELS } from '../constants/filters.js';
-
-const priceLabelByValue = Object.fromEntries(PRICE_LEVELS.map((p) => [p.value, p.label]));
-
 export function getActiveFilterChips(api) {
   const { filters } = api;
   const chips = [];
@@ -11,10 +7,6 @@ export function getActiveFilterChips(api) {
 
   for (const brand of filters.coffeeBrands || []) {
     chips.push({ label: brand, onRemove: () => api.toggleCoffeeBrand(brand) });
-  }
-
-  for (const level of filters.priceLevels || []) {
-    chips.push({ label: priceLabelByValue[level] || `$${level}`, onRemove: () => api.togglePriceLevel(level) });
   }
 
   if (filters.minRating) {

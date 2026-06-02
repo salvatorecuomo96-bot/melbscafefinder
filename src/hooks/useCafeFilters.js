@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_FILTERS } from '../constants/filters.js';
+import { DEFAULT_FILTERS, BRAND_ALIASES } from '../constants/filters.js';
 import { haversineKm } from '../utils/distance.js';
 import { openStatus, isOpenLate } from '../utils/format.js';
+
+const normBrand = (b) => (b && BRAND_ALIASES[b]) || b;
 
 export function useCafeFilters({ cafes = [], userCoords } = {}) {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
@@ -21,7 +23,10 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
     let openLate = 0;
 
     for (const cafe of cafes) {
-      if (cafe.coffeeBrand) brands[cafe.coffeeBrand] = (brands[cafe.coffeeBrand] || 0) + 1;
+      if (cafe.coffeeBrand) {
+        const b = normBrand(cafe.coffeeBrand);
+        brands[b] = (brands[b] || 0) + 1;
+      }
       if (openStatus(cafe.openingHours).isOpen) openNow++;
       if (isOpenLate(cafe.openingHours)) openLate++;
     }
@@ -44,11 +49,7 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
       if (filters.suburb && cafe.suburb !== filters.suburb) return false;
 
       if (filters.coffeeBrands.length) {
-        if (!filters.coffeeBrands.includes(cafe.coffeeBrand)) return false;
-      }
-
-      if (filters.priceLevels.length && !filters.priceLevels.includes(cafe.priceLevel)) {
-        return false;
+        if (!filters.coffeeBrands.includes(normBrand(cafe.coffeeBrand))) return false;
       }
 
       if (filters.minRating && cafe.rating < filters.minRating) return false;
@@ -100,14 +101,6 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
         : [...f.coffeeBrands, brand],
     }));
 
-  const togglePriceLevel = (level) =>
-    setFilters((f) => ({
-      ...f,
-      priceLevels: f.priceLevels.includes(level)
-        ? f.priceLevels.filter((l) => l !== level)
-        : [...f.priceLevels, level],
-    }));
-
   const setQuery = (query) => setFilters((f) => ({ ...f, query }));
   const setSuburb = (suburb) => setFilters((f) => ({ ...f, suburb: f.suburb === suburb ? null : suburb }));
   const setMinRating = (n) => setFilters((f) => ({ ...f, minRating: n }));
@@ -117,7 +110,6 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
   const activeCount =
     filters.coffeeBrands.length +
-    filters.priceLevels.length +
     (filters.minRating ? 1 : 0) +
     (filters.openNow ? 1 : 0) +
     (filters.openLate ? 1 : 0) +
@@ -125,7 +117,7 @@ export function useCafeFilters({ cafes = [], userCoords } = {}) {
 
   return {
     filters, sort, setSort, visibleCafes, filterCounts, activeCount,
-    setQuery, setSuburb, toggleCoffeeBrand, togglePriceLevel, setMinRating,
+    setQuery, setSuburb, toggleCoffeeBrand, setMinRating,
     toggleOpenNow, toggleOpenLate, reset,
   };
 }

@@ -5,24 +5,13 @@ export const COFFEE_BRANDS = [
   'Sensory Lab', 'Small Batch', 'Maker', 'Assembly', 'STREAT',
 ];
 
-export const FILTER_SECTIONS = [
-  {
-    id: 'coffeeBrands',
-    label: 'Coffee brands',
-    brands: true,
-  },
-  {
-    id: 'price',
-    label: 'Price',
-    price: true,
-  },
-];
-
-export const PRICE_LEVELS = [
-  { value: 1, label: '$' },
-  { value: 2, label: '$$' },
-  { value: 3, label: '$$$' },
-];
+export const BRAND_ALIASES = {
+  'Axil Coffee':        'Axil',
+  'Ona Coffee':         'Ona',
+  'Campos Coffee':      'Campos',
+  'Commonfolk Coffee':  'Commonfolk',
+  'Dukes Coffee':       'Dukes',
+};
 
 export const SORT_OPTIONS = [
   { value: 'rating',   label: 'Top rated' },
@@ -35,7 +24,6 @@ export const DEFAULT_FILTERS = {
   booleans:     {},
   enums:        {},
   coffeeBrands: [],
-  priceLevels:  [],
   minRating:    0,
   openNow:      false,
   openLate:     false,
