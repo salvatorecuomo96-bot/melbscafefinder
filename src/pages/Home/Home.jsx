@@ -256,9 +256,10 @@ export default function Home() {
             selectedId={previewCafe?.id}
             onSelect={(cafe) => {
               setPreviewCafe(cafe);
-              setDetailCafe(cafe); // Open detail when clicking map pin
+              setDetailCafe(cafe);
             }}
             userCoords={coords}
+            nearMeActive={nearMeActive}
           />
         </Suspense>
 
