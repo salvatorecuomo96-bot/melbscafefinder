@@ -94,11 +94,14 @@ function buildTooltipNode(cafe) {
   return wrapper;
 }
 
-export default function MapView({ cafes, selectedId, onSelect, userCoords, flyTrigger }) {
-  const containerRef  = useRef(null);
-  const mapRef        = useRef(null);
-  const cafesRef      = useRef(cafes);
-  const userMarkerRef = useRef(null);
+export default function MapView({ cafes, selectedId, onSelect, onDeselect, userCoords, flyTrigger }) {
+  const containerRef    = useRef(null);
+  const mapRef          = useRef(null);
+  const cafesRef        = useRef(cafes);
+  const onDeselectRef   = useRef(onDeselect);
+  const userMarkerRef   = useRef(null);
+
+  useEffect(() => { onDeselectRef.current = onDeselect; }, [onDeselect]);
   const [ready, setReady]         = useState(false);
   const [satellite, setSatellite] = useState(false);
 
@@ -139,6 +142,12 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords, flyTr
 
       map.on('click', 'clusters',      (e) => expandCluster(map, e.features[0]));
       map.on('click', 'cluster-counts', (e) => expandCluster(map, e.features[0]));
+
+      // Dismiss preview card when clicking empty map space
+      map.on('click', (e) => {
+        const hit = map.queryRenderedFeatures(e.point, { layers: ['pins', 'clusters', 'cluster-counts'] });
+        if (hit.length === 0) onDeselectRef.current?.();
+      });
 
       // ── Cursor ──────────────────────────────────────────────────────────
       ['clusters', 'cluster-counts', 'pins'].forEach((l) => {
