@@ -303,7 +303,7 @@ export default function Home() {
           />
         </Suspense>
 
-        {previewCafe && activeTab === 'map' && (
+        {previewCafe && (!sheetVisible || sheetSnap === 0) && (
           <CafePreviewCard
             cafe={previewCafe}
             onOpen={() => { setPreviewCafe(null); setDetailCafe(previewCafe); }}
