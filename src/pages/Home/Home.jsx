@@ -327,20 +327,6 @@ export default function Home() {
         </BottomSheet>
       )}
 
-      {!savedView && (
-        <button
-          className="layout__fab layout__fab--filters"
-          onClick={() => setDrawerOpen(true)}
-          aria-label="Open filters"
-        >
-          <FilterIcon />
-          Filters
-          {api.activeCount > 0 && (
-            <span className="layout__fab-badge">{api.activeCount}</span>
-          )}
-        </button>
-      )}
-
       <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} api={api} />
       <CafeDetail cafe={detailCafe} onClose={() => setDetailCafe(null)} isSaved={detailCafe ? isSaved(detailCafe.id) : false} onToggleSave={toggleSave} />
       <SubmitCafe open={submitOpen} onClose={() => setSubmitOpen(false)} />
