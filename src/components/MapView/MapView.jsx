@@ -94,7 +94,7 @@ function buildTooltipNode(cafe) {
   return wrapper;
 }
 
-export default function MapView({ cafes, selectedId, onSelect, userCoords, nearMeActive }) {
+export default function MapView({ cafes, selectedId, onSelect, userCoords, flyTrigger }) {
   const containerRef  = useRef(null);
   const mapRef        = useRef(null);
   const cafesRef      = useRef(cafes);
@@ -198,16 +198,16 @@ export default function MapView({ cafes, selectedId, onSelect, userCoords, nearM
     }
   }, [geoJSON, ready]);
 
-  // Fly to user location when Near me is activated
+  // Fly to user location each time Near me is pressed
   useEffect(() => {
-    if (!ready || !nearMeActive || !userCoords) return;
+    if (!ready || !flyTrigger || !userCoords) return;
     mapRef.current.flyTo({
       center: [userCoords.longitude, userCoords.latitude],
       zoom: Math.max(mapRef.current.getZoom(), 14),
       speed: 1.2,
       essential: true,
     });
-  }, [nearMeActive, userCoords, ready]);
+  }, [flyTrigger, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fly to selected
   useEffect(() => {
