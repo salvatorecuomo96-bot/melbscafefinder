@@ -274,7 +274,7 @@ export default function Home() {
           />
         )}
 
-        {activeTab === 'map' && (
+        {activeTab === 'map' && !previewCafe && (
           <button className="map-list-fab" onClick={() => setListOpen(true)}>
             <ListIcon />
             Cafes List
