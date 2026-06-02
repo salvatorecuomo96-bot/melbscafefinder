@@ -67,7 +67,8 @@ export default function Home() {
   );
 
   const nearMeActive = api.sort === 'distance';
-  const handleNearMe = () => { api.setSort('distance'); setFlyTrigger((n) => n + 1); };
+  const handleNearMeToggle = () => { api.setSort(nearMeActive ? 'rating' : 'distance'); setFlyTrigger((n) => n + 1); };
+  const handleNearMeMap = () => { api.setSort('distance'); setFlyTrigger((n) => n + 1); };
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
@@ -178,7 +179,7 @@ export default function Home() {
         hidden={activeTab !== 'explore'}
         geoStatus={geoStatus}
         nearMeActive={nearMeActive}
-        onNearMe={handleNearMe}
+        onNearMe={handleNearMeToggle}
       />
 
       {activeTab === 'saved' && (
@@ -236,7 +237,7 @@ export default function Home() {
               </button>
               <button
                 className="layout__action-btn"
-                onClick={handleNearMe}
+                onClick={handleNearMeMap}
                 disabled={geoStatus === 'asking'}
               >
                 <LocIcon />
@@ -259,8 +260,8 @@ export default function Home() {
                 Open now
               </button>
               <button
-                className="near-me-btn"
-                onClick={handleNearMe}
+                className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
+                onClick={handleNearMeToggle}
                 disabled={geoStatus === 'asking'}
               >
                 <LocIcon />
