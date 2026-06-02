@@ -1,6 +1,7 @@
 import SearchBar from '../SearchBar/SearchBar.jsx';
 import EmptyState from '../EmptyState/EmptyState.jsx';
 import SuburbPicker from '../SuburbPicker/SuburbPicker.jsx';
+import SortBar from '../SortBar/SortBar.jsx';
 import { getActiveFilterChips } from '../../utils/filterChips.js';
 import { formatDistance } from '../../utils/distance.js';
 import './MobileExplore.css';
@@ -86,18 +87,14 @@ export default function MobileExplore({
         )}
       </div>
 
-      <div className="mobile-explore__meta">
-        <span className="mobile-explore__count">
-          {total} {total === 1 ? 'cafe' : 'cafes'}
-          {api.filters.suburb ? ` in ${api.filters.suburb}` : ''}
-        </span>
-        <label className="mexplore__sort">
-          <span>Sort:</span>
-          <select value={api.sort} onChange={(e) => api.setSort(e.target.value)}>
-            <option value="rating">Top rated</option>
-            <option value="distance">Nearest</option>
-          </select>
-        </label>
+      <div style={{ padding: '0 10px' }}>
+        <SortBar 
+          sort={api.sort} 
+          onChange={api.setSort} 
+          count={total} 
+          shown={sorted.length} 
+          cap={GRID_CAP} 
+        />
       </div>
 
       <div className="mobile-explore__feed">
