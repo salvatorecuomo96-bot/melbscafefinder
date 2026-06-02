@@ -31,6 +31,7 @@ export default function Home() {
   const [previewCafe, setPreviewCafe]   = useState(null);
   const [detailCafe, setDetailCafe]     = useState(null);
   const [drawerOpen, setDrawerOpen]     = useState(false);
+  const [flyTrigger, setFlyTrigger]     = useState(0);
   const [submitOpen, setSubmitOpen]     = useState(false);
   const [savedView, setSavedView]       = useState(false);
   const [sheetSnap, setSheetSnap]       = useState(0);
@@ -62,7 +63,7 @@ export default function Home() {
   );
 
   const nearMeActive = api.sort === 'distance';
-  const handleNearMe = () => api.setSort(nearMeActive ? 'rating' : 'distance');
+  const handleNearMe = () => { api.setSort('distance'); setFlyTrigger((n) => n + 1); };
 
   const suburbs = useMemo(() =>
     [...new Set(rawCafes.map((c) => c.suburb).filter(Boolean))],
@@ -194,7 +195,7 @@ export default function Home() {
                 Open now
               </button>
               <button
-                className={`layout__action-btn${nearMeActive ? ' is-active' : ''}`}
+                className="layout__action-btn"
                 onClick={handleNearMe}
                 disabled={geoStatus === 'asking'}
               >
@@ -218,7 +219,7 @@ export default function Home() {
                 Open now
               </button>
               <button
-                className={`near-me-btn${nearMeActive ? ' is-active' : ''}`}
+                className="near-me-btn"
                 onClick={handleNearMe}
                 disabled={geoStatus === 'asking'}
               >
@@ -259,7 +260,7 @@ export default function Home() {
               setDetailCafe(cafe);
             }}
             userCoords={coords}
-            nearMeActive={nearMeActive}
+            flyTrigger={flyTrigger}
           />
         </Suspense>
 
